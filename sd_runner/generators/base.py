@@ -14,6 +14,7 @@ from sd_runner.globals import Globals, WorkflowType, SoftwareType, image_input_f
 
 from sd_runner.prompts.blacklist import Blacklist
 from sd_runner.prompts import similarity_choices
+from sd_runner.runs.failure_streak import failure_streak
 from sd_runner.runs.gen_config import GenConfig
 from lib.image_converter import convert_image_if_needed, cleanup_converter, clear_converter_cache
 from sd_runner.models.model import Model
@@ -727,6 +728,7 @@ class BaseImageGenerator(ABC):
                 logger.debug(f"Starting {task_fn.__name__}")
                 start_time = time.time()
                 result = task_fn(*args, **kwargs)
+                failure_streak.record_success()
                 logger.debug(f"Completed {task_fn.__name__} in {time.time()-start_time:.2f}s")
                 # Record recently used adapter files when a task completes
                 try:
@@ -738,6 +740,9 @@ class BaseImageGenerator(ABC):
                     logger.warning(f"Failed to record recent adapters: {e}")
                 return result
             except Exception as e:
+                # The future is never read, so this is the only place the run
+                # path can learn that the generation failed.
+                failure_streak.record_failure(e)
                 self._handle_error(e, task_fn.__name__)
                 raise
             finally:

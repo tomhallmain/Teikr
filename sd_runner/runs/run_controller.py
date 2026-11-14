@@ -25,6 +25,7 @@ import traceback
 import uuid
 
 from sd_runner.models.model import NoModelsFound
+from sd_runner.runs.failure_streak import PAUSE_AFTER_FAILURES, failure_streak
 from lib.logging_setup import get_logger
 from lib.translations import _
 from lib.utils import Utils
@@ -339,15 +340,20 @@ class RunController:
         app = self._app
         app.job_queue.job_running = False
         app.job_queue.running_job = None
+        self._pause_if_failing()
         next_job_args = app.job_queue.take()
 
         # A slot just opened; promote one staged server request into the main
         # queue now so staging and the main queue drain in parallel (FIFO order).
+        # Not while paused: the next job goes back to the front below, so no
+        # slot opened, and the promoted request would reach _enqueue_run, which
+        # unpauses a queue with pending jobs to start them.
         staging = getattr(app, "server_staging_queue", None)
         promoted = False
         skip_staging = self._skip_next_staging_promotion
         self._skip_next_staging_promotion = False
-        if not skip_staging and staging is not None and staging.has_pending():
+        if (not skip_staging and not app.job_queue.paused
+                and staging is not None and staging.has_pending()):
             staged = staging.take()
             if staged is not None:
                 command_type, staged_args, staged_client, staged_id = staged
@@ -371,6 +377,39 @@ class RunController:
         elif not promoted:
             Utils.prevent_sleep(False)
             app.app_actions.clear_progress()
+
+    def _pause_if_failing(self) -> None:
+        """Pause the queue after ``PAUSE_AFTER_FAILURES`` failed generations in a row.
+
+        GUI thread only, called from ``_post_run`` before it takes the next job.
+        Without it a backend that refuses every request consumes the whole
+        queue and staging, one failed run after another. Nothing is dropped:
+        the runs stay queued until the user resumes, which resets the count.
+        """
+        app = self._app
+        count, last_error = failure_streak.snapshot()
+        if count < PAUSE_AFTER_FAILURES or app.job_queue.paused:
+            return
+        staging = getattr(app, "server_staging_queue", None)
+        waiting = len(app.job_queue.pending_jobs) + (staging.pending_count() if staging is not None else 0)
+        if waiting == 0:
+            return
+        app.job_queue.paused = True
+        sidebar = getattr(app, "sidebar_panel", None)
+        if sidebar is not None:
+            sidebar.pause_queue_btn.setText(_("Resume Queue"))
+        message = _(
+            "{0} generations failed in a row, so the queue was paused with {1} runs "
+            "still waiting. Resume it once the backend works again.\n\nLast error: {2}"
+        ).format(count, waiting, last_error)
+        # The alert is modal. Shown from a worker it opens after _post_run has
+        # finished, so no nested event loop runs in the middle of the queue
+        # bookkeeping. It also writes the message to the log.
+        Utils.start_thread(self._alert_queue_paused, use_asyncio=False, args=[message])
+
+    def _alert_queue_paused(self, message: str) -> None:
+        """Worker body for ``_pause_if_failing``'s alert."""
+        self._on_main(self._app.notification_ctrl.alert, _("Queue Paused"), message, kind="error")
 
     def _run_async(self, run_args) -> None:
         from sd_runner.runs.run import Run
@@ -420,6 +459,9 @@ class RunController:
             self._handle_scheduled_shutdown(e)
         except Exception as e:
             traceback.print_exc()
+            # A run that fails before dispatching anything is a failure in a
+            # row as much as a generation that fails on the backend.
+            failure_streak.record_failure(e)
             app.current_run.cancel("Run failure")
             # Bridged: this method is the worker thread body, and the alert
             # builds a QMessageBox. Every other UI touch here goes out through
@@ -439,6 +481,8 @@ class RunController:
         app = self._app
         if app.job_queue.job_running:
             return
+        # The user resuming says the cause of a failure pause is dealt with.
+        failure_streak.reset()
         staging = getattr(app, "server_staging_queue", None)
         has_pending_jobs = bool(app.job_queue.pending_jobs)
         has_staging = staging is not None and staging.has_pending()
@@ -466,6 +510,8 @@ class RunController:
         """Toggle the queue pause state and update the sidebar button label."""
         app = self._app
         app.job_queue.paused = not app.job_queue.paused
+        if not app.job_queue.paused:
+            failure_streak.reset()
         label = _("Resume Queue") if app.job_queue.paused else _("Pause Queue")
         self._sp.pause_queue_btn.setText(label)
 

@@ -275,6 +275,14 @@ def _reset_class_state() -> None:
     except Exception:
         pass
 
+    # Module-level as well: failed generations count across runs, so failures
+    # in one test would pause the queue in the next.
+    try:
+        from sd_runner.runs.failure_streak import failure_streak
+        failure_streak.reset()
+    except Exception:
+        pass
+
     # Module-level too, and installed by constructing a HeadlessApp: left set,
     # it would answer the password gate for every test after the one that built
     # one. Imported only if already loaded, so this stays out of unit tests.
