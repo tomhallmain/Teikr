@@ -37,7 +37,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from sd_runner.globals import Globals  # noqa: E402
+from src.globals import Globals  # noqa: E402
 from lib.encryptor import (  # noqa: E402
     AUTO_BACKUP_KEY_STORE,
     ENCRYPTOR_TYPE_KEY,
@@ -113,7 +113,7 @@ def _stored_password_id() -> str:
     where the auth module is unavailable or mid-edit.
     """
     try:
-        from sd_runner.ui.auth.password_core import PasswordManager as AuthPasswordManager
+        from src.ui.auth.password_core import PasswordManager as AuthPasswordManager
         return AuthPasswordManager.PASSWORD_ID
     except Exception:
         return "base"

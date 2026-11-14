@@ -1,5 +1,5 @@
 import pytest
-from sd_runner.globals import (
+from src.globals import (
     ArchitectureType,
     BlacklistMode,
     BlacklistPromptMode,

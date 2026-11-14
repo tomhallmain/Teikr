@@ -8,7 +8,7 @@ another tool. The sets pair positionally: A[i] becomes B[i].
 
 import pytest
 
-from sd_runner.prompts.prompter import Prompter
+from src.prompts.prompter import Prompter
 
 
 # ---------------------------------------------------------------------------

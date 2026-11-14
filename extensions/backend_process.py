@@ -1,6 +1,6 @@
 """Run a diffusion backend as a managed subprocess.
 
-SD Runner starts the backend, pipes its output into the app log, waits for it
+Teikr starts the backend, pipes its output into the app log, waits for it
 to answer, and shuts it down on exit. Opt-in per backend: a backend with no
 launch command configured is never touched, and one that is already running is
 adopted rather than started a second time. A backend starts the first time a
@@ -14,7 +14,7 @@ own console -- and a wrong guess fails only after a long startup wait, which is
 worse than not trying. The command given is the one the user would type.
 
 **Only processes we started are stopped.** A backend that was already up when
-SD Runner launched is left running when it exits; taking down something the
+Teikr launched is left running when it exits; taking down something the
 user started themselves would be a surprise.
 """
 
@@ -28,7 +28,7 @@ import time
 from typing import Optional
 
 from extensions.backend_health import check, is_reachable
-from sd_runner.globals import SoftwareType
+from src.globals import SoftwareType
 from lib.logging_setup import get_logger
 from lib.utils import NO_CONSOLE_WINDOW
 
@@ -53,7 +53,7 @@ POLL_INTERVAL = 2
 STOP_GRACE = 3
 
 #: Config field holding each backend's install directory, used as the working
-#: directory its launch command runs from. Absent means run wherever SD Runner
+#: directory its launch command runs from. Absent means run wherever Teikr
 #: is, which suits a backend installed as a command rather than a checkout.
 LOC_FIELDS = {
     SoftwareType.ComfyUI: "comfyui_loc",
@@ -407,7 +407,7 @@ def starting_backends(backends) -> set:
 
 
 def configured_backends(config) -> list:
-    """The backends the user has asked SD Runner to launch.
+    """The backends the user has asked Teikr to launch.
 
     Keyed by ``SoftwareType`` name in ``backend_launch_commands``. An unknown
     or cloud name is reported and skipped rather than failing startup -- a typo

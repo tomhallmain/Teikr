@@ -6,8 +6,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
 
-from sd_runner.prompts.blacklist import Blacklist
-from sd_runner.prompts import blacklist_state
+from src.prompts.blacklist import Blacklist
+from src.prompts import blacklist_state
 
 # Set the input file path here for your use case. The runtime corpus is
 # encrypted (Concepts.URBAN_DICTIONARY_CORPUS_PATH); this splits a plain list.

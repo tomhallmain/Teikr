@@ -7,8 +7,8 @@ a switch to an NSFW mode is still validated as the previous mode.
 
 import pytest
 
-from sd_runner.globals import BlacklistPromptMode, PromptMode
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+from src.globals import BlacklistPromptMode, PromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
 
 
 @pytest.fixture

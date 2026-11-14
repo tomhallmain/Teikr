@@ -6,11 +6,11 @@ import os
 import time
 
 from extensions.hf_hub_api import ensure_hf_snapshot
-from sd_runner.config import config
+from src.config import config
 from lib.utils import Utils
 
 #: BLIP's visual question answering weights. The captioning half of BLIP is
-#: reached through sd_runner.image_to_prompt instead; this is the only caller
+#: reached through src.image_to_prompt instead; this is the only caller
 #: that asks questions rather than describing, so it loads its own model.
 VQA_REPO_ID = "Salesforce/blip-vqa-base"
 

@@ -11,10 +11,10 @@ from unittest.mock import MagicMock
 import pytest
 
 from lib.translations import _
-from sd_runner.runs import run_controller as rc
-from sd_runner.runs.failure_streak import PAUSE_AFTER_FAILURES, FailureStreak, failure_streak
-from sd_runner.runs.job_queue import SDRunsQueue, ServerStagingQueue
-from sd_runner.runs.run_controller import RunController
+from src.runs import run_controller as rc
+from src.runs.failure_streak import PAUSE_AFTER_FAILURES, FailureStreak, failure_streak
+from src.runs.job_queue import SDRunsQueue, ServerStagingQueue
+from src.runs.run_controller import RunController
 
 
 class DirectBridge:
@@ -76,7 +76,7 @@ class TestFailureStreak:
 class TestWrapTaskRecordsOutcomes:
     @staticmethod
     def wrapped(task_fn):
-        from sd_runner.generators.base import BaseImageGenerator
+        from src.generators.base import BaseImageGenerator
         fake = SimpleNamespace(
             _arm_pending_release=lambda: None,
             _timing_context=SimpleNamespace(),

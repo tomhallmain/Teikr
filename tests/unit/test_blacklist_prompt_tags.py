@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.blacklist import Blacklist, BlacklistItem
 
 
 def add_item(string: str, **kwargs) -> BlacklistItem:
@@ -123,7 +123,7 @@ class TestDetailedUserPromptChecking:
     @pytest.fixture(autouse=True)
     def empty_dictionary(self, monkeypatch):
         monkeypatch.setattr(
-            "sd_runner.prompts.concepts.Concepts.get_dictionary_set", lambda: set()
+            "src.prompts.concepts.Concepts.get_dictionary_set", lambda: set()
         )
 
     def test_an_applying_item_is_caught_through_obfuscation(self):

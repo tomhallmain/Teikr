@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
-import sd_runner.config as _cfg_module
-from sd_runner.config import Config
+import src.config as _cfg_module
+from src.config import Config
 
 
 # ---------------------------------------------------------------------------

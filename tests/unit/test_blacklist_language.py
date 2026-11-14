@@ -4,8 +4,8 @@ import csv
 
 import pytest
 
-from sd_runner.globals import BlacklistTextOrigin
-from sd_runner.prompts.blacklist import (
+from src.globals import BlacklistTextOrigin
+from src.prompts.blacklist import (
     Blacklist, BlacklistItem, ModelBlacklistItem, normalize_user_tag,
 )
 
@@ -178,11 +178,11 @@ class TestLanguagesInChecks:
         assert english == {}
 
     def test_items_with_a_language_take_no_part_in_the_suffix_check(self, monkeypatch):
-        monkeypatch.setattr("sd_runner.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
+        monkeypatch.setattr("src.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
         assert Blacklist.check_user_prompt_detailed("xwort") == {}
 
     def test_items_without_a_language_still_take_part(self, monkeypatch):
-        monkeypatch.setattr("sd_runner.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
+        monkeypatch.setattr("src.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
         Blacklist.TAG_BLACKLIST.append(BlacklistItem("global"))
         assert Blacklist.check_user_prompt_detailed("xglobal")
 

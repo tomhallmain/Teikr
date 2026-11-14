@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 from extensions.sd_runner_server import CommandType
-from sd_runner.runs.virtual_run_config import (
+from src.runs.virtual_run_config import (
     ATTRIBUTE_ONLY_FIELDS,
     apply_preset,
     apply_prompt_globals,
@@ -20,8 +20,8 @@ from sd_runner.runs.virtual_run_config import (
     build_virtual_run_config,
     escape_path,
 )
-from sd_runner.globals import PromptMode, WorkflowType
-from sd_runner.runs.runner_app_config import RunnerAppConfig
+from src.globals import PromptMode, WorkflowType
+from src.runs.runner_app_config import RunnerAppConfig
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ class TestBaseSnapshot:
 
     def test_resolution_group_is_accepted_by_its_own_parser(self, app_config):
         """The widget path passes a display description; the stored name also resolves."""
-        from sd_runner.globals import ResolutionGroup
+        from src.globals import ResolutionGroup
         args = base_args_from_app_config(app_config)
         assert ResolutionGroup.get(args["resolution_group"]) is not None
 
@@ -372,21 +372,21 @@ class TestApplyPromptGlobals:
     """Applied at the run's start, so a queued run uses its own values."""
 
     def test_it_sets_the_skip_chance_the_run_carries(self, monkeypatch):
-        from sd_runner.generators.base import BaseImageGenerator
+        from src.generators.base import BaseImageGenerator
         monkeypatch.setattr(BaseImageGenerator, "RANDOM_SKIP_CHANCE", 0.0)
         apply_prompt_globals(SimpleNamespace(random_skip_chance="0.75"))
         assert BaseImageGenerator.RANDOM_SKIP_CHANCE == 0.75
 
     def test_it_sets_the_tags_flag_the_run_carries(self):
-        from sd_runner.prompts.prompter import Prompter
+        from src.prompts.prompter import Prompter
         Prompter.set_tags_apply_to_start(True)
         apply_prompt_globals(SimpleNamespace(tags_apply_to_start=False))
         assert Prompter.TAGS_APPLY_TO_START is False
 
     def test_a_run_carrying_neither_leaves_them_alone(self, monkeypatch):
         """A config assembled outside both run paths carries nothing."""
-        from sd_runner.generators.base import BaseImageGenerator
-        from sd_runner.prompts.prompter import Prompter
+        from src.generators.base import BaseImageGenerator
+        from src.prompts.prompter import Prompter
         monkeypatch.setattr(BaseImageGenerator, "RANDOM_SKIP_CHANCE", 0.4)
         Prompter.set_tags_apply_to_start(False)
 
@@ -397,7 +397,7 @@ class TestApplyPromptGlobals:
 
     def test_an_unreadable_skip_chance_leaves_it_alone(self, monkeypatch):
         """Losing the run to a bad stored value would be the worse failure."""
-        from sd_runner.generators.base import BaseImageGenerator
+        from src.generators.base import BaseImageGenerator
         monkeypatch.setattr(BaseImageGenerator, "RANDOM_SKIP_CHANCE", 0.4)
         apply_prompt_globals(SimpleNamespace(random_skip_chance="not a number"))
         assert BaseImageGenerator.RANDOM_SKIP_CHANCE == 0.4

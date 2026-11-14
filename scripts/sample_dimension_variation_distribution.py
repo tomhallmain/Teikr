@@ -21,8 +21,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
 
-from sd_runner.models.resolution import Resolution  # noqa: E402
-from sd_runner.globals import ArchitectureType, ResolutionGroup  # noqa: E402
+from src.models.resolution import Resolution  # noqa: E402
+from src.globals import ArchitectureType, ResolutionGroup  # noqa: E402
 
 
 def _architecture(s: str) -> ArchitectureType:

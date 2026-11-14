@@ -1,5 +1,5 @@
 """
-Tests for sd_runner/source_prompts.py.
+Tests for src/source_prompts.py.
 
 SourcePrompt.has_valid_path() is pure logic.
 get_source_prompts() has two main branches:
@@ -8,7 +8,7 @@ get_source_prompts() has two main branches:
 """
 
 import pytest
-from sd_runner.models.source_prompts import SourcePrompt, get_source_prompts
+from src.models.source_prompts import SourcePrompt, get_source_prompts
 
 
 # ---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class TestSourcePromptHasValidPath:
 class TestGetSourcePromptsListBranch:
     def test_none_files_returns_empty(self, monkeypatch):
         # preset_source_prompts is [] by default
-        import sd_runner.models.source_prompts as sp_mod
+        import src.models.source_prompts as sp_mod
         monkeypatch.setattr(sp_mod, "preset_source_prompts", [])
         source_prompts, is_dir = get_source_prompts(None)
         assert source_prompts == []

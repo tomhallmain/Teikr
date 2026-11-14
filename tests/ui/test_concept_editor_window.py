@@ -14,9 +14,9 @@ gate on the editing actions.
 
 import pytest
 
-from sd_runner.prompts.concepts import Concepts
+from src.prompts.concepts import Concepts
 from tests.utils import install_password_bypass
-from sd_runner.ui.prompts.concept_editor_window import ConceptEditorWindow
+from src.ui.prompts.concept_editor_window import ConceptEditorWindow
 
 
 COLORS_FILE = "colors.txt"
@@ -235,7 +235,7 @@ class TestSaveThenDelete:
 class TestSaveBlacklistedConcept:
     @pytest.fixture(autouse=True)
     def _blacklist(self):
-        from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+        from src.prompts.blacklist import Blacklist, BlacklistItem
         Blacklist.add_item(BlacklistItem("blocked"))
 
     def _confirmations(self, editor):
@@ -259,7 +259,7 @@ class TestSaveBlacklistedConcept:
 
     def test_the_confirmation_does_not_name_the_blacklist_item(self, editor):
         """Revealing blacklist contents is its own password-protected action."""
-        from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+        from src.prompts.blacklist import Blacklist, BlacklistItem
         Blacklist.TAG_BLACKLIST.clear()
         Blacklist.add_item(BlacklistItem(r"secret\w*", use_regex=True))
         editor._search_edit.setText("secretive red")

@@ -17,9 +17,9 @@ import random
 
 import pytest
 
-from sd_runner.globals import PromptMode
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import Concepts, ConceptConfiguration
+from src.globals import PromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import Concepts, ConceptConfiguration
 
 
 VOCABULARY = [
@@ -196,7 +196,7 @@ class TestUrbanDictionaryCorpus:
         assert "slangword" in pool[0]
 
     def test_the_setting_turns_it_off_in_nsfw(self, pool, monkeypatch):
-        import sd_runner.prompts.concepts as concepts_module
+        import src.prompts.concepts as concepts_module
         monkeypatch.setattr(concepts_module.config, "nsfw_urban_dictionary", False)
 
         words(1, PromptMode.NSFW)

@@ -1,6 +1,6 @@
 import unittest
 
-from sd_runner.prompts.prompter import Prompter
+from src.prompts.prompter import Prompter
 
 
 class TestExtractInlineVars(unittest.TestCase):

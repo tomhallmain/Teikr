@@ -2,8 +2,8 @@ import argparse
 import os
 import sys
 
-from sd_runner.prompts.blacklist import Blacklist
-from sd_runner.prompts import blacklist_state
+from src.prompts.blacklist import Blacklist
+from src.prompts import blacklist_state
 
 # Ensure we are running from the project root for imports and relative paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

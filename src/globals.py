@@ -1,0 +1,770 @@
+from enum import Enum
+import os
+
+from src.config import config
+from extensions.image_data_extractor import ImageDataExtractor
+from lib.translations import _
+
+
+class PromptMode(Enum):
+    FIXED = "FIXED"
+    SFW = "SFW"
+    NSFW = "NSFW"
+    NSFL = "NSFL"
+    TAKE = "TAKE"
+    RANDOM = "RANDOM"
+    NONSENSE = "NONSENSE"
+    ANY_ART = "ANY_ART"
+    PAINTERLY = "PAINTERLY"
+    ANIME = "ANIME"
+    GLITCH = "GLITCH"
+    LIST = "LIST"
+    IMPROVE = "IMPROVE"
+
+    def __str__(self):
+        return self.value
+
+    def display(self):
+        return {
+            PromptMode.FIXED: _("Fixed"),
+            PromptMode.SFW: _("SFW"),
+            PromptMode.NSFW: _("NSFW"),
+            PromptMode.NSFL: _("NSFL"),
+            PromptMode.TAKE: _("Take"),
+            PromptMode.RANDOM: _("Random"),
+            PromptMode.NONSENSE: _("Nonsense"),
+            PromptMode.ANY_ART: _("Any Art"),
+            PromptMode.PAINTERLY: _("Painterly"),
+            PromptMode.ANIME: _("Anime"),
+            PromptMode.GLITCH: _("Glitch"),
+            PromptMode.LIST: _("List"),
+            PromptMode.IMPROVE: _("Improve"),
+        }[self]
+
+    @classmethod
+    def display_values(cls):
+        return [mode.display() for mode in cls]
+
+    @staticmethod
+    def get(name):
+        for key, value in PromptMode.__members__.items():
+            if key == name or value.display() == name:
+                return value
+        
+        raise Exception(f"Not a valid prompt mode: {name} (type: {type(name)})")
+
+    def is_nsfw(self):
+        return self in [PromptMode.NSFW, PromptMode.NSFL]
+
+
+class BlacklistMode(Enum):
+    REMOVE_WORD_OR_PHRASE = "REMOVE_WORD_OR_PHRASE"
+    REMOVE_ENTIRE_TAG = "REMOVE_ENTIRE_TAG"
+    REPLACE_WORD_OR_PHRASE = "REPLACE_WORD_OR_PHRASE"
+    FAIL_PROMPT = "FAIL_PROMPT"
+    LOG_ONLY = "LOG_ONLY"
+
+    def __str__(self):
+        return self.value
+
+    def display(self):
+        display_map = {
+            BlacklistMode.REMOVE_WORD_OR_PHRASE: _(u"Remove word/phrase (only the blacklisted part)"),
+            BlacklistMode.REMOVE_ENTIRE_TAG: _(u"Remove entire tag (if any part matches)"),
+            BlacklistMode.REPLACE_WORD_OR_PHRASE: _(u"Replace word/phrase (with a random allowed word)"),
+            BlacklistMode.FAIL_PROMPT: _(u"Fail prompt (block generation)"),
+            BlacklistMode.LOG_ONLY: _(u"Log only (do not remove, just log)"),
+        }
+        return display_map.get(self, str(self))
+
+    @staticmethod
+    def display_values():
+        return [mode.display() for mode in BlacklistMode]
+
+    @staticmethod
+    def from_display(display_str):
+        for mode in BlacklistMode:
+            if mode.display() == display_str:
+                return mode
+        raise ValueError(f"No BlacklistMode with display value '{display_str}'")
+
+class BlacklistTextOrigin(Enum):
+    """Where a text being checked against the blacklist came from."""
+    USER = "USER"
+    GENERATED = "GENERATED"
+    # A prompt taken from an image: no one here wrote it, so every item applies.
+    EXTERNAL = "EXTERNAL"
+
+
+class BlacklistPromptMode(Enum):
+    DISALLOW = "DISALLOW"
+    ALLOW_IN_NSFW = "ALLOW_IN_NSFW"
+
+    def __str__(self):
+        return self.value
+    
+    def display(self):
+        return {
+            BlacklistPromptMode.DISALLOW: _("Disallow"),
+            BlacklistPromptMode.ALLOW_IN_NSFW: _("Allow in NSFW"),
+        }[self]
+    
+    @classmethod
+    def display_values(cls):
+        return [mode.display() for mode in cls]
+    
+    @staticmethod
+    def from_display(display_str):
+        for mode in BlacklistPromptMode:
+            if mode.display() == display_str:
+                return mode
+        raise ValueError(f"No BlacklistPromptMode with display value '{display_str}'")
+
+
+class ModelBlacklistMode(Enum):
+    DISALLOW = "DISALLOW"
+    ALLOW_IN_NSFW = "ALLOW_IN_NSFW"
+
+    def __str__(self):
+        return self.value
+    
+    def display(self):
+        return {
+            ModelBlacklistMode.DISALLOW: _("Disallow"),
+            ModelBlacklistMode.ALLOW_IN_NSFW: _("Allow in NSFW"),
+        }[self]
+    
+    @classmethod
+    def display_values(cls):
+        return [mode.display() for mode in cls]
+    
+    @staticmethod
+    def from_display(display_str):
+        for mode in ModelBlacklistMode:
+            if mode.display() == display_str:
+                return mode
+        raise ValueError(f"No ModelBlacklistMode with display value '{display_str}'")
+
+
+class HfHubVisualMediaTask(Enum):
+    ALL_VISUAL_MEDIA = ""
+    TEXT_TO_IMAGE = "text-to-image"
+    IMAGE_TO_IMAGE = "image-to-image"
+    IMAGE_TO_TEXT = "image-to-text"
+    IMAGE_CLASSIFICATION = "image-classification"
+    ZERO_SHOT_IMAGE_CLASSIFICATION = "zero-shot-image-classification"
+    OBJECT_DETECTION = "object-detection"
+    IMAGE_SEGMENTATION = "image-segmentation"
+    DEPTH_ESTIMATION = "depth-estimation"
+    VISUAL_QUESTION_ANSWERING = "visual-question-answering"
+    VIDEO_CLASSIFICATION = "video-classification"
+    TEXT_TO_VIDEO = "text-to-video"
+    IMAGE_FEATURE_EXTRACTION = "image-feature-extraction"
+
+    def __str__(self):
+        return self.value
+
+    def display(self):
+        return {
+            HfHubVisualMediaTask.ALL_VISUAL_MEDIA: _("All visual media"),
+            HfHubVisualMediaTask.TEXT_TO_IMAGE: _("Text to Image"),
+            HfHubVisualMediaTask.IMAGE_TO_IMAGE: _("Image to Image"),
+            HfHubVisualMediaTask.IMAGE_TO_TEXT: _("Image to Text"),
+            HfHubVisualMediaTask.IMAGE_CLASSIFICATION: _("Image Classification"),
+            HfHubVisualMediaTask.ZERO_SHOT_IMAGE_CLASSIFICATION: _("Zero-shot Image Classification"),
+            HfHubVisualMediaTask.OBJECT_DETECTION: _("Object Detection"),
+            HfHubVisualMediaTask.IMAGE_SEGMENTATION: _("Image Segmentation"),
+            HfHubVisualMediaTask.DEPTH_ESTIMATION: _("Depth Estimation"),
+            HfHubVisualMediaTask.VISUAL_QUESTION_ANSWERING: _("Visual Question Answering"),
+            HfHubVisualMediaTask.VIDEO_CLASSIFICATION: _("Video Classification"),
+            HfHubVisualMediaTask.TEXT_TO_VIDEO: _("Text to Video"),
+            HfHubVisualMediaTask.IMAGE_FEATURE_EXTRACTION: _("Image Feature Extraction"),
+        }[self]
+
+    @classmethod
+    def display_values(cls):
+        return [item.display() for item in cls]
+
+    @staticmethod
+    def get(name):
+        for key, value in HfHubVisualMediaTask.__members__.items():
+            if key == name or value.value == name or value.display() == name:
+                return value
+        raise Exception(f"Not a valid HF Hub visual media task: {name}")
+
+    @staticmethod
+    def api_values():
+        return [item.value for item in HfHubVisualMediaTask if item != HfHubVisualMediaTask.ALL_VISUAL_MEDIA]
+
+
+class HfHubSortOption(Enum):
+    DOWNLOADS = "downloads"
+    LIKES = "likes"
+    LAST_MODIFIED = "lastModified"
+    CREATED_AT = "createdAt"
+    TRENDING_SCORE = "trendingScore"
+
+    def __str__(self):
+        return self.value
+
+    def display(self):
+        return {
+            HfHubSortOption.DOWNLOADS: _("Downloads"),
+            HfHubSortOption.LIKES: _("Likes"),
+            HfHubSortOption.LAST_MODIFIED: _("Last Modified"),
+            HfHubSortOption.CREATED_AT: _("Created At"),
+            HfHubSortOption.TRENDING_SCORE: _("Trending Score"),
+        }[self]
+
+    @classmethod
+    def display_values(cls):
+        return [item.display() for item in cls]
+
+    @staticmethod
+    def get(name):
+        for key, value in HfHubSortOption.__members__.items():
+            if key == name or value.value == name or value.display() == name:
+                return value
+        raise Exception(f"Not a valid HF Hub sort option: {name}")
+
+
+class HfHubSortDirection(Enum):
+    DESCENDING = -1
+    ASCENDING = 1
+
+    def __str__(self):
+        return str(self.value)
+
+    def display(self):
+        return {
+            HfHubSortDirection.DESCENDING: _("Descending"),
+            HfHubSortDirection.ASCENDING: _("Ascending"),
+        }[self]
+
+    @classmethod
+    def display_values(cls):
+        return [item.display() for item in cls]
+
+    @staticmethod
+    def get(name):
+        for key, value in HfHubSortDirection.__members__.items():
+            if key == name or str(value.value) == str(name) or value.display() == name:
+                return value
+        raise Exception(f"Not a valid HF Hub sort direction: {name}")
+
+
+class Globals:
+    SERVICE_NAME = "MyPersonalApplicationsService"
+    APP_IDENTIFIER = "sd_runner"
+    #: Identifiers this app has used before. Key material is filed per
+    #: identifier, so a rename orphans the old keys and everything encrypted
+    #: under them -- an old name listed here keeps scripts/key_material.py
+    #: reporting and backing it up. Empty: this app has never been renamed.
+    LEGACY_APP_IDENTIFIERS = ()
+    #: Seed of the keys the files shipped in src/data are encrypted with
+    #: (the default blacklist, the Urban Dictionary corpus). Kept apart from
+    #: APP_IDENTIFIER so that renaming the app cannot change it: a new value
+    #: makes those files unreadable until both are encrypted again with the
+    #: scripts that write them.
+    SHIPPED_DATA_KEY_ID = "sd_runner"
+    HOME = os.path.expanduser("~")
+    DEFAULT_PROMPT_MODE = PromptMode.get(config.get("default_prompt_mode", "FIXED"))
+    DEFAULT_WORKFLOW = config.get("default_workflow", "simple_image_gen.json")
+    DEFAULT_MODEL = config.get("default_model", "analogMadness_v60.safetensors")
+    DEFAULT_N_LATENTS = config.get("default_n_latents", 1)
+    DEFAULT_POSITIVE_PROMPT = config.get("default_positive_prompt", "")
+    DEFAULT_NEGATIVE_PROMPT = config.get("default_negative_prompt", "")
+    POSITIVE_PROMPT_MASSAGE_TAGS = None # Used for models trained with quality tags in positive prompt
+    DEFAULT_B_W_COLORIZATION = config.get("default_b_w_colorization", "")
+    DEFAULT_LORA_STRENGTH = config.get("default_lora_strength", 0.6)
+    DEFAULT_CONTROL_NET_STRENGTH = config.get("default_controlnet_strength", 0.95)
+    DEFAULT_IPADAPTER_STRENGTH = config.get("default_ipadapter_strength", 0.5)
+    DEFAULT_RESOLUTION_TAG = config.get("default_resolution_tag", "square")
+    DEFAULT_RESOLUTION_WIDTH = config.get("default_resolution_width", 512)
+    DEFAULT_RESOLUTION_HEIGHT = config.get("default_resolution_height", 512)
+    MODEL_PROMPT_TAGS_NEGATIVE = config.get("model_prompt_tags_negative", True)
+    MODEL_PROMPT_TAGS_POSITIVE = config.get("model_prompt_tags_positive", True)
+    OVERRIDE_BASE_NEGATIVE = config.get("override_base_negative", False)
+    SKIP_CONFIRMATIONS = config.get("skip_confirmations", False)
+    PRINT_NEGATIVES = config.get("print_negatives", False)
+    PROMPTER_GET_SPECIFIC_LOCATIONS = config.get("prompter_get_specific_locations", True)
+    PROMPTER_GET_SPECIFIC_TIMES = config.get("prompter_get_specific_times", True)
+    GENERATION_DELAY_TIME_SECONDS = 10
+    #: Held between run-loop iterations when ``config.force_delay`` is off and
+    #: the backend is already idle, so a backend that fails instantly cannot
+    #: be retried at full loop speed. Lives here rather than on Run so the
+    #: time estimator can account for it without utils importing src.
+    MINIMUM_PACING_SECONDS = 1
+    TIME_ESTIMATION_CONFIRMATION_THRESHOLD_SECONDS = 30 * 60  # 30 minutes default threshold
+    image_data_extractor = None
+
+    @classmethod
+    def set_prompt_massage_tags(cls, tags):
+        cls.POSITIVE_PROMPT_MASSAGE_TAGS = tags
+
+    @classmethod
+    def get_image_data_extractor(cls):
+        if cls.image_data_extractor is None:
+            cls.image_data_extractor = ImageDataExtractor()
+        return cls.image_data_extractor
+
+    @classmethod
+    def set_lora_strength(cls, strength):
+        cls.DEFAULT_LORA_STRENGTH = strength
+
+    @classmethod
+    def set_ipadapter_strength(cls, strength):
+        cls.DEFAULT_IPADAPTER_STRENGTH = strength
+
+    @classmethod
+    def set_controlnet_strength(cls, strength):
+        cls.DEFAULT_CONTROL_NET_STRENGTH = strength
+
+    @classmethod
+    def set_override_base_negative(cls, override_negative):
+        cls.OVERRIDE_BASE_NEGATIVE = override_negative
+
+    @classmethod
+    def set_delay(cls, delay):
+        cls.GENERATION_DELAY_TIME_SECONDS = delay
+
+    @classmethod
+    def set_time_estimation_threshold(cls, threshold_seconds):
+        cls.TIME_ESTIMATION_CONFIRMATION_THRESHOLD_SECONDS = threshold_seconds
+
+
+class WorkflowType(Enum):
+    SIMPLE_IMAGE_GEN = "simple_image_gen.json"
+    SIMPLE_IMAGE_GEN_LORA = "simple_image_gen_lora.json"
+    SIMPLE_IMAGE_GEN_TILED_UPSCALE = "simple_image_gen_tiled_upscale.json"
+    ELLA = "ella.json"
+    INSTANT_LORA = "instant_lora.json"
+    IP_ADAPTER = "ip_adapter.json"
+    IMG2IMG = "img2img.json"
+    IMAGE_EDIT = "image_flux2_klein_image_edit_4b_base.json"
+    CONTROLNET = "controlnet.json"
+    INPAINT_CLIPSEG = "inpaint_clipseg.json"
+    ANIMATE_DIFF = "animate_diff.json"
+    RENOISER = "renoiser.json"
+    TURBO = "turbo2.json"
+    UPSCALE_SIMPLE = "upscale_image.json"
+    UPSCALE_BETTER = "upscale_better.json"
+    REDO_PROMPT = "redo_prompt"
+
+    def get_translation(self):
+        return {
+            WorkflowType.SIMPLE_IMAGE_GEN: _("Simple Image Gen"),
+            WorkflowType.SIMPLE_IMAGE_GEN_LORA: _("Simple Image Gen Lora"),
+            WorkflowType.SIMPLE_IMAGE_GEN_TILED_UPSCALE: _("Simple Image Gen Tiled Upscale"),
+            WorkflowType.ELLA: _("Ella"),
+            WorkflowType.INSTANT_LORA: _("Instant Lora"),
+            WorkflowType.IP_ADAPTER: _("IP Adapter"),
+            WorkflowType.IMG2IMG: _("Image to Image"),
+            WorkflowType.IMAGE_EDIT: _("Image Edit"),
+            WorkflowType.CONTROLNET: _("ControlNet"),
+            WorkflowType.INPAINT_CLIPSEG: _("Inpaint ClipSeg"),
+            WorkflowType.ANIMATE_DIFF: _("Animate Diff"),
+            WorkflowType.RENOISER: _("Renoiser"),
+            WorkflowType.TURBO: _("Turbo"),
+            WorkflowType.UPSCALE_SIMPLE: _("Upscale Simple"),
+            WorkflowType.UPSCALE_BETTER: _("Upscale Better"),
+            WorkflowType.REDO_PROMPT: _("Redo Prompt"),
+        }[self]
+
+    @staticmethod
+    def get(name):
+        for key, value in WorkflowType.__members__.items():
+            if key.upper() == name.upper() or value.get_translation() == name:
+                return value
+        
+        # Fallback: try to match by partial value (e.g., "instant_lora" matches "instant_lora.json")
+        for workflow_type in WorkflowType.__members__.values():
+            if name.lower() in workflow_type.value.lower():
+                return workflow_type
+                
+        raise Exception(f"Not a valid workflow type: {name}")
+
+
+#: Workflows that take an input image, grouped by the field the image goes in.
+#: Between them they name every workflow with an image dependency, which is what
+#: makes them the eligibility test for anything that has an image and needs to
+#: know where it belongs -- a server request carrying one, or a second
+#: derivative feeding a generated image back in.
+#: Workflows whose primary input image arrives on the ``control_net`` adapter.
+#: Membership follows the field the workflow method actually reads, not the node
+#: type it ends up wired to: the upscales and clipseg inpaint all take their
+#: image as ``control_net`` and rename it (``upscale_image``, ``inpaint_image``)
+#: only when building the prompt.
+CONTROL_NET_IMAGE_WORKFLOWS = (
+    WorkflowType.CONTROLNET,
+    WorkflowType.RENOISER,
+    WorkflowType.REDO_PROMPT,
+    WorkflowType.INPAINT_CLIPSEG,
+    WorkflowType.UPSCALE_SIMPLE,
+    WorkflowType.UPSCALE_BETTER,
+)
+
+#: Workflows whose primary input image arrives on the ``ip_adapter`` adapter.
+#: Instant LoRA reads both adapters and is listed here because the ip_adapter
+#: image is its content reference, while its control_net image is structural
+#: guidance a derived pass should leave alone.
+IP_ADAPTER_IMAGE_WORKFLOWS = (
+    WorkflowType.IP_ADAPTER,
+    WorkflowType.IMG2IMG,
+    WorkflowType.IMAGE_EDIT,
+    WorkflowType.INSTANT_LORA,
+)
+
+
+def image_input_field(workflow_type) -> str | None:
+    """Which adapter field carries *workflow_type*'s primary input image, or None.
+
+    None means no single field owns an input image, which is the test for
+    whether an image-dependent feature applies to the workflow at all.
+
+    ANIMATE_DIFF deliberately answers None despite reading both adapters: they
+    are the two ends of an interpolation rather than one image to substitute,
+    and it emits a frame per generation, so a feature that re-runs the workflow
+    once per output image would multiply an animation by its own frame count.
+    """
+    if workflow_type in CONTROL_NET_IMAGE_WORKFLOWS:
+        return "control_net"
+    if workflow_type in IP_ADAPTER_IMAGE_WORKFLOWS:
+        return "ip_adapter"
+    return None
+
+
+class PromptTypeSDWebUI(Enum):
+    TXT2IMG = "txt2img.json"
+    TXT2IMG_LORA  = "txt2img.json"
+    TXT2IMG_REFINER = "txt2img_refiner.json"
+    UPSCALE_SIMPLE = "upscale_image.json"
+    CONTROLNET = "controlnet.json"
+    IMG2IMG = "img2img.json"
+    IMG2IMG_CONTROLNET = "img2img_controlnet.json"
+
+    @staticmethod
+    def convert_to_sd_webui_filename(filename):
+        this_workflow_type = None
+        for key, workflow_type in WorkflowType.__members__.items():
+            if workflow_type.value == filename:
+                this_workflow_type = workflow_type
+        if this_workflow_type == WorkflowType.IP_ADAPTER:
+            return PromptTypeSDWebUI.IMG2IMG.value
+        elif this_workflow_type == WorkflowType.CONTROLNET:
+            return PromptTypeSDWebUI.CONTROLNET.value
+        elif this_workflow_type == WorkflowType.INSTANT_LORA:
+            return PromptTypeSDWebUI.IMG2IMG_CONTROLNET.value
+        else:
+            return PromptTypeSDWebUI.TXT2IMG.value
+
+class Sampler(Enum):
+    ACCEPT_ANY = "Any"
+    EULER = "euler"
+    EULER_ANCESTRAL = "euler_ancestral"
+    DPM_2 = "dpm_2"
+    DPM_2_ANCESTRAL = "dpm_2_ancestral"
+    DPMPP_SDE = "dpmpp_sde"
+    DPMPP_SDE_GPU = "dpmpp_sde_gpu"
+    DPMPP_2M = "dpmpp_2m"
+    DPMPP_2M_SDE = "dpmpp_2m_sde"
+    DPMPP_2M_SDE_GPU = "dpmpp_2m_sde_gpu"
+    DPMPP_3M_SDE = "dpmpp_3m_sde"
+    DPMPP_3M_SDE_GPU = "dpmpp_3m_sde_gpu"
+    DDIM = "ddim"
+    DDPM = "ddpm"
+    LCM = "lcm"
+
+    def __str__(self):
+        return self.name
+    
+    def display(self):
+        """Get the display value for this sampler type."""
+        return {
+            Sampler.ACCEPT_ANY: _("Any"),
+            Sampler.EULER: _("Euler"),
+            Sampler.EULER_ANCESTRAL: _("Euler Ancestral"),
+            Sampler.DPM_2: _("DPM 2"),
+            Sampler.DPM_2_ANCESTRAL: _("DPM 2 Ancestral"),
+            Sampler.DPMPP_SDE: _("DPM++ SDE"),
+            Sampler.DPMPP_SDE_GPU: _("DPM++ SDE GPU"),
+            Sampler.DPMPP_2M: _("DPM++ 2M"),
+            Sampler.DPMPP_2M_SDE: _("DPM++ 2M SDE"),
+            Sampler.DPMPP_2M_SDE_GPU: _("DPM++ 2M SDE GPU"),
+            Sampler.DPMPP_3M_SDE: _("DPM++ 3M SDE"),
+            Sampler.DPMPP_3M_SDE_GPU: _("DPM++ 3M SDE GPU"),
+            Sampler.DDIM: _("DDIM"),
+            Sampler.DDPM: _("DDPM"),
+            Sampler.LCM: _("LCM"),
+        }[self]
+    
+    @classmethod
+    def display_values(cls):
+        """Get all display values for samplers."""
+        return [sampler.display() for sampler in cls]
+    
+    @staticmethod
+    def from_display(display_str):
+        """Get Sampler from display string."""
+        for sampler in Sampler:
+            if sampler.display() == display_str:
+                return sampler
+        raise ValueError(f"No Sampler with display value '{display_str}'")
+    
+    @classmethod
+    def get(cls, name):
+        if isinstance(name, cls):
+            return name
+        elif isinstance(name, str):
+            try:
+                return cls[name]
+            except KeyError:
+                # Try to get from display value if enum name lookup fails
+                try:
+                    return cls.from_display(name)
+                except ValueError:
+                    raise ValueError(f"Invalid enum value for class {cls.__name__}: {name} (type: {type(name)})")
+        raise ValueError(f"Invalid enum value for class {cls.__name__}: {name} (type: {type(name)})")
+
+
+class Scheduler(Enum):
+    ACCEPT_ANY = "Any"
+    NORMAL = "normal"
+    KARRAS = "karras"
+    SIMPLE = "simple"
+    EXPONENTIAL = "exponential"
+    SGM_UNIFORM = "sgm_uniform"
+    DDIM_UNIFORM = "ddim_uniform"
+
+    def __str__(self):
+        return self.name
+    
+    def display(self):
+        """Get the display value for this scheduler type."""
+        return {
+            Scheduler.ACCEPT_ANY: _("Any"),
+            Scheduler.NORMAL: _("Normal"),
+            Scheduler.KARRAS: _("Karras"),
+            Scheduler.SIMPLE: _("Simple"),
+            Scheduler.EXPONENTIAL: _("Exponential"),
+            Scheduler.SGM_UNIFORM: _("SGM Uniform"),
+            Scheduler.DDIM_UNIFORM: _("DDIM Uniform"),
+        }[self]
+    
+    @classmethod
+    def display_values(cls):
+        """Get all display values for schedulers."""
+        return [scheduler.display() for scheduler in cls]
+    
+    @staticmethod
+    def from_display(display_str):
+        """Get Scheduler from display string."""
+        for scheduler in Scheduler:
+            if scheduler.display() == display_str:
+                return scheduler
+        raise ValueError(f"No Scheduler with display value '{display_str}'")
+    
+    @classmethod
+    def get(cls, name):
+        if isinstance(name, cls):
+            return name
+        elif isinstance(name, str):
+            try:
+                return cls[name]
+            except KeyError:
+                # Try to get from display value if enum name lookup fails
+                try:
+                    return cls.from_display(name)
+                except ValueError:
+                    raise ValueError(f"Invalid enum value for class {cls.__name__}: {name} (type: {type(name)})")
+        raise ValueError(f"Invalid enum value for class {cls.__name__}: {name} (type: {type(name)})")
+
+
+class ComfyNodeName:
+    LOAD_CHECKPOINT = "CheckpointLoaderSimple"
+    UNET_LOADER = "UNETLoader"
+    LOAD_IMAGE = "LoadImage"
+    LOAD_IMAGE_MASK = "LoadImageMask"
+    LOAD_LORA = "LoraLoader"
+    LOAD_VAE = "VAELoader"
+    SAVE_IMAGE = "SaveImage"
+    PREVIEW_IMAGE = "PreviewImage"
+    EMPTY_LATENT = "EmptyLatentImage"
+    EMPTY_LATENT_SD3 = "EmptySD3LatentImage"
+    KSAMPLER = "KSampler"
+    KSAMPLER_ADVANCED = "KSamplerAdvanced"
+    SAMPLER_CUSTOM = "SamplerCustom"
+    IP_ADAPTER = "IPAdapter"
+    IP_ADAPTER_ADVANCED = "IPAdapterAdvanced"
+    IP_ADAPTER_MODEL_LOADER = "IPAdapterModelLoader"
+    IMAGE_DUPLICATOR = "ImageDuplicator"
+    IMPACT_WILDCARD_PROCESSOR = "ImpactWildcardProcessor"
+    CLIP_SEG = "CLIPSeg"
+    CONTROL_NET = "ControlNetApply"
+    CLIP_TEXT_ENCODE = "CLIPTextEncode"
+    CLIP_VISION = "CLIPVisionLoader"
+    IMAGE_SCALE_TO_SIDE = "Image scale to side"
+    IMAGE_SCALE = "ImageScale"
+    ELLA_T5_EMBEDS = "ella_t5_embeds"
+    ELLA_SAMPLER = "ella_sampler"
+    BASIC_SCHEDULER = "BasicScheduler"
+    FLUX2_SCHEDULER = "Flux2Scheduler"
+    SAMPLER_CUSTOM_ADVANCED = "SamplerCustomAdvanced"
+    EMPTY_FLUX2_LATENT = "EmptyFlux2LatentImage"
+    MINIMAX_H3_IMAGE_TO_VIDEO = "MiniMaxH3ImageToVideo"
+
+
+class SoftwareType(Enum):
+    ComfyUI = "ComfyUI"
+    SDWebUI = "SDWebUI"
+    StabilityAI = "StabilityAI"
+    BFLFlux = "BFLFlux"
+    FalAI = "FalAI"
+    HuggingFace = "HuggingFace"
+    Forge = "Forge"
+    SDNext = "SDNext"
+    Replicate = "Replicate"
+    OpenAI = "OpenAI"
+    Grok = "Grok"
+    GoogleImagen = "GoogleImagen"
+    Ideogram = "Ideogram"
+    SwarmUI = "SwarmUI"
+    InvokeAI = "InvokeAI"
+    Fooocus = "Fooocus"
+
+    def is_cloud(self) -> bool:
+        return self not in SoftwareType.local_types()
+
+    @classmethod
+    def local_types(cls) -> tuple["SoftwareType", ...]:
+        """Backends that run on this machine and can be started from a command."""
+        return (
+            cls.ComfyUI,
+            cls.SDWebUI,
+            cls.Forge,
+            cls.SDNext,
+            cls.SwarmUI,
+            cls.InvokeAI,
+            cls.Fooocus,
+        )
+
+class ArchitectureType(Enum):
+    SD_15 = "SD_15"
+    SDXL = "SDXL"
+    ILLUSTRIOUS = "ILLUSTRIOUS"
+    TURBO = "TURBO"
+    FLUX = "FLUX"
+    # Enum name stays FLUX2_KLEIN so saved presets keep resolving.
+    FLUX2_KLEIN = "FLUX2_KLEIN"
+    FLUX2_KLEIN_4B = "FLUX2_KLEIN_4B"
+    FLUX3 = "FLUX3"
+    KREA2 = "KREA2"
+    MINIMAX_H3 = "MINIMAX_H3"
+    CHROMA = "CHROMA"
+    Z_IMAGE_TURBO = "Z_IMAGE_TURBO"
+    QWEN = "QWEN"
+    UNKNOWN = "UNKNOWN"
+
+    def is_xl(self):
+        return self == ArchitectureType.SDXL or self == ArchitectureType.ILLUSTRIOUS
+
+    def display(self):
+        """Get the display value for this architecture type."""
+        return {
+            ArchitectureType.SD_15: _("SD 1.5"),
+            ArchitectureType.SDXL: _("SDXL"),
+            ArchitectureType.ILLUSTRIOUS: _("Illustrious"),
+            ArchitectureType.TURBO: _("Turbo"),
+            ArchitectureType.FLUX: _("Flux"),
+            ArchitectureType.FLUX2_KLEIN: _("Flux.2 Klein 9B"),
+            ArchitectureType.FLUX2_KLEIN_4B: _("Flux.2 Klein 4B"),
+            ArchitectureType.FLUX3: _("Flux.3"),
+            ArchitectureType.KREA2: _("Krea 2"),
+            ArchitectureType.MINIMAX_H3: _("MiniMax H3"),
+            ArchitectureType.CHROMA: _("Chroma"),
+            ArchitectureType.Z_IMAGE_TURBO: _("ZImageTurbo"),
+            ArchitectureType.QWEN: _("Qwen"),
+            ArchitectureType.UNKNOWN: _("Unknown"),
+        }[self]
+
+    @classmethod
+    def display_values(cls):
+        """Get all display values for architecture types."""
+        return [arch_type.display() for arch_type in cls]
+
+    @staticmethod
+    def from_display(display_str):
+        """Get ArchitectureType from display string."""
+        for arch_type in ArchitectureType:
+            if arch_type.display() == display_str:
+                return arch_type
+        raise ValueError(f"No ArchitectureType with display value '{display_str}'")
+
+
+class ResolutionGroup(Enum):
+    FIFTEEN_THIRTY_SIX = "1536"
+    THIRTEEN_TWENTY_EIGHT = "1328"
+    TEN_TWENTY_FOUR = "1024"
+    SEVEN_SIXTY_EIGHT = "768"
+    FIVE_ONE_TWO = "512"
+
+    def get_description(self):
+        return {
+            ResolutionGroup.FIFTEEN_THIRTY_SIX: _("1536"),
+            ResolutionGroup.THIRTEEN_TWENTY_EIGHT: _("1328"),
+            ResolutionGroup.TEN_TWENTY_FOUR: _("1024"),
+            ResolutionGroup.SEVEN_SIXTY_EIGHT: _("768"),
+            ResolutionGroup.FIVE_ONE_TWO: _("512"),
+        }[self]
+
+    @classmethod
+    def display_values(cls):
+        return [rg.get_description() for rg in cls]
+
+    @staticmethod
+    def get(name):
+        for key, value in ResolutionGroup.__members__.items():
+            if key.upper() == name.upper() or value.get_description() == name:
+                return value
+        raise Exception(f"Not a valid resolution group: {name}")
+
+
+class ProtectedActions(Enum):
+    """Enumeration of actions that can be password protected."""
+    OPEN_APPLICATION = "open_application"
+    NSFW_PROMPTS = "nsfw_prompts"
+    TAKE_PROMPT = "take_prompt"
+    EDIT_BLACKLIST = "edit_blacklist"
+    REVEAL_BLACKLIST_CONCEPTS = "reveal_blacklist_concepts"
+    EDIT_SCHEDULES = "edit_schedules"
+    EDIT_TIMED_SCHEDULES = "edit_timed_schedules"
+    EDIT_EXPANSIONS = "edit_expansions"
+    EDIT_PRESETS = "edit_presets"
+    EDIT_CONCEPTS = "edit_concepts"
+    ACCESS_ADMIN = "access_admin"
+    
+    @staticmethod
+    def get_action(action_name: str):
+        """Get the ProtectedActions enum value for a given action name."""
+        try:
+            return ProtectedActions(action_name.lower().replace(" ", "_"))
+        except ValueError:
+            return None
+
+    def get_description(self):
+        """Get the user-friendly description for this action."""
+        descriptions = {
+            ProtectedActions.OPEN_APPLICATION: _("Open Application"),
+            ProtectedActions.NSFW_PROMPTS: _("NSFW/NSFL Prompt Modes"),
+            ProtectedActions.TAKE_PROMPT: _("Take Prompt Mode (unfiltered image prompts)"),
+            ProtectedActions.EDIT_BLACKLIST: _("Edit Blacklist"),
+            ProtectedActions.REVEAL_BLACKLIST_CONCEPTS: _("Reveal Blacklist Concepts"),
+            ProtectedActions.EDIT_SCHEDULES: _("Edit Schedules"),
+            ProtectedActions.EDIT_TIMED_SCHEDULES: _("Edit Timed Schedules"),
+            ProtectedActions.EDIT_EXPANSIONS: _("Edit Expansions"),
+            ProtectedActions.EDIT_PRESETS: _("Edit Presets"),
+            ProtectedActions.EDIT_CONCEPTS: _("Edit Concepts"),
+            ProtectedActions.ACCESS_ADMIN: _("Access Password Administration"),
+        }
+        return descriptions.get(self, self.value)
+

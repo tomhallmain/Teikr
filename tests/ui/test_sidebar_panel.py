@@ -4,9 +4,9 @@ expansion and the blacklist check."""
 import pytest
 from PySide6.QtCore import Qt
 
-from sd_runner.config import config
-from sd_runner.persistence.app_info_cache import app_info_cache
-from sd_runner.ui.app_window.sidebar_panel import SidebarPanel
+from src.config import config
+from src.persistence.app_info_cache import app_info_cache
+from src.ui.app_window.sidebar_panel import SidebarPanel
 
 KEY = SidebarPanel.NEGATIVE_TAGS_COLLAPSED_KEY
 

@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from sd_runner.globals import HfHubSortDirection, HfHubSortOption, HfHubVisualMediaTask
+from src.globals import HfHubSortDirection, HfHubSortOption, HfHubVisualMediaTask
 from lib.logging_setup import get_logger
 
 logger = get_logger("image_to_prompt.model_download")

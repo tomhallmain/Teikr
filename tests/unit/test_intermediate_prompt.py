@@ -5,9 +5,9 @@ from the main configuration. These cover the saved list, the live state that a
 run reads, and the single seam the run path will call.
 """
 
-from sd_runner.presets.intermediate_prompt import IntermediatePrompt
-from sd_runner.presets.presets_state import PresetsState
-from sd_runner.globals import WorkflowType
+from src.presets.intermediate_prompt import IntermediatePrompt
+from src.presets.presets_state import PresetsState
+from src.globals import WorkflowType
 
 
 def _prompt(name="bw", positive="black and white", **kwargs):

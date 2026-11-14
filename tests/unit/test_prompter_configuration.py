@@ -1,7 +1,7 @@
 import pytest
-from sd_runner.prompts.concepts import ConceptConfiguration
-from sd_runner.prompts.prompter_configuration import LegacyPrompterConfiguration, PrompterConfiguration
-from sd_runner.globals import PromptMode
+from src.prompts.concepts import ConceptConfiguration
+from src.prompts.prompter_configuration import LegacyPrompterConfiguration, PrompterConfiguration
+from src.globals import PromptMode
 
 
 def make_config(**kwargs) -> PrompterConfiguration:

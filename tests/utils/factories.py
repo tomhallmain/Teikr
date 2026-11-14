@@ -15,14 +15,14 @@ dependency a test does not want:
   receive loop can be driven without binding a port.
 """
 
-from sd_runner.runs.gen_config import GenConfig
-from sd_runner.models.model import Model
-from sd_runner.prompts.prompter import Prompter
-from sd_runner.prompts.prompter_configuration import PrompterConfiguration
-from sd_runner.models.resolution import Resolution
-from sd_runner.runs.run_config import RunConfig
-from sd_runner.presets.schedule import PresetTask, Schedule
-from sd_runner.globals import PromptMode
+from src.runs.gen_config import GenConfig
+from src.models.model import Model
+from src.prompts.prompter import Prompter
+from src.prompts.prompter_configuration import PrompterConfiguration
+from src.models.resolution import Resolution
+from src.runs.run_config import RunConfig
+from src.presets.schedule import PresetTask, Schedule
+from src.globals import PromptMode
 
 
 def make_model(id="model.safetensors", path="some/path", **kwargs) -> Model:
@@ -124,7 +124,7 @@ def make_schedule(name="Test Schedule", tasks=()):
 
 def make_app_actions():
     """An AppActions with a no-op callback bound to every required action."""
-    from sd_runner.ui.app_actions import AppActions
+    from src.ui.app_actions import AppActions
 
     def noop(*args, **kwargs):
         return None

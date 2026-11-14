@@ -1,8 +1,8 @@
 from enum import Enum
 from multiprocessing.connection import Listener
 
-from sd_runner.config import config
-from sd_runner.globals import WorkflowType
+from src.config import config
+from src.globals import WorkflowType
 from lib.logging_setup import get_logger
 
 logger = get_logger("sd_runner_server")
@@ -118,9 +118,9 @@ class SDRunnerServer:
         # Resolved at call time via a local import rather than the module-level
         # `config` binding (or a parameter default, which is bound once at
         # first import): tests swap in a fresh Config instance per test by
-        # patching the sd_runner.config.config attribute, and only a fresh lookup
+        # patching the src.config.config attribute, and only a fresh lookup
         # of that attribute picks up the swap.
-        from sd_runner.config import config as _config
+        from src.config import config as _config
         self._running = False
         self._is_stopping = False
         self._host = host if host is not None else _config.server_host

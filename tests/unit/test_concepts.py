@@ -1,15 +1,15 @@
 import random
 import pytest
 
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import (
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import (
     ConceptConfiguration,
     ConceptsFile,
     Concepts,
     weighted_sample_without_replacement,
     sample,
 )
-from sd_runner.globals import PromptMode
+from src.globals import PromptMode
 
 
 # ---------------------------------------------------------------------------
@@ -483,7 +483,7 @@ class TestAffixCategories:
 
     def test_they_are_off_by_default(self):
         """They would be nonsense in a prompt until something attaches them."""
-        from sd_runner.prompts.prompter_configuration import PrompterConfiguration
+        from src.prompts.prompter_configuration import PrompterConfiguration
 
         config = PrompterConfiguration()
         for name in ("prefixes", "suffixes"):
@@ -515,7 +515,7 @@ class TestMissingCategoryFile:
 
     def test_the_absence_is_reported_once(self, caplog):
         """Every prompt generation loads every file; warning each time is noise."""
-        from sd_runner.prompts import concepts as concepts_module
+        from src.prompts import concepts as concepts_module
         from tests.utils import captured_logs
 
         concepts_module.Concepts._missing_files_reported.clear()
@@ -539,7 +539,7 @@ class TestGetArtStyles:
         assert concepts.get_art_styles(max_styles=2) == []
 
     def test_the_absence_is_reported_once(self, monkeypatch, caplog):
-        from sd_runner.prompts import concepts as concepts_module
+        from src.prompts import concepts as concepts_module
         from tests.utils import captured_logs
 
         marker = f"art-styles:{Concepts.CONCEPTS_DIR}"

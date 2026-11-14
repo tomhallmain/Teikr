@@ -18,9 +18,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.ui.prompts.blacklist_modify_window import BlacklistModifyWindow
-from sd_runner.ui.prompts.blacklist_window import BlacklistWindow
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.ui.prompts.blacklist_modify_window import BlacklistModifyWindow
+from src.ui.prompts.blacklist_window import BlacklistWindow
 from tests.utils import close_window, install_password_bypass
 
 

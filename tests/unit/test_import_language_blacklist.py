@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from sd_runner.prompts.blacklist import BlacklistItem
+from src.prompts.blacklist import BlacklistItem
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LIST_DIR = os.path.join(REPO_ROOT, "docs", "Sperrliste-Verbesserungen")

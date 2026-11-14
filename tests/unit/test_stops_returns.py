@@ -1,8 +1,8 @@
 import random
 import unittest
 
-from sd_runner.prompts.prompter import Prompter
-from sd_runner.prompts.prompter_configuration import PrompterConfiguration
+from src.prompts.prompter import Prompter
+from src.prompts.prompter_configuration import PrompterConfiguration
 
 
 def _prompter(

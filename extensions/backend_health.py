@@ -3,7 +3,7 @@
 The one place that knows where to ask each backend. Two features need this and
 would otherwise each carry their own copy of the table: launching a backend as
 a subprocess has to poll until it is ready (and skip launching one that is
-already up), and a client asking SD Runner whether a backend is operational
+already up), and a client asking Teikr whether a backend is operational
 needs the same question answered.
 
 This is connectivity only -- the process is running and its API responds. It
@@ -20,8 +20,8 @@ import time
 from typing import NamedTuple, Optional
 from urllib import error, request
 
-from sd_runner.config import config
-from sd_runner.globals import SoftwareType
+from src.config import config
+from src.globals import SoftwareType
 from lib.logging_setup import get_logger
 
 logger = get_logger("backend_health")
@@ -250,7 +250,7 @@ def _swarmui_functional(base: str, budget: _Budget) -> HealthResult:
     # is an instance method and would fetch one as a side effect.
     session = None
     try:
-        from sd_runner.generators.swarmui import SwarmUIGen
+        from src.generators.swarmui import SwarmUIGen
         session = SwarmUIGen._session_id
     except Exception as e:
         logger.debug(f"Could not read the SwarmUI session: {e}")

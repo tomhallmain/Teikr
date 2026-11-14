@@ -1,5 +1,5 @@
 """
-SD Runner -- headless entry point.
+Teikr -- headless entry point.
 
 Serves the request front ends with no window: the same servers over the same
 run path, driven by ``HeadlessApp`` in place of ``AppWindow``. Requests that
@@ -20,14 +20,14 @@ import threading
 import time
 import traceback
 
-from sd_runner.runtime.oqs_path import point_oqs_at_bundled_library
+from src.runtime.oqs_path import point_oqs_at_bundled_library
 
 point_oqs_at_bundled_library()
 
-from sd_runner.config import config
-from sd_runner.runtime.crash_log import enable_fault_log
-from sd_runner.runtime.unpack_cleanup import remove_stale_unpack_dirs
-from sd_runner.runtime.version import describe as describe_version, source_drift
+from src.config import config
+from src.runtime.crash_log import enable_fault_log
+from src.runtime.unpack_cleanup import remove_stale_unpack_dirs
+from src.runtime.version import APP_NAME, describe as describe_version, source_drift
 from lib.logging_setup import get_logger
 from lib.translations import I18N
 from lib.utils import Utils
@@ -49,7 +49,7 @@ def _report_source_drift():
 
 def _smoke_test(expect_oqs: bool = False) -> int:
     """Check that a build can serve, without binding a port. Returns an exit code."""
-    from sd_runner.runtime.smoke_test import SmokeTest
+    from src.runtime.smoke_test import SmokeTest
 
     smoke = SmokeTest()
     smoke.run_common(expect_oqs=expect_oqs)
@@ -57,7 +57,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
     def servers():
         from extensions.mcp_server import MCPServerExtension
         from extensions.sd_runner_server import SDRunnerServer
-        from sd_runner.runs.headless_app import HeadlessApp
+        from src.runs.headless_app import HeadlessApp
 
         app = HeadlessApp()
         run_ctrl = app.run_ctrl
@@ -96,8 +96,8 @@ def main():
 
     I18N.install_locale(config.locale, verbose=config.print_settings)
 
-    from sd_runner.generators.base import BaseImageGenerator
-    from sd_runner.runs.headless_app import HeadlessApp
+    from src.generators.base import BaseImageGenerator
+    from src.runs.headless_app import HeadlessApp
 
     BaseImageGenerator.cleanup_image_converter()
 
@@ -160,7 +160,7 @@ def main():
         cleanup_lock()
         return 1
 
-    logger.info("SD Runner is serving headless")
+    logger.info(f"{APP_NAME} is serving headless")
     threading.Thread(target=remove_stale_unpack_dirs, name="unpack-cleanup", daemon=True).start()
     threading.Thread(target=_report_source_drift, name="source-drift", daemon=True).start()
     try:

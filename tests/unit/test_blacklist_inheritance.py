@@ -4,10 +4,10 @@ import json
 
 import pytest
 
-from sd_runner.globals import BlacklistMode, PromptMode
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concept_sets import SourceAnchors
-from sd_runner.prompts.concepts import Concepts
+from src.globals import BlacklistMode, PromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concept_sets import SourceAnchors
+from src.prompts.concepts import Concepts
 
 ANCHORS = SourceAnchors({"Kuss": frozenset({"kiss"}), "Fluss": frozenset({"river"})}, None, "anchors")
 

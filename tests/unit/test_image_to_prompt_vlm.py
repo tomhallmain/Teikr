@@ -8,14 +8,14 @@ none of this downloads or runs a 14 GB checkpoint.
 
 import pytest
 
-from sd_runner.image_to_prompt import ImageToPromptBackend, ImageToPromptService
-from sd_runner.image_to_prompt.providers.llava_transformers import (
+from src.image_to_prompt import ImageToPromptBackend, ImageToPromptService
+from src.image_to_prompt.providers.llava_transformers import (
     LlavaTransformersImpl,
     strip_lead_in,
 )
-from sd_runner.image_to_prompt.providers.vlm_provider import VLMProvider
-from sd_runner.image_to_prompt.registry import ImageToPromptProviderRegistry
-from sd_runner.image_to_prompt.types import ImageToPromptRequest
+from src.image_to_prompt.providers.vlm_provider import VLMProvider
+from src.image_to_prompt.registry import ImageToPromptProviderRegistry
+from src.image_to_prompt.types import ImageToPromptRequest
 
 
 class FakeVlmImpl:

@@ -5,9 +5,9 @@ import os
 
 import pytest
 
-import sd_runner.app_paths as app_paths
-from sd_runner.runtime import crash_log, version
-from sd_runner.runtime.smoke_test import SmokeTest
+import src.app_paths as app_paths
+from src.runtime import crash_log, version
+from src.runtime.smoke_test import SmokeTest
 
 
 @pytest.fixture
@@ -21,12 +21,12 @@ def resources(tmp_path, monkeypatch):
 class TestVersion:
     def test_a_checkout_has_no_build_info(self):
         assert version.build_info() == {}
-        assert version.describe() == f"SD Runner {version.app_version()} (source checkout)"
+        assert version.describe() == f"{version.APP_NAME} {version.app_version()} (source checkout)"
         assert version.source_drift() is None
 
     def test_the_version_is_read_from_the_version_file(self, resources):
         assert version.app_version() == "1.2.3"
-        assert version.describe() == "SD Runner 1.2.3 (source checkout)"
+        assert version.describe() == f"{version.APP_NAME} 1.2.3 (source checkout)"
 
     def test_a_missing_version_file_is_described_not_raised(self, resources):
         (resources / version.VERSION_FILE).unlink()
@@ -40,7 +40,7 @@ class TestVersion:
             "source": {"repo": str(resources), "commit": "0123456789abcdef", "changes": ""},
         }), encoding="utf-8")
         line = version.describe()
-        assert line.startswith("SD Runner 1.2.3, ")
+        assert line.startswith(f"{version.APP_NAME} 1.2.3, ")
         assert "build 20260101-000000" in line
         assert "0123456789" in line
         assert "PySide6 6.10.1" in line
@@ -104,7 +104,7 @@ class TestFaultLog:
             assert path == os.path.join(str(tmp_path), "logs", crash_log.FAULT_LOG_NAME)
             assert enabled and enabled[0]["all_threads"]
             with open(path, encoding="utf-8") as f:
-                assert "SD Runner" in f.read()
+                assert version.APP_NAME in f.read()
         finally:
             crash_log._fault_log.close()
 

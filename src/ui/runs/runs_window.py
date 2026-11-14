@@ -1,0 +1,549 @@
+"""
+RunsWindow -- queue and history viewer for image generation runs.
+
+Queue tab: live view of the currently running job and pending jobs.
+History tab: searchable log of past run configurations with restore.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtWidgets import (
+    QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
+    QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget,
+)
+
+from lib.multi_display_qt import SmartDialog
+from src.persistence.app_info_cache import app_info_cache
+from lib.logging_setup import get_logger
+from src.runs.runner_app_config import RunnerAppConfig
+from lib.translations import _
+
+if TYPE_CHECKING:
+    from src.ui.app_actions import AppActions
+
+logger = get_logger("ui.runs_window")
+
+_QUEUE_REFRESH_MS = 2000
+
+# Combo item data, not the translated label. The two queues do not store a
+# client the same way: a pending run records run_origin (empty client ids
+# become "server"), a staged request keeps the client id it arrived with.
+FILTER_EDIT_SUFFIX = "edit_suffix"
+FILTER_ORIGIN = "origin"
+
+
+def _fmt_timestamp(ts: str) -> str:
+    try:
+        return ts[:19].replace("T", " ")
+    except Exception:
+        return str(ts)
+
+
+def _short(value: str, max_len: int = 40) -> str:
+    s = str(value or "")
+    return s if len(s) <= max_len else s[:max_len - 1] + "…"
+
+
+def pending_filter_value(run_config, field: str) -> str:
+    """The string a pending-job filter compares, or "" when the field is absent.
+
+    Exact, and stripped: a suffix or a client id is an identifier, and a
+    deletion that treated the query as a substring would remove neighbours.
+    """
+    if field == FILTER_EDIT_SUFFIX:
+        raw = getattr(run_config, "edit_suffix", "")
+    elif field == FILTER_ORIGIN:
+        raw = getattr(run_config, "run_origin", "")
+    else:
+        return ""
+    return str(raw or "").strip()
+
+
+def staging_filter_value(entry, field: str) -> str:
+    """The string a staged-request filter compares.
+
+    The suffix lives in the request args, because a staged request has not
+    been turned into a run yet. The client id is the third slot, still
+    unresolved -- an empty id is not the "server" origin a pending run would
+    show. An entry of an unexpected shape matches nothing.
+    """
+    try:
+        if field == FILTER_EDIT_SUFFIX:
+            args = entry[1]
+            if isinstance(args, dict):
+                raw = args.get("edit_suffix", "")
+            else:
+                raw = getattr(args, "edit_suffix", "")
+        elif field == FILTER_ORIGIN:
+            raw = entry[2]
+        else:
+            return ""
+    except (IndexError, TypeError):
+        return ""
+    return str(raw or "").strip()
+
+
+def _origin(run_config) -> str:
+    """Which client a run came from, for the Origin column.
+
+    Blank for the user's own runs, so the column only draws the eye to a run
+    nobody started from this window. ``run_origin`` is carried on the run
+    itself and survives a restore, so a queue rebuilt from the cache still
+    names the client. Runs built outside either run path may not set it.
+
+    Deliberately not ``run_id``: every run has one of those, including the
+    user's own, so a column showing it would be full of opaque hex for rows
+    whose whole point is that they came from somewhere else.
+    """
+    return _short(str(getattr(run_config, "run_origin", "") or ""), 24)
+
+
+class RunsWindow(SmartDialog):
+    """PySide6 queue + history browser for image generation runs."""
+
+    _instance = None
+
+    def __init__(self, parent, app_actions: AppActions):
+        super().__init__(parent=parent, title=_("Runs"), geometry="1020x560")
+        RunsWindow._instance = self
+        self._app = parent
+        self._app_actions = app_actions
+
+        self._tabs = QTabWidget()
+        queue_page = QWidget()
+        history_page = QWidget()
+        saved_page = QWidget()
+        self._tabs.addTab(queue_page, _("Queue"))
+        self._tabs.addTab(history_page, _("History"))
+        self._tabs.addTab(saved_page, _("Saved Runs"))
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(12, 12, 12, 12)
+        root.addWidget(self._tabs)
+
+        self._build_queue_tab(queue_page)
+        self._build_history_tab(history_page)
+
+        QShortcut(QKeySequence("Escape"), self, self.close)
+
+        self._refresh_timer = QTimer(self)
+        self._refresh_timer.timeout.connect(self._refresh_queue)
+        self._refresh_timer.start(_QUEUE_REFRESH_MS)
+
+        self._tabs.currentChanged.connect(self._on_tab_changed)
+
+        self._refresh_queue()
+        self.show()
+
+    # ==================================================================
+    # Queue tab
+    # ==================================================================
+
+    def _build_queue_tab(self, page: QWidget) -> None:
+        layout = QVBoxLayout(page)
+        layout.setSpacing(8)
+
+        self._queue_status_label = QLabel(_("Status: Idle"))
+        self._queue_status_label.setStyleSheet("font-weight: bold;")
+        layout.addWidget(self._queue_status_label)
+
+        self._running_tree = self._make_tree(
+            [_("Workflow"), _("Model"), _("N"), _("Total"), _("Origin"), _("Status")],
+            page,
+        )
+        self._running_tree.setMaximumHeight(80)
+        layout.addWidget(QLabel(_("Currently Running")))
+        layout.addWidget(self._running_tree)
+
+        layout.addWidget(QLabel(_("Pending Jobs")))
+        self._pending_tree = self._make_tree(
+            [_("#"), _("Workflow"), _("Model"), _("N"), _("Total"), _("Batch"),
+             _("Origin"), _("Positive Tags")],
+            page,
+        )
+        layout.addWidget(self._pending_tree)
+
+        self._queue_preset_label = QLabel("")
+        self._queue_preset_label.setStyleSheet("font-style: italic;")
+        layout.addWidget(self._queue_preset_label)
+
+        layout.addWidget(QLabel(_("Server Staging Queue")))
+        # "Command", not "Workflow": staging holds CommandType members, and
+        # several of them (take_prompt, last_settings) select no workflow.
+        self._staging_tree = self._make_tree(
+            [_("#"), _("Command"), _("Origin"), _("Args")],
+            page,
+        )
+        self._staging_tree.setMaximumHeight(120)
+        layout.addWidget(self._staging_tree)
+
+        # One row for both lists. The button bar below is already full, and
+        # the two queues are matched on the same identifiers, so a second
+        # control set under each tree would only repeat this one. Not labelled
+        # "Filter": on the history tab that word hides rows, and this deletes.
+        filter_row = QHBoxLayout()
+        self._remove_field = QComboBox()
+        self._remove_field.addItem(_("Edit Suffix"), FILTER_EDIT_SUFFIX)
+        self._remove_field.addItem(_("Origin"), FILTER_ORIGIN)
+        self._remove_field.setToolTip(
+            _("Edit Suffix is the suffix stored on the job or staged request. "
+              "Origin is the client id shown in the Origin column.")
+        )
+        filter_row.addWidget(self._remove_field)
+        self._remove_value = QLineEdit()
+        self._remove_value.setPlaceholderText(_("exact value"))
+        self._remove_value.returnPressed.connect(self._remove_matching)
+        filter_row.addWidget(self._remove_value, stretch=1)
+        remove_btn = QPushButton(_("Remove Matching"))
+        remove_btn.setToolTip(
+            _("Remove pending jobs and staged requests that match exactly")
+        )
+        remove_btn.clicked.connect(self._remove_matching)
+        filter_row.addWidget(remove_btn)
+        layout.addLayout(filter_row)
+
+        btn_row = QHBoxLayout()
+        refresh_btn = QPushButton(_("Refresh"))
+        refresh_btn.clicked.connect(self._refresh_queue)
+        btn_row.addWidget(refresh_btn)
+        pause_btn = QPushButton(_("Pause Queue"))
+        pause_btn.setToolTip(_("Pause after the current job completes"))
+        pause_btn.clicked.connect(self._pause_queue)
+        btn_row.addWidget(pause_btn)
+        resume_btn = QPushButton(_("Resume Queue"))
+        resume_btn.setToolTip(_("Start processing pending jobs"))
+        resume_btn.clicked.connect(self._resume_queue)
+        btn_row.addWidget(resume_btn)
+        edit_btn = QPushButton(_("Edit Pending"))
+        edit_btn.setToolTip(_("Edit N and Total counts for the selected pending job"))
+        edit_btn.clicked.connect(self._edit_pending_job)
+        btn_row.addWidget(edit_btn)
+        cancel_btn = QPushButton(_("Cancel Current Run"))
+        cancel_btn.clicked.connect(self._cancel_run)
+        btn_row.addWidget(cancel_btn)
+        cancel_all_btn = QPushButton(_("Cancel All"))
+        cancel_all_btn.clicked.connect(self._cancel_all)
+        btn_row.addWidget(cancel_all_btn)
+        cancel_staging_btn = QPushButton(_("Cancel Staging"))
+        cancel_staging_btn.setToolTip(_("Clear the server staging queue"))
+        cancel_staging_btn.clicked.connect(self._cancel_staging)
+        btn_row.addWidget(cancel_staging_btn)
+        close_btn = QPushButton(_("Close"))
+        close_btn.clicked.connect(self.close)
+        btn_row.addWidget(close_btn)
+        btn_row.addStretch()
+        layout.addLayout(btn_row)
+
+    def _refresh_queue(self) -> None:
+        app = self._app
+        job_queue = getattr(app, "job_queue", None)
+        current_run = getattr(app, "current_run", None)
+
+        # -- running job --
+        self._running_tree.clear()
+        is_running = job_queue is not None and job_queue.job_running
+        if is_running and current_run is not None and not current_run.is_complete:
+            args = current_run.args
+            status = _("Running")
+            if current_run.is_cancelled:
+                status = _("Cancelled")
+            wf = str(getattr(args, "workflow_tag", ""))
+            model = _short(str(getattr(args, "model_tags", "")), 30)
+            n = str(getattr(args, "n_latents", ""))
+            total = str(getattr(args, "total", ""))
+            item = QTreeWidgetItem(
+                self._running_tree, [wf, model, n, total, _origin(args), status]
+            )
+            item.setForeground(5, self.palette().highlight().color())
+            self._queue_status_label.setText(_("Status: Running"))
+        elif job_queue is not None and job_queue.paused and job_queue.pending_jobs:
+            self._queue_status_label.setText(
+                _("Status: Paused — {0} restored job(s) from previous session").format(
+                    len(job_queue.pending_jobs)
+                )
+            )
+        else:
+            self._queue_status_label.setText(_("Status: Idle"))
+
+        # -- pending jobs --
+        self._pending_tree.clear()
+        if job_queue is not None:
+            for idx, run_config in enumerate(job_queue.pending_jobs):
+                wf = str(getattr(run_config, "workflow_tag", ""))
+                model = _short(str(getattr(run_config, "model_tags", "")), 30)
+                n = str(getattr(run_config, "n_latents", ""))
+                total = str(getattr(run_config, "total", ""))
+                batch = str(getattr(run_config, "batch_limit", "") or "")
+                pos = _short(str(getattr(run_config, "positive_prompt", "") or ""), 40)
+                QTreeWidgetItem(
+                    self._pending_tree,
+                    [str(idx + 1), wf, model, n, total, batch, _origin(run_config), pos],
+                )
+
+        # -- preset schedules --
+        preset_queue = getattr(app, "job_queue_preset_schedules", None)
+        if preset_queue is not None and preset_queue.has_pending():
+            text = preset_queue.pending_text() or ""
+            self._queue_preset_label.setText(text)
+        else:
+            self._queue_preset_label.setText("")
+
+        # -- server staging queue --
+        self._staging_tree.clear()
+        staging = getattr(app, "server_staging_queue", None)
+        if staging is not None:
+            for idx, entry in enumerate(staging._requests):
+                # The run id rides along in the fourth slot; the Origin column
+                # wants the client that asked, which is the third.
+                command_type, req_args, client_id = entry[0], entry[1], entry[2]
+                name = str(
+                    command_type.name if hasattr(command_type, "name") else command_type or ""
+                )
+                args_str = _short(str(req_args), 60)
+                QTreeWidgetItem(
+                    self._staging_tree, [str(idx + 1), name, _short(client_id, 24), args_str]
+                )
+
+    def _remove_matching(self) -> None:
+        query = (self._remove_value.text() or "").strip()
+        if not query:
+            self._app_actions.toast(_("Enter a filter value first"))
+            return
+
+        field = self._remove_field.currentData()
+        job_queue = getattr(self._app, "job_queue", None)
+        pending_removed = 0
+        if job_queue is not None:
+            pending_removed = job_queue.remove_matching(
+                lambda job: pending_filter_value(job, field) == query
+            )
+        staging = getattr(self._app, "server_staging_queue", None)
+        staging_removed = 0
+        if staging is not None:
+            staging_removed = staging.remove_matching(
+                lambda entry: staging_filter_value(entry, field) == query
+            )
+        self._refresh_queue()
+        if pending_removed == 0 and staging_removed == 0:
+            self._app_actions.toast(_("No matching queue entries"))
+            return
+        self._app_actions.toast(
+            _("Removed {0} pending job(s) and {1} staged request(s)").format(
+                pending_removed, staging_removed
+            )
+        )
+
+    def _edit_pending_job(self) -> None:
+        job_queue = getattr(self._app, "job_queue", None)
+        if job_queue is None:
+            return
+
+        selected = self._pending_tree.currentItem()
+        if selected is None:
+            self._app_actions.toast(_("Select a pending job first"))
+            return
+
+        row = self._pending_tree.indexOfTopLevelItem(selected)
+        if row < 0 or row >= len(job_queue.pending_jobs):
+            return
+
+        run_config = job_queue.pending_jobs[row]
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(_("Edit Pending Job"))
+        layout = QFormLayout(dialog)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
+
+        n_spin = QSpinBox()
+        n_spin.setRange(1, 9999)
+        n_spin.setValue(int(getattr(run_config, "n_latents", 1) or 1))
+        layout.addRow(_("N (images per run):"), n_spin)
+
+        total_spin = QSpinBox()
+        total_spin.setRange(1, 9999)
+        total_spin.setValue(int(getattr(run_config, "total", 1) or 1))
+        layout.addRow(_("Total (runs):"), total_spin)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addRow(buttons)
+
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        run_config.n_latents = n_spin.value()
+        run_config.total = total_spin.value()
+        self._refresh_queue()
+
+    def _pause_queue(self) -> None:
+        self._app.job_queue.paused = True
+        self._refresh_queue()
+
+    def _resume_queue(self) -> None:
+        self._app.run_ctrl.resume_paused_queue()
+        self._refresh_queue()
+
+    def _cancel_run(self) -> None:
+        try:
+            self._app_actions.cancel()
+        except Exception as e:
+            logger.warning(f"Cancel failed: {e}")
+        self._refresh_queue()
+
+    def _cancel_all(self) -> None:
+        try:
+            self._app_actions.cancel()
+            job_queue = getattr(self._app, "job_queue", None)
+            if job_queue is not None:
+                job_queue.cancel()
+            preset_queue = getattr(self._app, "job_queue_preset_schedules", None)
+            if preset_queue is not None:
+                preset_queue.cancel()
+            staging = getattr(self._app, "server_staging_queue", None)
+            if staging is not None:
+                staging.cancel()
+        except Exception as e:
+            logger.warning(f"Cancel all failed: {e}")
+        self._refresh_queue()
+
+    def _cancel_staging(self) -> None:
+        staging = getattr(self._app, "server_staging_queue", None)
+        if staging is not None:
+            staging.cancel()
+        self._refresh_queue()
+
+    # ==================================================================
+    # History tab
+    # ==================================================================
+
+    def _build_history_tab(self, page: QWidget) -> None:
+        layout = QVBoxLayout(page)
+        layout.setSpacing(8)
+
+        frow = QHBoxLayout()
+        frow.addWidget(QLabel(_("Filter")))
+        self._hist_filter = QLineEdit()
+        self._hist_filter.setPlaceholderText(_("workflow, model, or tags…"))
+        self._hist_filter.textChanged.connect(self._refresh_history)
+        frow.addWidget(self._hist_filter)
+        layout.addLayout(frow)
+
+        self._hist_tree = self._make_tree(
+            [_("Time"), _("Workflow"), _("Model"), _("Positive Tags"), _("N"), _("Total")],
+            page,
+        )
+        self._hist_tree.itemDoubleClicked.connect(self._restore_selected)
+        layout.addWidget(self._hist_tree)
+
+        btn_row = QHBoxLayout()
+        restore_btn = QPushButton(_("Restore to Sidebar"))
+        restore_btn.clicked.connect(self._restore_selected)
+        btn_row.addWidget(restore_btn)
+        refresh_btn = QPushButton(_("Refresh"))
+        refresh_btn.clicked.connect(self._refresh_history)
+        btn_row.addWidget(refresh_btn)
+        close_btn = QPushButton(_("Close"))
+        close_btn.clicked.connect(self.close)
+        btn_row.addWidget(close_btn)
+        btn_row.addStretch()
+        layout.addLayout(btn_row)
+
+        self._refresh_history()
+
+    def _refresh_history(self) -> None:
+        ft = (self._hist_filter.text() or "").lower()
+        self._hist_tree.clear()
+        self._hist_data: list[dict] = []
+
+        idx = 0
+        while True:
+            try:
+                entry = app_info_cache.get_history(idx)
+            except Exception:
+                break
+            ts = _fmt_timestamp(entry.get("timestamp", ""))
+            wf = str(entry.get("workflow_type", ""))
+            model = _short(str(entry.get("model_tags", "")), 35)
+            tags = _short(str(entry.get("positive_tags", "")), 50)
+            n = str(entry.get("n_latents", ""))
+            total = str(entry.get("total", ""))
+
+            if ft and not any(ft in v.lower() for v in [wf, model, tags]):
+                idx += 1
+                continue
+
+            QTreeWidgetItem(self._hist_tree, [ts, wf, model, tags, n, total])
+            self._hist_data.append(entry)
+            idx += 1
+
+    def _restore_selected(self) -> None:
+        items = self._hist_tree.selectedItems()
+        if not items:
+            self._app_actions.toast(_("Select a history entry first"))
+            return
+        row = self._hist_tree.indexOfTopLevelItem(items[0])
+        if row < 0 or row >= len(self._hist_data):
+            return
+        entry = self._hist_data[row]
+        try:
+            cfg = RunnerAppConfig.from_dict(entry)
+            self._app.runner_app_config = cfg
+            self._app_actions.set_widgets_from_config()
+            self._app_actions.toast(_("Config restored to sidebar"))
+        except Exception as e:
+            logger.warning(f"Failed to restore config: {e}")
+            self._app_actions.toast(_("Failed to restore config"))
+
+    # ==================================================================
+    # Helpers
+    # ==================================================================
+
+    def _make_tree(self, headers: list[str], parent: QWidget) -> QTreeWidget:
+        tree = QTreeWidget(parent)
+        tree.setHeaderLabels(headers)
+        tree.setRootIsDecorated(False)
+        tree.setAlternatingRowColors(True)
+        tree.setSortingEnabled(False)
+        hdr = tree.header()
+        hdr.setStretchLastSection(True)
+        hdr.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        for i in range(1, len(headers) - 1):
+            hdr.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
+        return tree
+
+    def _on_tab_changed(self, index: int) -> None:
+        if index == 1:
+            self._refresh_history()
+
+    def _release(self) -> None:
+        """Cleanup shared by both ways this window can be dismissed.
+
+        Idempotent, because the two paths can both run for a single dismissal.
+        """
+        RunsWindow._instance = None
+        try:
+            self._refresh_timer.stop()
+        except RuntimeError:
+            pass
+
+    def closeEvent(self, event):
+        self._release()
+        super().closeEvent(event)
+
+    def reject(self) -> None:
+        # Escape reaches reject(), which hides the dialog without firing
+        # closeEvent -- so without this the refresh timer would keep firing
+        # against a hidden window for the rest of the session, and another
+        # timer would start with the next window.
+        self._release()
+        super().reject()

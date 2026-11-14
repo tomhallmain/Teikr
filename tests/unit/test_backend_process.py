@@ -21,8 +21,8 @@ from extensions.backend_process import (
     LOC_FIELDS,
     configured_backends,
 )
-from sd_runner.config import Config
-from sd_runner.globals import SoftwareType
+from src.config import Config
+from src.globals import SoftwareType
 
 
 class _AliveProc:

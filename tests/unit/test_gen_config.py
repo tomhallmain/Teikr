@@ -1,12 +1,12 @@
 import io
 
 import pytest
-import sd_runner.runs.gen_config as gen_config_module
-from sd_runner.prompts.concepts import HardConcepts
-from sd_runner.runs.gen_config import GenConfig
-from sd_runner.prompts.prompter_configuration import PrompterConfiguration
+import src.runs.gen_config as gen_config_module
+from src.prompts.concepts import HardConcepts
+from src.runs.gen_config import GenConfig
+from src.prompts.prompter_configuration import PrompterConfiguration
 from tests.utils import make_gen_config, make_model, make_resolution, make_run_config
-from sd_runner.globals import ArchitectureType, Globals, PromptMode, WorkflowType
+from src.globals import ArchitectureType, Globals, PromptMode, WorkflowType
 
 
 # ---------------------------------------------------------------------------
@@ -450,7 +450,7 @@ class TestValidateWithoutConsole:
         assert "lake" in asked[0][1]
 
     def test_headless_notifications_decline(self):
-        from sd_runner.runs.headless_app import LoggingNotifications
+        from src.runs.headless_app import LoggingNotifications
 
         notifications = LoggingNotifications()
 

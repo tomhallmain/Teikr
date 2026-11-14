@@ -7,9 +7,9 @@ against ``RunnerAppConfig.from_dict``, which is the trap this feature was most
 likely to fall into.
 """
 
-from sd_runner.presets.presets_state import PresetsState
-from sd_runner.presets.stashed_config import StashedConfig
-from sd_runner.runs.runner_app_config import RunnerAppConfig
+from src.presets.presets_state import PresetsState
+from src.presets.stashed_config import StashedConfig
+from src.runs.runner_app_config import RunnerAppConfig
 
 
 def _config(**kwargs) -> RunnerAppConfig:

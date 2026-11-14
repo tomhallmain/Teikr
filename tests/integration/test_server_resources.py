@@ -8,7 +8,7 @@ headless front end expose them too.
 
 import pytest
 
-from sd_runner.runs.headless_app import HeadlessApp
+from src.runs.headless_app import HeadlessApp
 
 
 @pytest.fixture
@@ -40,9 +40,9 @@ class TestCurrentWorkflow:
 
 class TestPresetNames:
     def test_it_lists_the_saved_presets(self, app_window):
-        from sd_runner.globals import PromptMode
-        from sd_runner.presets.preset import Preset
-        from sd_runner.presets.presets_state import PresetsState
+        from src.globals import PromptMode
+        from src.presets.preset import Preset
+        from src.presets.presets_state import PresetsState
 
         PresetsState.recent_presets.append(
             Preset("Sunset", PromptMode.FIXED, "a sunset", "")
@@ -51,7 +51,7 @@ class TestPresetNames:
         assert "Sunset" in app_window.run_ctrl.server_resource("preset_names")["presets"]
 
     def test_no_presets_is_an_empty_list_not_an_error(self, app_window):
-        from sd_runner.presets.presets_state import PresetsState
+        from src.presets.presets_state import PresetsState
 
         PresetsState.recent_presets.clear()
         assert app_window.run_ctrl.server_resource("preset_names")["presets"] == []

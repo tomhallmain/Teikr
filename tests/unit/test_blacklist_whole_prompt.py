@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.blacklist import Blacklist, BlacklistItem
 
 
 # ---------------------------------------------------------------------------

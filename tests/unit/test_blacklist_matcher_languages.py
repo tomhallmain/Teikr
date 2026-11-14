@@ -4,7 +4,7 @@ import csv
 
 import pytest
 
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.blacklist import Blacklist, BlacklistItem
 
 
 class TestTransliteration:

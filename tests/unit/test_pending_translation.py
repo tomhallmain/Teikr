@@ -12,7 +12,7 @@ import os
 
 import pytest
 
-from sd_runner.prompts import pending_translation as pt
+from src.prompts import pending_translation as pt
 
 
 @pytest.fixture(autouse=True)

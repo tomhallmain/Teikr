@@ -12,8 +12,8 @@ import time
 
 import pytest
 
-from sd_runner.generators import comfy as comfy_module
-from sd_runner.generators.comfy import ComfyGen
+from src.generators import comfy as comfy_module
+from src.generators.comfy import ComfyGen
 from tests.utils import captured_logs
 
 

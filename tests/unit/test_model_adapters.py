@@ -1,6 +1,6 @@
 import pytest
-from sd_runner.models.model_adapters import ControlNet, IPAdapter
-from sd_runner.globals import Globals
+from src.models.model_adapters import ControlNet, IPAdapter
+from src.globals import Globals
 
 
 def abs_path(tmp_path, name):
@@ -60,7 +60,7 @@ class TestIPAdapterBWColorationModifier:
     def test_bw_desc_no_coloration_set_calls_mix_colors(self, tmp_path, monkeypatch):
         monkeypatch.setattr(IPAdapter, "B_W_COLORATION", "")
         # Mock GlobalPrompter.prompter_instance.mix_colors to avoid None dereference
-        from sd_runner.prompts.prompter import GlobalPrompter
+        from src.prompts.prompter import GlobalPrompter
 
         class FakePrompter:
             def mix_colors(self):

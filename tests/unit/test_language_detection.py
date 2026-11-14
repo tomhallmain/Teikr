@@ -6,10 +6,10 @@ installed. The two tests at the end use the real package when it is there.
 
 import pytest
 
-from sd_runner.prompts import language_detection
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import Concepts
-from sd_runner.prompts.language_detection import detect_basket, supported_languages
+from src.prompts import language_detection
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import Concepts
+from src.prompts.language_detection import detect_basket, supported_languages
 
 ENGLISH = (("en", 0.95), ("de", 0.05))
 

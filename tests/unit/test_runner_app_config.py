@@ -1,8 +1,8 @@
 from types import SimpleNamespace
 
-from sd_runner.runs.runner_app_config import RunnerAppConfig
-from sd_runner.globals import ResolutionGroup, Sampler, Scheduler
-from sd_runner.prompts.prompter_configuration import PrompterConfiguration
+from src.runs.runner_app_config import RunnerAppConfig
+from src.globals import ResolutionGroup, Sampler, Scheduler
+from src.prompts.prompter_configuration import PrompterConfiguration
 
 
 class TestRunnerAppConfigDefaults:

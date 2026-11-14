@@ -9,9 +9,9 @@ filter at generation time.
 
 import pytest
 
-from sd_runner.globals import BlacklistPromptMode
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import Concepts, NSFW
+from src.globals import BlacklistPromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import Concepts, NSFW
 
 COLORS_FILE = "colors.txt"
 

@@ -4,9 +4,9 @@ import os
 
 import pytest
 
-from sd_runner.prompts import concepts as concepts_module
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import Concepts
+from src.prompts import concepts as concepts_module
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import Concepts
 
 
 @pytest.fixture

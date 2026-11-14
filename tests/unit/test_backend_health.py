@@ -15,7 +15,7 @@ from extensions import backend_health
 from extensions.backend_health import (
     ENDPOINTS, check, check_functional, health_url, is_reachable, local_backends,
 )
-from sd_runner.globals import SoftwareType
+from src.globals import SoftwareType
 
 
 class FakeResponse:
@@ -262,13 +262,13 @@ class TestOtherBackendsFunctional:
         assert check_functional(SoftwareType.InvokeAI).reachable is True
 
     def test_swarmui_reuses_a_cached_session(self, probes, monkeypatch):
-        from sd_runner.generators.swarmui import SwarmUIGen
+        from src.generators.swarmui import SwarmUIGen
         monkeypatch.setattr(SwarmUIGen, "_session_id", "cached-session")
         probes["/API/ListModels"] = {"models": ["a model"]}
         assert check_functional(SoftwareType.SwarmUI).reachable is True
 
     def test_swarmui_without_a_session_is_not_healthy(self, probes, monkeypatch):
-        from sd_runner.generators.swarmui import SwarmUIGen
+        from src.generators.swarmui import SwarmUIGen
         monkeypatch.setattr(SwarmUIGen, "_session_id", None)
         result = check_functional(SoftwareType.SwarmUI)
         assert result.reachable is False

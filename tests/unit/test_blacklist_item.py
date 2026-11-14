@@ -1,5 +1,5 @@
 import pytest
-from sd_runner.prompts.blacklist import BlacklistItem, ModelBlacklistItem
+from src.prompts.blacklist import BlacklistItem, ModelBlacklistItem
 
 
 # ---------------------------------------------------------------------------

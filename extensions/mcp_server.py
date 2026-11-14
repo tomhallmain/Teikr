@@ -175,7 +175,7 @@ class MCPServerExtension:
         # Resolved at call time rather than from the module-level binding, for
         # the reason SDRunnerServer documents: tests swap in a fresh Config per
         # test, and only a fresh attribute lookup sees the swap.
-        from sd_runner.config import config as _config
+        from src.config import config as _config
 
         self.run_callback = run_callback
         self.cancel_callback = cancel_callback
@@ -394,7 +394,9 @@ class MCPServerExtension:
         """
         from mcp.server import MCPServer
 
-        server = MCPServer("SD Runner")
+        from src.runtime.version import APP_NAME
+
+        server = MCPServer(APP_NAME)
         self._server = server
         self._register_tools(server)
         self._register_resources(server)

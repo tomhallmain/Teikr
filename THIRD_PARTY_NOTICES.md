@@ -1,6 +1,6 @@
 # Third-party notices
 
-SD Runner includes the components below. Each is under its own licence.
+Teikr includes the components below. Each is under its own licence.
 
 ## Lingua
 

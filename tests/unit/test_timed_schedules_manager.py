@@ -1,5 +1,5 @@
 """
-Tests for sd_runner/timed_schedules_manager.py.
+Tests for src/timed_schedules_manager.py.
 
 TimedSchedulesManager uses class-level mutable state; the autouse fixture resets it
 before and after every test so tests remain independent.
@@ -10,8 +10,8 @@ gives a deterministic weekday without depending on the system clock.
 
 import datetime
 import pytest
-from sd_runner.presets.timed_schedule import TimedSchedule
-from sd_runner.presets.timed_schedules_manager import (
+from src.presets.timed_schedule import TimedSchedule
+from src.presets.timed_schedules_manager import (
     TimedSchedulesManager,
     ScheduledShutdownException,
 )

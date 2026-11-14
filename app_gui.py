@@ -1,5 +1,5 @@
 """
-SD Runner -- PySide6 entry point.
+Teikr -- PySide6 entry point.
 
 Creates the QApplication, handles startup authentication, signal handlers,
 single-instance locking, and launches the main AppWindow.
@@ -13,8 +13,8 @@ import sys
 import threading
 import traceback
 
-from sd_runner.runtime.console_streams import make_console_streams_byte_safe
-from sd_runner.runtime.oqs_path import point_oqs_at_bundled_library
+from src.runtime.console_streams import make_console_streams_byte_safe
+from src.runtime.oqs_path import point_oqs_at_bundled_library
 
 _byte_safe_fds = make_console_streams_byte_safe()
 point_oqs_at_bundled_library()
@@ -22,13 +22,13 @@ point_oqs_at_bundled_library()
 from PySide6.QtCore import QtMsgType, qInstallMessageHandler
 from PySide6.QtWidgets import QApplication
 
-from sd_runner.ui.app_style import AppStyle
-from sd_runner.ui.app_icon import apply_app_icon
-from sd_runner.app_paths import resource_path
-from sd_runner.config import config
-from sd_runner.runtime.crash_log import enable_fault_log
-from sd_runner.runtime.unpack_cleanup import remove_stale_unpack_dirs
-from sd_runner.runtime.version import describe as describe_version, source_drift
+from src.ui.app_style import AppStyle
+from src.ui.app_icon import apply_app_icon
+from src.app_paths import resource_path
+from src.config import config
+from src.runtime.crash_log import enable_fault_log
+from src.runtime.unpack_cleanup import remove_stale_unpack_dirs
+from src.runtime.version import APP_NAME, describe as describe_version, source_drift
 from lib.logging_setup import get_logger
 from lib.translations import I18N, _
 from lib.utils import Utils
@@ -82,7 +82,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
     """Check that a build can start, without opening a window. Returns an exit code."""
     import importlib
 
-    from sd_runner.runtime.smoke_test import SmokeTest
+    from src.runtime.smoke_test import SmokeTest
 
     smoke = SmokeTest()
     smoke.run_common(expect_oqs=expect_oqs)
@@ -99,7 +99,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
     smoke.check_call("sound effect (Qt Multimedia)", lambda: QSoundEffect() and None)
     smoke.check_call(
         "main window modules",
-        lambda: importlib.import_module("sd_runner.ui.app_window.app_window") and None,
+        lambda: importlib.import_module("src.ui.app_window.app_window") and None,
     )
     qt_app.quit()
     return smoke.result()
@@ -119,7 +119,7 @@ def main():
 
     # Single instance check -- prevent multiple instances from running
     lock_file, cleanup_lock = Utils.check_single_instance("SDRunner")
-    logger.info("SD Runner starting")
+    logger.info(f"{APP_NAME} starting")
     logger.info(describe_version())
     if _byte_safe_fds:
         logger.info(f"Console streams {_byte_safe_fds} switched from wide-character to binary mode")
@@ -137,7 +137,7 @@ def main():
     # Create QApplication (must exist before any widgets)
     _route_qt_messages_to_logger()
     qt_app = QApplication(sys.argv)
-    qt_app.setApplicationName(_(" SD Runner "))
+    qt_app.setApplicationName(APP_NAME)
     qt_app.setStyleSheet(AppStyle.get_stylesheet())
 
     apply_app_icon(qt_app)
@@ -213,7 +213,7 @@ def main():
     # been wiped, so this cannot write an emptied cache over the saved one.
     atexit.register(lambda: _emergency_store("interpreter exit"))
     # Registered after the line above, so it runs first. An exit that reaches
-    # neither this line nor "SD Runner exiting" ended in native code: see
+    # neither this line nor the "exiting with code" line ended in native code: see
     # faults.log, or for a fast-fail abort the system's application event log.
     atexit.register(lambda: logger.info("Python interpreter exiting"))
 
@@ -239,10 +239,10 @@ def main():
         # Password verified or not required -- create the main window
         logger.info("Creating the main window")
         try:
-            from sd_runner.ui.app_window.app_window import AppWindow
+            from src.ui.app_window.app_window import AppWindow
 
             # Clean up any old image converter temporary files on startup
-            from sd_runner.generators.base import BaseImageGenerator
+            from src.generators.base import BaseImageGenerator
             BaseImageGenerator.cleanup_image_converter()
 
             app_window = AppWindow()
@@ -270,7 +270,7 @@ def main():
     # ------------------------------------------------------------------
     # Check if startup password is required
     # ------------------------------------------------------------------
-    from sd_runner.ui.auth.app_startup_auth import check_startup_password_required
+    from src.ui.auth.app_startup_auth import check_startup_password_required
     logger.debug("Checking whether the start needs a password")
     check_startup_password_required(callback=startup_callback)
 
@@ -283,7 +283,7 @@ def main():
         exit_code = 0
     finally:
         cleanup_lock()
-    logger.info(f"SD Runner exiting with code {exit_code}")
+    logger.info(f"{APP_NAME} exiting with code {exit_code}")
 
     # Hard exit -- sys.exit() can hang if non-daemon threads are still
     # alive (e.g. server listener blocking on accept(), websocket loops).

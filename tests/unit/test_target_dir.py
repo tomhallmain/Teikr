@@ -1,7 +1,7 @@
 import os
 import tempfile
 
-from sd_runner.generators.base import BaseImageGenerator
+from src.generators.base import BaseImageGenerator
 
 
 class TestMoveToTargetDir:

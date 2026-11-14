@@ -14,11 +14,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from sd_runner.image_to_prompt.types import (
+from src.image_to_prompt.types import (
     ImageToPromptBackend,
     ImageToPromptResult,
 )
-from sd_runner.ui.prompts.image_to_prompt_window import ImageToPromptWindow
+from src.ui.prompts.image_to_prompt_window import ImageToPromptWindow
 from tests.utils import close_window
 
 

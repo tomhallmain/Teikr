@@ -1,4 +1,6 @@
-# sd-runner - Image Generation Runner
+# Teikr - Image Generation Runner
+
+Teikr was called *sd-runner* (SD Runner) until November 2026. The name comes from Old Norse *teikn* "sign" and Icelandic *teikna* "to draw": the user sets the signs, and the images are drawn from them.
 
 This code is primarily a prompt engineering application that triggers ComfyUI workflows or stable-diffusion-webui functions using advanced prompt randomization, concept management, and intelligent filtering systems.
 
@@ -10,7 +12,7 @@ This code is primarily a prompt engineering application that triggers ComfyUI wo
 <li>This was originally developed during early 2024 and some prompts may be out of date with current versions of the respective image generation projects.</li>
 <li>Though any prompt applied to any model can result in undesirable images despite properly set negative prompts, prompt randomization increases the chance that undesirable images may be generated even if only innocuous terms are included in the prompt, because the randomness allows for wider traversal of the model's latent space. For this reason it is wise to use a local prevalidation and content filtering tool. I recommend using [Weidr](https://github.com/tomhallmain/Weidr) which has many other features in addition to customizable prevalidations based on CLIP as well as HDF5 and PyTorch image classifier models.</li>
 <li>An English or German dictionary, depending on the selected concepts folder, is used for generating random words, some of which may be found objectionable. A word with a high degree of relation to strong feelings like disgust also tends to carry a lot of prompt weight, even if it is buried in a much larger prompt with no other similar words. Luckily this will often result in an "incoherent" result with earlier models, or a slightly objectionable result with later models, but there is still a chance of problematic images being generated. As a result you may choose not to use the `random_word` prompt variable, or implement a blacklist using the provided blacklist window which blocks prompts with undesirable strings or otherwise drops them from prompts. There is a default blacklist used if none is provided, which requires extra security to clear and even to reveal its concepts. It covers English and 24 other languages at varying depth, and coverage outside English and German is much thinner.</li>
-<li>In the NSFW and NSFL prompt modes, random words are also drawn by default from a much larger slang corpus of roughly two million entries derived from Urban Dictionary, shipped encrypted in <code>sd_runner/data/urban_dictionary.enc</code>. Great pains were taken to filter it: the default blacklist was applied first, then non-lexical noise was removed, then entries with sexual, violent or gory, or disgusting readings were culled through successive pattern passes, manual review of hundreds of thousands of borderline entries, and an embedding classifier trained on the rejected examples, together removing around half a million further entries and erring on the side of omission throughout. Slang invents euphemisms and double meanings faster than any filter can anticipate, however, so objectionable terms can still appear, and as noted above a single strongly charged word can carry a lot of prompt weight. Keep the blacklist and a prevalidation tool in place when using these modes, or turn the corpus off: uncheck <b>Use Urban Dictionary Corpus in NSFW Modes</b> in the Config window, or set <code>"nsfw_urban_dictionary": false</code> in <code>config.json</code>.</li>
+<li>In the NSFW and NSFL prompt modes, random words are also drawn by default from a much larger slang corpus of roughly two million entries derived from Urban Dictionary, shipped encrypted in <code>src/data/urban_dictionary.enc</code>. Great pains were taken to filter it: the default blacklist was applied first, then non-lexical noise was removed, then entries with sexual, violent or gory, or disgusting readings were culled through successive pattern passes, manual review of hundreds of thousands of borderline entries, and an embedding classifier trained on the rejected examples, together removing around half a million further entries and erring on the side of omission throughout. Slang invents euphemisms and double meanings faster than any filter can anticipate, however, so objectionable terms can still appear, and as noted above a single strongly charged word can carry a lot of prompt weight. Keep the blacklist and a prevalidation tool in place when using these modes, or turn the corpus off: uncheck <b>Use Urban Dictionary Corpus in NSFW Modes</b> in the Config window, or set <code>"nsfw_urban_dictionary": false</code> in <code>config.json</code>.</li>
 <li>If sharing your computer with multiple users, consider setting a password to lock the blacklist and other features.</li>
 <li>Continuously viewing random images may cause small lapses in sanity. Employ total randomness with caution.</li>
 <li>The application can be addictive due to its infinite generation capabilities and random prompt variations. Consider enabling a timed shutdown schedule to automatically stop generation at a reasonable hour and prevent excessive usage.</li>
@@ -30,7 +32,7 @@ Everything the application writes is kept in its data folder, `%APPDATA%\sd_runn
 
 ## Building an executable
 
-`python build_exe.py --with-oqs` builds a single-file executable with [Nuitka](https://nuitka.net), `dist/SDRunner.exe` (no `.exe` suffix on macOS/Linux). `--with-headless` also builds `dist/SDRunnerHeadless.exe`, which serves the request front ends without a window; it about doubles the build time. Run it on the OS you are building for; Nuitka does not cross-compile.
+`python build_exe.py --with-oqs` builds a single-file executable with [Nuitka](https://nuitka.net), `dist/Teikr.exe` (no `.exe` suffix on macOS/Linux). `--with-headless` also builds `dist/TeikrHeadless.exe`, which serves the request front ends without a window; it about doubles the build time. Run it on the OS you are building for; Nuitka does not cross-compile.
 
 - **Requirements:** the Python used for development (3.11), and a C compiler: Visual Studio Build Tools on Windows (or let Nuitka download MinGW), the Xcode Command Line Tools on macOS. The build includes torch and transformers and takes a long time and several GB of disk space.
 - **Memory:** the last step of each compile compresses the payload, with one compression thread per Nuitka job. Before it starts, the build estimates how much memory that needs and, if less is free, waits until it is (close other programs, or press Enter to go ahead). The wait is a Nuitka plugin shipped by app-release (below): with app-release installed, or the build run through it, the build finds the plugin; without it the build warns and does not wait. `--min-free-memory=<GiB>` sets the amount, and 0 turns the wait off. `--jobs=N` uses fewer threads, which needs less memory but also makes the C compile slower.
@@ -239,7 +241,7 @@ The run queue can be paused at any time using the **Pause Queue** button (sideba
 
 The prompts are generated using text concepts files. Each line in each file represents a concept that can be added randomly to the prompt, based on the prompter configuration.
 
-Additional concepts folders can be defined by adding paths to the `concepts_dirs` array in config (see `sd_runner/data/config_example.json`). Restart the UI and select the desired folder from the concepts dropdown in the sidebar. The repo includes English `concepts/` and German `Konzepte/`; both are listed in the example config.
+Additional concepts folders can be defined by adding paths to the `concepts_dirs` array in config (see `src/data/config_example.json`). Restart the UI and select the desired folder from the concepts dropdown in the sidebar. The repo includes English `concepts/` and German `Konzepte/`; both are listed in the example config.
 
 A folder's optional `concept_set.json` states its language and, for a translation, the set it came from. A line in a translated set is then blocked if the line it translates is blocked.
 
@@ -317,7 +319,7 @@ A client can also ask whether a backend is working: `{"command": "health_check",
 
 ### Launching backends automatically
 
-Set `backend_launch_commands` to have SD Runner start a backend for you, mapping the backend name to the command you would type yourself. A configured backend is not started when SD Runner opens — it starts the first time a run actually needs it, so an install with several configured backends does not pay to warm up ones that go unused this session. That first run waits for the backend to answer before it begins generating, which on a cold start can take minutes; later runs find it already up and start immediately.
+Set `backend_launch_commands` to have Teikr start a backend for you, mapping the backend name to the command you would type yourself. A configured backend is not started when Teikr opens — it starts the first time a run actually needs it, so an install with several configured backends does not pay to warm up ones that go unused this session. That first run waits for the backend to answer before it begins generating, which on a cold start can take minutes; later runs find it already up and start immediately.
 
 ```json
 "backend_launch_commands": {
@@ -337,17 +339,17 @@ Each backend runs as its own OS process, so backends needing different Python or
 }
 ```
 
-Because the shell is what SD Runner holds, stopping a backend kills the whole process tree rather than just the script — otherwise the server the script started would be orphaned, still holding its port and the GPU.
+Because the shell is what Teikr holds, stopping a backend kills the whole process tree rather than just the script — otherwise the server the script started would be orphaned, still holding its port and the GPU.
 
-It runs from that backend's `*_loc` directory. There are no built-in commands — install layouts vary too much for a guess to be reliable, and a wrong one fails only after a long startup wait. A backend already running is adopted rather than started twice, and is left running on exit; only processes SD Runner started are stopped.
+It runs from that backend's `*_loc` directory. There are no built-in commands — install layouts vary too much for a guess to be reliable, and a wrong one fails only after a long startup wait. A backend already running is adopted rather than started twice, and is left running on exit; only processes Teikr started are stopped.
 
-`log_backend_output` (default `false`) repeats the backend's own output in the SD Runner log. Off, it is logged at debug level instead, so a failed launch is still diagnosable without a serving backend's chatter interleaved with everything else.
+`log_backend_output` (default `false`) repeats the backend's own output in the Teikr log. Off, it is logged at debug level instead, so a failed launch is still diagnosable without a serving backend's chatter interleaved with everything else.
 
-`backend_startup_timeout` (default 600s) is how long SD Runner waits for a backend to answer. Running out does **not** kill it — these are slow to start for real reasons, and a backend that has not exited is still working, so it is left to carry on and reported as still starting. A health check arriving during that window answers `starting` rather than `error`. If a backend really is stuck, stop it yourself.
+`backend_startup_timeout` (default 600s) is how long Teikr waits for a backend to answer. Running out does **not** kill it — these are slow to start for real reasons, and a backend that has not exited is still working, so it is left to carry on and reported as still starting. A health check arriving during that window answers `starting` rather than `error`. If a backend really is stuck, stop it yourself.
 
 ### Model Context Protocol
 
-SD Runner can also present itself to an MCP client — Claude Desktop, an editor, an agent harness — as a set of tools. This is a second front end over the same actions the server above exposes; both can run at once, and neither knows about the other.
+Teikr can also present itself to an MCP client — Claude Desktop, an editor, an agent harness — as a set of tools. This is a second front end over the same actions the server above exposes; both can run at once, and neither knows about the other.
 
 It needs the optional `mcp` package (`pip install -r requirements-optional.txt`) and a port:
 

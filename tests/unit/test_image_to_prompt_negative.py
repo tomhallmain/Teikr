@@ -9,10 +9,10 @@ whole of the behaviour -- there is no separate UI path.
 
 import pytest
 
-from sd_runner.globals import Globals
-from sd_runner.image_to_prompt.negative import resolve_negative
-from sd_runner.image_to_prompt.service import ImageToPromptService
-from sd_runner.image_to_prompt.types import (
+from src.globals import Globals
+from src.image_to_prompt.negative import resolve_negative
+from src.image_to_prompt.service import ImageToPromptService
+from src.image_to_prompt.types import (
     ImageToPromptBackend,
     ImageToPromptRequest,
     ImageToPromptResult,

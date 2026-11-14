@@ -1,5 +1,5 @@
 @echo off
-TITLE SD Runner
+TITLE Teikr
 python "%~dp0app_gui.py"
 if %ERRORLEVEL% neq 0 (
     echo.

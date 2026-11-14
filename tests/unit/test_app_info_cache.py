@@ -1,7 +1,7 @@
 import json
 import pytest
-from sd_runner.persistence.app_info_cache import AppInfoCache
-from sd_runner.runs.runner_app_config import RunnerAppConfig
+from src.persistence.app_info_cache import AppInfoCache
+from src.runs.runner_app_config import RunnerAppConfig
 
 
 def _make_config(positive_tags="test prompt", **kwargs) -> RunnerAppConfig:

@@ -10,8 +10,8 @@ silently wrong-size image on every cloud backend.
 
 import pytest
 
-from sd_runner.models.resolution import Resolution
-from sd_runner.globals import ArchitectureType, Globals, ResolutionGroup
+from src.models.resolution import Resolution
+from src.globals import ArchitectureType, Globals, ResolutionGroup
 
 
 # Ratios accepted by the Stability AI API, used here as a representative set.

@@ -1,5 +1,5 @@
 """
-Build SD Runner with Nuitka: ``python build_exe.py``.
+Build Teikr with Nuitka: ``python build_exe.py``.
 
 Nuitka compiles the code to C, then to a native executable that embeds the
 Python runtime. Needs a C compiler: Xcode Command Line Tools on macOS; on
@@ -15,12 +15,12 @@ build; for CUDA torch, install it into .venv-build from the PyTorch index
 first, or use ``--current-env``, which builds with the running interpreter
 instead (it must already have requirements-build.txt installed).
 
-Builds a single-file executable in dist/ (``.exe`` on Windows), SDRunner from
-app_gui.py. ``--with-headless`` also builds SDRunnerHeadless from
+Builds a single-file executable in dist/ (``.exe`` on Windows), Teikr from
+app_gui.py. ``--with-headless`` also builds TeikrHeadless from
 app_headless.py, which serves the request front ends with no window and
-contains no Qt; it takes about as long again. At its first start each unpacks its runtime to ``unpacked/<prefix>-<build id>`` in the SD
-Runner app data directory; later starts of the same build reuse that folder,
-and the app removes older builds' folders (sd_runner/runtime/unpack_cleanup.py).
+contains no Qt; it takes about as long again. At its first start each unpacks its runtime to ``unpacked/<prefix>-<build id>`` in the app
+data directory (``<app data>/sd_runner``); later starts of the same build reuse that folder,
+and the app removes older builds' folders (src/runtime/unpack_cleanup.py).
 Each is smoke-tested with ``--smoke-test``. Other args are forwarded to Nuitka,
 e.g. ``--show-scons`` or ``--jobs=4``.
 
@@ -75,7 +75,7 @@ DIST_DIR = os.path.join(REPO_ROOT, "dist")
 APP_DATA_SPEC = "{HOME}/AppData/Roaming/sd_runner" if sys.platform == "win32" else "{HOME}/.local/share/sd_runner"
 LOCK_PATH = os.path.join(BUILD_DIR, "build-requirements.lock.txt")
 VERSION_FILE = "VERSION"
-VERSION_MODULE = os.path.join("sd_runner", "runtime", "version.py")
+VERSION_MODULE = os.path.join("src", "runtime", "version.py")
 BUILD_INFO_PATH = os.path.join(BUILD_DIR, "build_info.json")
 LOG_DIR = os.path.join(REPO_ROOT, "build", "logs")
 # Set by app-release, which ships the memory-wait plugin, when it runs this script.
@@ -97,13 +97,13 @@ DATA_DIRS = (os.path.join("lib", "sounds"),)
 DATA_FILES = (
     VERSION_FILE,
     ICON_PNG,
-    os.path.join("sd_runner", "data", "blacklist_default.enc"),
-    os.path.join("sd_runner", "data", "urban_dictionary.enc"),
-    os.path.join("sd_runner", "data", "config_example.json"),
+    os.path.join("src", "data", "blacklist_default.enc"),
+    os.path.join("src", "data", "urban_dictionary.enc"),
+    os.path.join("src", "data", "config_example.json"),
     "THIRD_PARTY_NOTICES.md",
     os.path.join("licenses", "lingua-language-detector-LICENSE.txt"),
 )
-WORKFLOWS_DIR = os.path.join("sd_runner", "data", "workflows")
+WORKFLOWS_DIR = os.path.join("src", "data", "workflows")
 # test.json is the last prompt the app writes when save_last_prompt is on;
 # stableDiffusion3* are not shipped (.gitignore).
 WORKFLOWS_EXCLUDED = re.compile(r"^(test\.json|stableDiffusion3.*)$")
@@ -240,7 +240,7 @@ def _write_lock_file(python: str) -> None:
 
 
 def _version_module() -> dict:
-    """sd_runner/runtime/version.py's globals, loaded without importing the app."""
+    """src/runtime/version.py's globals, loaded without importing the app."""
     return runpy.run_path(os.path.join(REPO_ROOT, VERSION_MODULE))
 
 
@@ -271,7 +271,7 @@ def _check_transformers_version(packages: dict) -> None:
 
 
 def _write_build_info(version: str, build_id: str, environment: dict, with_oqs: bool) -> None:
-    """build_info.json, bundled at the resource root (sd_runner/runtime/version.py reads it)."""
+    """build_info.json, bundled at the resource root (src/runtime/version.py reads it)."""
     info = {
         "version": version,
         "build_id": build_id,
@@ -286,7 +286,7 @@ def _write_build_info(version: str, build_id: str, environment: dict, with_oqs: 
     with open(BUILD_INFO_PATH, "w", encoding="utf-8") as f:
         json.dump(info, f, indent=2)
     logger.info("Building " + ", ".join(
-        [f"SD Runner {version}", f"build {build_id}",
+        [f"{APP_NAME} {version}", f"build {build_id}",
          f"from {info['source']['commit'][:10] or 'unknown commit'}"
          + (" with uncommitted changes" if info["source"]["changes"] else ""),
          f"Python {info['python']}"]
@@ -380,17 +380,17 @@ def _common_args(exe_name: str, unpack_prefix: str, version: str, build_id: str,
         # Version information; Windows shows it in the executable's properties
         # and crash reports. The file version takes numbers only, so the build
         # id goes in the description.
-        "--product-name=SD Runner",
+        f"--product-name={APP_NAME}",
         f"--product-version={version}",
         f"--file-version={version}",
-        f"--file-description=SD Runner, build {build_id}",
+        f"--file-description={APP_NAME}, build {build_id}",
         f"--include-data-files={BUILD_INFO_PATH}=build_info.json",
         # keyring finds its backends, including the OS one, through package
         # metadata entry points; without it encrypted saves cannot work.
         "--include-distribution-metadata=keyring",
         *[f"--include-distribution-metadata={p}" for p in TRANSFORMERS_PROBED_DISTRIBUTIONS],
         # TorchScript compiles Python functions from their source, which a
-        # build does not ship; nothing in SD Runner uses it.
+        # build does not ship; nothing in the app uses it.
         "--module-parameter=torch-disable-jit=yes",
         # The MCP SDK reads its own version from package metadata, and uvicorn
         # loads its protocol and event-loop modules by name.
@@ -515,12 +515,16 @@ def _smoke_test(exe_path: str, with_oqs: bool) -> None:
         sys.exit(f"Smoke test failed: `{' '.join(command)}` exited {result.returncode}.")
 
 
-# exe base name, entry script, unpack folder prefix, target-specific args
+#: The display name, from src/runtime/version.py like the version helpers.
+APP_NAME = _version_module()["APP_NAME"]
+
+# exe base name, entry script, unpack folder prefix, target-specific args.
+# The prefixes must match UNPACK_DIR_PREFIXES in src/runtime/unpack_cleanup.py.
 TARGETS = (
-    ("SDRunner", "app_gui.py", "sdrunner", _gui_args),
-    ("SDRunnerHeadless", "app_headless.py", "sdrunner-headless", _headless_args),
+    (APP_NAME, "app_gui.py", APP_NAME.lower(), _gui_args),
+    (f"{APP_NAME}Headless", "app_headless.py", f"{APP_NAME.lower()}-headless", _headless_args),
 )
-HEADLESS_TARGET = "SDRunnerHeadless"
+HEADLESS_TARGET = f"{APP_NAME}Headless"
 
 
 def _targets(with_headless: bool) -> tuple:

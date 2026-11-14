@@ -9,10 +9,10 @@ function's name: in a compiled build PySide6 connected every method named
 
 import pytest
 
-import sd_runner.ui.auth.app_startup_auth as app_startup_auth
-import sd_runner.ui.auth.password_core as password_core
-import sd_runner.ui.auth.password_utils as password_utils
-from sd_runner.globals import ProtectedActions
+import src.ui.auth.app_startup_auth as app_startup_auth
+import src.ui.auth.password_core as password_core
+import src.ui.auth.password_utils as password_utils
+from src.globals import ProtectedActions
 
 
 @pytest.fixture
@@ -124,7 +124,7 @@ class TestDecoratorsKeepNames:
         assert Window.open_presets.__name__ == "open_presets"
 
     def test_key_binding_guard(self):
-        from sd_runner.ui.app_window.key_binding_manager import KeyBindingManager
+        from src.ui.app_window.key_binding_manager import KeyBindingManager
 
         def next_preset():
             pass

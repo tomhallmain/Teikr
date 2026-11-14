@@ -12,10 +12,10 @@ be exact. tests/integration/test_prompt_modes.py covers the real concepts/ tree.
 
 import pytest
 
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import Concepts, ConceptConfiguration
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import Concepts, ConceptConfiguration
 from tests.utils import make_prompter
-from sd_runner.globals import PromptMode
+from src.globals import PromptMode
 
 
 BLOCKED = ["forbidden", "banned", "verboten"]
@@ -145,7 +145,7 @@ class TestGeneratedPromptExcludesBlacklisted:
 
 class TestAllowInNsfwGating:
     def test_disallow_mode_filters_in_nsfw(self, blocked):
-        from sd_runner.globals import BlacklistPromptMode
+        from src.globals import BlacklistPromptMode
         Blacklist.blacklist_prompt_mode = BlacklistPromptMode.DISALLOW
         whitelist, filtered = Blacklist.filter_concepts(
             ["dusk", "forbidden"], prompt_mode=PromptMode.NSFW
@@ -154,7 +154,7 @@ class TestAllowInNsfwGating:
         assert filtered
 
     def test_allow_in_nsfw_mode_bypasses_filtering(self, blocked):
-        from sd_runner.globals import BlacklistPromptMode
+        from src.globals import BlacklistPromptMode
         Blacklist.blacklist_prompt_mode = BlacklistPromptMode.ALLOW_IN_NSFW
         whitelist, filtered = Blacklist.filter_concepts(
             ["dusk", "forbidden"], prompt_mode=PromptMode.NSFW
@@ -163,7 +163,7 @@ class TestAllowInNsfwGating:
         assert filtered == {}
 
     def test_allow_in_nsfw_still_filters_sfw(self, blocked):
-        from sd_runner.globals import BlacklistPromptMode
+        from src.globals import BlacklistPromptMode
         Blacklist.blacklist_prompt_mode = BlacklistPromptMode.ALLOW_IN_NSFW
         whitelist, _filtered = Blacklist.filter_concepts(
             ["dusk", "forbidden"], prompt_mode=PromptMode.SFW

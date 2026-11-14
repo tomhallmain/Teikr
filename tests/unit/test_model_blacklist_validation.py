@@ -7,8 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from sd_runner.models.model import Model
-from sd_runner.prompts.blacklist import Blacklist, BlacklistException
+from src.models.model import Model
+from src.prompts.blacklist import Blacklist, BlacklistException
 
 
 @pytest.fixture(autouse=True)

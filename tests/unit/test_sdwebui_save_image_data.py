@@ -11,7 +11,7 @@ import json
 
 import pytest
 
-from sd_runner.generators.sdwebui import SDWebuiGen
+from src.generators.sdwebui import SDWebuiGen
 from tests.utils import make_gen_config
 
 

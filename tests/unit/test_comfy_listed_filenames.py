@@ -4,7 +4,7 @@ ComfyUI validates a filename against its list as an exact string. A template
 naming ``MiniMaxH3\\...`` must still run against a folder named ``MinimaxH3``.
 """
 
-from sd_runner.generators.comfy import ComfyGen
+from src.generators.comfy import ComfyGen
 
 LORA = "MinimaxH3\\minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors"
 OTHER_LORA = "Krea2\\krea2_darkbrush.safetensors"

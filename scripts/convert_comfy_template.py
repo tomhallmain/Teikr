@@ -9,7 +9,7 @@ PYTHONPATH. The sd_runner environment does not import ComfyUI's nodes.
 
 Source-image templates usually do not choose a new canvas. Width and height
 stay linked to the loaded image (GetImageSize, or the loader itself). This
-converter keeps those links. It does not insert a resize, and SD Runner's
+converter keeps those links. It does not insert a resize, and Teikr's
 set_latent_dimensions leaves a dimension alone when the link traces back to
 a source image. Graphs that pick their own size (ResolutionSelector, a plain
 latent) are the ones the app may overwrite.
@@ -364,7 +364,7 @@ if __name__ == "__main__":
         _debug_widgets()
         raise SystemExit
     root = r"C:\Users\tehal\miniconda\envs\comfy\Lib\site-packages\comfyui_workflow_templates_json\templates"
-    out = r"c:\Users\tehal\repos\sd-runner\sd_runner\data\workflows\comfyui"
+    out = r"c:\Users\tehal\repos\sd-runner\src\data\workflows\comfyui"
     pairs = [
         (root + r"\image_krea2_turbo_t2i.json", out + r"\image_krea2_turbo_t2i.json", "Krea2"),
         (root + r"\image_flux3_klein_t2i.json", out + r"\image_flux3_klein_t2i.json", "Flux3"),

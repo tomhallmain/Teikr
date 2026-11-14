@@ -9,8 +9,8 @@ kind, so a cache is also checked to belong to its own tab alone.
 import pytest
 
 from lib.translations import _
-from sd_runner.models.recent_adapters_state import RecentAdaptersState
-from sd_runner.ui.models.recent_adapters_window import RecentAdaptersWindow
+from src.models.recent_adapters_state import RecentAdaptersState
+from src.ui.models.recent_adapters_window import RecentAdaptersWindow
 from tests.utils import close_window
 
 # key, tab index, state list, file name, expected type column, file header

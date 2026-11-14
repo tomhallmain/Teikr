@@ -13,9 +13,9 @@ list, with the reveal behind the same password gate as the blacklist's own.
 
 import pytest
 
-from sd_runner.models.model import Model
-from sd_runner.prompts.blacklist import Blacklist, ModelBlacklistItem
-from sd_runner.ui.models.models_window import ModelsWindow
+from src.models.model import Model
+from src.prompts.blacklist import Blacklist, ModelBlacklistItem
+from src.ui.models.models_window import ModelsWindow
 from tests.utils import close_window, install_password_bypass, make_model
 
 

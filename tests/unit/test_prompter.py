@@ -7,10 +7,10 @@ set to 0 so _apply_random_stops_returns is a no-op and output is deterministic.
 """
 
 import pytest
-from sd_runner.prompts.prompter import Prompter
-from sd_runner.prompts.concepts import Concepts
+from src.prompts.prompter import Prompter
+from src.prompts.concepts import Concepts
 from tests.utils import make_prompter
-from sd_runner.globals import PromptMode
+from src.globals import PromptMode
 
 
 # ---------------------------------------------------------------------------

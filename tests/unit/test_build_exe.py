@@ -9,8 +9,8 @@ import runpy
 
 import pytest
 
-from sd_runner.app_paths import REPO_ROOT
-from sd_runner.runtime.unpack_cleanup import UNPACK_DIR_PREFIXES
+from src.app_paths import REPO_ROOT
+from src.runtime.unpack_cleanup import UNPACK_DIR_PREFIXES
 
 
 @pytest.fixture(scope="module")
@@ -45,9 +45,9 @@ class TestDataFiles:
         files = set(build_exe["_data_files"]())
         for path in (
             os.path.join("assets", "icon.png"),
-            os.path.join("sd_runner", "data", "blacklist_default.enc"),
-            os.path.join("sd_runner", "data", "urban_dictionary.enc"),
-            os.path.join("sd_runner", "data", "config_example.json"),
+            os.path.join("src", "data", "blacklist_default.enc"),
+            os.path.join("src", "data", "urban_dictionary.enc"),
+            os.path.join("src", "data", "config_example.json"),
             build_exe["VERSION_FILE"],
         ):
             assert path in files
@@ -64,8 +64,16 @@ class TestTargets:
             assert os.path.isfile(os.path.join(REPO_ROOT, entry))
 
     def test_the_headless_build_is_only_made_on_request(self, build_exe):
-        assert [t[0] for t in build_exe["_targets"](False)] == ["SDRunner"]
-        assert [t[0] for t in build_exe["_targets"](True)] == ["SDRunner", "SDRunnerHeadless"]
+        assert [t[0] for t in build_exe["_targets"](False)] == ["Teikr"]
+        assert [t[0] for t in build_exe["_targets"](True)] == ["Teikr", "TeikrHeadless"]
+
+    def test_the_executables_carry_the_display_name(self, build_exe):
+        from src.runtime.version import APP_NAME
+
+        assert build_exe["APP_NAME"] == APP_NAME
+        args = build_exe["_common_args"]("Teikr.exe", "teikr", "1.0.0", "20260101-000000")
+        assert f"--product-name={APP_NAME}" in args
+        assert f"--file-description={APP_NAME}, build 20260101-000000" in args
 
     def test_the_headless_build_leaves_qt_out(self, build_exe):
         assert "--nofollow-import-to=PySide6" in build_exe["_headless_args"]()
@@ -77,7 +85,7 @@ class TestTargets:
     def test_the_package_configuration_is_passed_and_exists(self, build_exe):
         path = build_exe["PACKAGE_CONFIG"]
         assert os.path.isfile(path)
-        args = build_exe["_common_args"]("SDRunner.exe", "sdrunner", "1.0.0", "20260101-000000")
+        args = build_exe["_common_args"]("Teikr.exe", "teikr", "1.0.0", "20260101-000000")
         assert f"--user-package-configuration-file={path}" in args
 
 
@@ -88,7 +96,7 @@ class TestHelpers:
         assert all(part.isdigit() for part in version.split("."))
 
     def test_app_version_matches_what_the_app_reads(self, build_exe):
-        from sd_runner.runtime.version import app_version
+        from src.runtime.version import app_version
 
         assert build_exe["_app_version"]() == app_version()
 
@@ -115,11 +123,11 @@ class TestHelpers:
 class TestMemoryWait:
     def test_the_plugin_is_loaded(self, build_exe, tmp_path):
         plugin = str(tmp_path / "nuitka_memory_wait.py")
-        args = build_exe["_common_args"]("SDRunner.exe", "sdrunner", "1.0.0", "20260101-000000", plugin)
+        args = build_exe["_common_args"]("Teikr.exe", "teikr", "1.0.0", "20260101-000000", plugin)
         assert build_exe["_pop_option"](args, "--user-plugin") == plugin
 
     def test_no_plugin_leaves_the_argument_out(self, build_exe):
-        args = build_exe["_common_args"]("SDRunner.exe", "sdrunner", "1.0.0", "20260101-000000", None)
+        args = build_exe["_common_args"]("Teikr.exe", "teikr", "1.0.0", "20260101-000000", None)
         assert build_exe["_pop_option"](args, "--user-plugin") is None
 
     @staticmethod

@@ -8,7 +8,7 @@ with a number when it has none.
 
 import pytest
 
-from sd_runner.runs.generation_timing import (
+from src.runs.generation_timing import (
     OUTLIER_FACTOR,
     WINDOW,
     GenerationTimingStore,

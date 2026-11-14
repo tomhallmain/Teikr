@@ -1,9 +1,9 @@
 import unittest
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.concepts import Concepts
-from sd_runner.prompts import blacklist_state
-from sd_runner.persistence.app_info_cache import app_info_cache
-from sd_runner.globals import BlacklistMode, BlacklistPromptMode, PromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.concepts import Concepts
+from src.prompts import blacklist_state
+from src.persistence.app_info_cache import app_info_cache
+from src.globals import BlacklistMode, BlacklistPromptMode, PromptMode
 
 class TestBlacklist(unittest.TestCase):
     def setUp(self):
@@ -423,7 +423,7 @@ class TestBlacklistItem(unittest.TestCase):
         # `(\W)*` (zero-or-more) for the regex path when use_space_as_optional_nonword=True.
         # Both should use `+` (one-or-more) so that "blacklistitem" (no separator) does NOT
         # match.  Fix: change `*` → `+` in BlacklistItem.__init__ at the two
-        # use_space_as_optional_nonword branches in sd_runner/blacklist.py.
+        # use_space_as_optional_nonword branches in src/blacklist.py.
         # Test with space as optional non-word character enabled
         item = BlacklistItem("blacklist item", use_space_as_optional_nonword=True)
         
@@ -495,7 +495,7 @@ class TestFirstTimeUserBlacklist(unittest.TestCase):
         # per-test isolated instance created by isolated_singletons.  We must do the
         # same here rather than rely on the module-level import (which is the bootstrap
         # instance and is never patched by isolated_singletons).
-        import sd_runner.persistence.app_info_cache as _aic
+        import src.persistence.app_info_cache as _aic
         return _aic.app_info_cache
 
     def setUp(self):
@@ -627,7 +627,7 @@ class TestRestoringBlacklistModes(unittest.TestCase):
 
     @property
     def _cache(self):
-        import sd_runner.persistence.app_info_cache as _aic
+        import src.persistence.app_info_cache as _aic
         return _aic.app_info_cache
 
     def test_an_unreadable_mode_keeps_the_current_one(self):

@@ -9,9 +9,9 @@ the right generation count. A mistake here is a silently wrong-size image.
 
 import pytest
 
-from sd_runner.models.resolution import Resolution
+from src.models.resolution import Resolution
 from tests.utils import make_gen_config, make_model, make_run_config
-from sd_runner.globals import ArchitectureType, ResolutionGroup
+from src.globals import ArchitectureType, ResolutionGroup
 
 
 def resolutions_for(tag_str, architecture_type, resolution_group):

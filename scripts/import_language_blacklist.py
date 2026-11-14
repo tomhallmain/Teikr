@@ -27,8 +27,8 @@ import unicodedata
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-from sd_runner.prompts.blacklist import BlacklistItem
-from sd_runner.prompts.language_codes import normalize_language_code
+from src.prompts.blacklist import BlacklistItem
+from src.prompts.language_codes import normalize_language_code
 
 MARKERS = "~@!="
 ACCEPT_PREFIX = "accept_"

@@ -8,16 +8,16 @@ shows the name comes from the class actually in use.
 
 import pytest
 
-from sd_runner.generators.bfl import BFLGen
-from sd_runner.generators.fal_ai import FalAIGen
-from sd_runner.generators.google_imagen import GoogleImagenGen
-from sd_runner.generators.grok import GrokGen
-from sd_runner.generators.huggingface import HuggingFaceGen
-from sd_runner.generators.ideogram import IdeogramGen
-from sd_runner.generators.openai_gen import OpenAIGen
-from sd_runner.generators.replicate import ReplicateGen
-from sd_runner.generators.stability_ai import StabilityAIGen
-from sd_runner.globals import WorkflowType
+from src.generators.bfl import BFLGen
+from src.generators.fal_ai import FalAIGen
+from src.generators.google_imagen import GoogleImagenGen
+from src.generators.grok import GrokGen
+from src.generators.huggingface import HuggingFaceGen
+from src.generators.ideogram import IdeogramGen
+from src.generators.openai_gen import OpenAIGen
+from src.generators.replicate import ReplicateGen
+from src.generators.stability_ai import StabilityAIGen
+from src.globals import WorkflowType
 from tests.utils import make_gen_config
 
 DISPLAY_NAMES = {

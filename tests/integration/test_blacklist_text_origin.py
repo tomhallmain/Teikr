@@ -9,10 +9,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from sd_runner.generators.base import BaseImageGenerator
-from sd_runner.globals import BlacklistMode, PromptMode
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
-from sd_runner.prompts.prompter import Prompter
+from src.generators.base import BaseImageGenerator
+from src.globals import BlacklistMode, PromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
+from src.prompts.prompter import Prompter
 from tests.utils import make_prompter
 
 
@@ -97,7 +97,7 @@ class TestUserTagStripping:
     @pytest.fixture(autouse=True)
     def removal_mode(self, monkeypatch):
         monkeypatch.setattr(
-            "sd_runner.prompts.concepts.Concepts.get_dictionary_set", lambda: {"calm", "lake", "forbidden"}
+            "src.prompts.concepts.Concepts.get_dictionary_set", lambda: {"calm", "lake", "forbidden"}
         )
         Blacklist.set_blacklist_mode(BlacklistMode.REMOVE_ENTIRE_TAG)
 
@@ -117,7 +117,7 @@ class TestUserTagStripping:
 class TestPromptsTakenFromAnImage:
     @pytest.fixture(autouse=True)
     def enforcement_on(self, monkeypatch):
-        monkeypatch.setattr("sd_runner.prompts.prompter.config.blacklist_prevent_execution", True)
+        monkeypatch.setattr("src.prompts.prompter.config.blacklist_prevent_execution", True)
 
     @pytest.mark.parametrize("scope", [GENERATED_ONLY, USER_ONLY])
     def test_every_item_applies(self, scope):

@@ -2,7 +2,7 @@
 import pytest
 from PySide6.QtWidgets import QApplication
 
-from sd_runner.ui.prompts.prompt_generator_window import PromptGeneratorWindow
+from src.ui.prompts.prompt_generator_window import PromptGeneratorWindow
 from lib.translations import _
 
 
@@ -109,7 +109,7 @@ class TestPromptGeneratorWindowGuards:
 
 class TestPromptGeneratorWindowSimilaritySets:
     def test_similarity_set_shown_as_written(self, app_window):
-        from sd_runner.prompts.similarity_choices import PLACEHOLDER_PATTERN
+        from src.prompts.similarity_choices import PLACEHOLDER_PATTERN
 
         app_window.sidebar_panel.positive_tags_box.setPlainText("[[~woman,man]], portrait")
         win = PromptGeneratorWindow(parent=app_window, app_actions=app_window.app_actions)

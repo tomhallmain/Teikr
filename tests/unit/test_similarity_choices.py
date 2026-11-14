@@ -7,12 +7,12 @@ text and image to a fixed vector.
 import numpy as np
 import pytest
 
-from sd_runner.prompts import similarity_choices as sc
-from sd_runner.prompts.concepts import Concepts
-from sd_runner.prompts.prompter import Prompter
-from sd_runner.prompts.reference_similarity import ReferenceSimilarityEngine
-from sd_runner.prompts.similarity_choices import SimilarityChoice
-from sd_runner.models.model_adapters import ControlNet, IPAdapter
+from src.prompts import similarity_choices as sc
+from src.prompts.concepts import Concepts
+from src.prompts.prompter import Prompter
+from src.prompts.reference_similarity import ReferenceSimilarityEngine
+from src.prompts.similarity_choices import SimilarityChoice
+from src.models.model_adapters import ControlNet, IPAdapter
 from tests.utils import make_prompter
 
 
@@ -156,7 +156,7 @@ class TestGeneratePrompt:
             assert not any(t in neg for t in ("masterpiece", "best quality", "sharp"))
 
     def test_blacklisted_option_dropped(self, monkeypatch):
-        from sd_runner.prompts.blacklist import Blacklist
+        from src.prompts.blacklist import Blacklist
 
         def fake_filter(concepts, **_kw):
             return [c for c in concepts if c != "man"], ({"man": "x"} if "man" in concepts else {})
@@ -170,7 +170,7 @@ class TestGeneratePrompt:
 
 class TestConceptTemplateTexts:
     def test_marker_stripped(self):
-        from sd_runner.prompts.concepts import _template_texts
+        from src.prompts.concepts import _template_texts
         texts = _template_texts("[[~woman,man]] portrait")
         assert "woman portrait" in texts and "man portrait" in texts
 
@@ -241,7 +241,7 @@ class TestEngine:
         assert index == 0
 
     def test_device_passed_through(self):
-        from sd_runner.prompts.reference_similarity import resolve_device
+        from src.prompts.reference_similarity import resolve_device
         assert resolve_device(None) == "cpu"
         assert resolve_device(" CUDA ") == "cuda"
 
@@ -290,7 +290,7 @@ class TestGeneratorResolution:
         gen = self._generator()
         gen._warned_similarity_fallback = False
         warnings = []
-        monkeypatch.setattr("sd_runner.generators.base.logger.warning", warnings.append)
+        monkeypatch.setattr("src.generators.base.logger.warning", warnings.append)
         ph = sc.PLACEHOLDER.format(0)
         gen.resolve_similarity_choices(ph, "", None, None)
         gen.resolve_similarity_choices(ph, "", None, None)
@@ -303,7 +303,7 @@ class TestGeneratorResolution:
 
 class TestConfig:
     def test_keys_saved_and_blank_model_turns_comparison_off(self):
-        import sd_runner.config as cfg_module
+        import src.config as cfg_module
         c = cfg_module.config
         errors = c.apply_and_persist({
             "reference_similarity_model": "  ",
@@ -317,7 +317,7 @@ class TestConfig:
 
     def test_keys_loaded_from_config_file(self, tmp_path):
         import json
-        from sd_runner.config import Config
+        from src.config import Config
         config_path = tmp_path / "configs" / "config.json"
         data = json.loads(config_path.read_text(encoding="utf-8"))
         data["reference_similarity_model"] = "google/siglip-base-patch16-224"

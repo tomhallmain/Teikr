@@ -5,7 +5,7 @@ folder it cannot find, and code that assumes the folder was set then fails in
 ways that depend on which machine runs the suite. Every directory setting here
 points at a folder created under *root* instead.
 
-Kept free of sd_runner imports: the root conftest calls this before Config is
+Kept free of src imports: the root conftest calls this before Config is
 first constructed.
 """
 
@@ -14,7 +14,7 @@ import os
 
 EXAMPLE_CONFIG = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "sd_runner", "data", "config_example.json",
+    "src", "data", "config_example.json",
 )
 
 _DIRECTORY_SUFFIXES = ("_dir", "_dir2", "_loc")

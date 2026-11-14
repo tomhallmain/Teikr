@@ -12,10 +12,10 @@ network.
 
 import pytest
 
-from sd_runner.generators.base import BaseImageGenerator, logger as base_logger
-from sd_runner.models.model_adapters import ControlNet, IPAdapter
+from src.generators.base import BaseImageGenerator, logger as base_logger
+from src.models.model_adapters import ControlNet, IPAdapter
 from tests.utils import captured_logs, make_gen_config
-from sd_runner.globals import (
+from src.globals import (
     CONTROL_NET_IMAGE_WORKFLOWS,
     IP_ADAPTER_IMAGE_WORKFLOWS,
     WorkflowType,

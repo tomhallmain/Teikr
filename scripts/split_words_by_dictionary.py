@@ -18,8 +18,8 @@ os.chdir(PROJECT_ROOT)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from sd_runner.app_paths import REPO_ROOT
-from sd_runner.prompts.concepts import Concepts
+from src.app_paths import REPO_ROOT
+from src.prompts.concepts import Concepts
 
 # Additional dictionary consulted alongside whichever concepts dir is currently
 # configured (Concepts.ALL_WORDS_LIST_FILENAME / Concepts.CONCEPTS_DIR), so

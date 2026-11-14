@@ -4,8 +4,8 @@ The default notice says that tags were removed and does not name them. Naming
 the blacklist item that matched is a separate option and stays off.
 """
 
-from sd_runner.globals import BlacklistMode, BlacklistPromptMode, PromptMode
-from sd_runner.prompts.blacklist import Blacklist, BlacklistItem
+from src.globals import BlacklistMode, BlacklistPromptMode, PromptMode
+from src.prompts.blacklist import Blacklist, BlacklistItem
 
 
 def test_a_blocked_tag_is_removed_and_the_rest_is_kept():
