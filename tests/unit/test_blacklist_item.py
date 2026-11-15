@@ -1,5 +1,5 @@
 import pytest
-from src.prompts.blacklist import BlacklistItem, ModelBlacklistItem
+from teikr.prompts.blacklist import BlacklistItem, ModelBlacklistItem
 
 
 # ---------------------------------------------------------------------------

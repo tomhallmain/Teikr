@@ -2,13 +2,14 @@ import argparse
 import os
 import sys
 
-from src.prompts.blacklist import Blacklist
-from src.prompts import blacklist_state
+from teikr.prompts.blacklist import Blacklist
+from teikr.prompts import blacklist_state
 
 # Ensure we are running from the project root for imports and relative paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
 #: Label -> getter for each list the default blacklist file carries.
 LISTS = {

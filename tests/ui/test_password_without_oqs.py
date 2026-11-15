@@ -9,10 +9,10 @@ function's name: in a compiled build PySide6 connected every method named
 
 import pytest
 
-import src.ui.auth.app_startup_auth as app_startup_auth
-import src.ui.auth.password_core as password_core
-import src.ui.auth.password_utils as password_utils
-from src.globals import ProtectedActions
+import teikr.ui.auth.app_startup_auth as app_startup_auth
+import teikr.ui.auth.password_core as password_core
+import teikr.ui.auth.password_utils as password_utils
+from teikr.globals import ProtectedActions
 
 
 @pytest.fixture
@@ -124,7 +124,7 @@ class TestDecoratorsKeepNames:
         assert Window.open_presets.__name__ == "open_presets"
 
     def test_key_binding_guard(self):
-        from src.ui.app_window.key_binding_manager import KeyBindingManager
+        from teikr.ui.app_window.key_binding_manager import KeyBindingManager
 
         def next_preset():
             pass

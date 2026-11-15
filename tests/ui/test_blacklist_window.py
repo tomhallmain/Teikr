@@ -18,9 +18,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.prompts.blacklist import Blacklist, BlacklistItem
-from src.ui.prompts.blacklist_modify_window import BlacklistModifyWindow
-from src.ui.prompts.blacklist_window import BlacklistWindow
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.ui.prompts.blacklist_modify_window import BlacklistModifyWindow
+from teikr.ui.prompts.blacklist_window import BlacklistWindow
 from tests.utils import close_window, install_password_bypass
 
 

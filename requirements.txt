@@ -3,7 +3,7 @@ keyring
 piexif
 Pillow>=9.0.0
 numpy
-# ComfyUI client (src/generators/comfy.py)
+# ComfyUI client (src/teikr/generators/comfy.py)
 websocket-client
 # GUI framework
 PySide6>=6.6.0

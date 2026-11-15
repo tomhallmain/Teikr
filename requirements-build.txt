@@ -16,7 +16,7 @@ piexif
 Pillow>=9.0.0
 numpy
 PySide6==6.11.2
-# src/generators/comfy.py imports websocket at module load.
+# src/teikr/generators/comfy.py imports websocket at module load.
 websocket-client
 # Registered by lib/pillow_plugins.py, which imports them by name.
 pillow-avif-plugin>=1.4.0

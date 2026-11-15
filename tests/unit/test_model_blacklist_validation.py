@@ -7,8 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.models.model import Model
-from src.prompts.blacklist import Blacklist, BlacklistException
+from teikr.models.model import Model
+from teikr.prompts.blacklist import Blacklist, BlacklistException
 
 
 @pytest.fixture(autouse=True)

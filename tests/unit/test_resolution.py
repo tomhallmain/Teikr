@@ -2,8 +2,8 @@ import math
 import random
 import unittest
 
-from src.models.resolution import Resolution
-from src.globals import ArchitectureType, ResolutionGroup
+from teikr.models.resolution import Resolution
+from teikr.globals import ArchitectureType, ResolutionGroup
 
 
 class TestScaleDimensions(unittest.TestCase):

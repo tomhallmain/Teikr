@@ -51,11 +51,15 @@ import json
 import os
 import re
 import statistics
+import sys
 from typing import List, Tuple, Dict, Any, Optional
 
 import nltk
 from nltk.tokenize import sent_tokenize
-from src.prompts.concepts import Concepts
+
+# The application package is src/teikr.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+from teikr.prompts.concepts import Concepts  # noqa: E402
 
 @dataclass
 class Config:

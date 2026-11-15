@@ -1,11 +1,11 @@
 import json
 
 import pytest
-from src.models.model import Model, NoModelsFound
-from src.prompts.prompter_configuration import PrompterConfiguration
-from src.runs.run_config import RunConfig
+from teikr.models.model import Model, NoModelsFound
+from teikr.prompts.prompter_configuration import PrompterConfiguration
+from teikr.runs.run_config import RunConfig
 from tests.utils import make_model, make_prompter_config, make_run_config
-from src.globals import Sampler, Scheduler, WorkflowType
+from teikr.globals import Sampler, Scheduler, WorkflowType
 
 
 # ---------------------------------------------------------------------------

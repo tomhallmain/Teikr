@@ -1,6 +1,6 @@
 import pytest
-from src.models.model_adapters import ControlNet, IPAdapter
-from src.globals import Globals
+from teikr.models.model_adapters import ControlNet, IPAdapter
+from teikr.globals import Globals
 
 
 def abs_path(tmp_path, name):
@@ -60,7 +60,7 @@ class TestIPAdapterBWColorationModifier:
     def test_bw_desc_no_coloration_set_calls_mix_colors(self, tmp_path, monkeypatch):
         monkeypatch.setattr(IPAdapter, "B_W_COLORATION", "")
         # Mock GlobalPrompter.prompter_instance.mix_colors to avoid None dereference
-        from src.prompts.prompter import GlobalPrompter
+        from teikr.prompts.prompter import GlobalPrompter
 
         class FakePrompter:
             def mix_colors(self):

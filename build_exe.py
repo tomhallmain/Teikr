@@ -20,7 +20,7 @@ app_gui.py. ``--with-headless`` also builds TeikrHeadless from
 app_headless.py, which serves the request front ends with no window and
 contains no Qt; it takes about as long again. At its first start each unpacks its runtime to ``unpacked/<prefix>-<build id>`` in the app
 data directory (``<app data>/sd_runner``); later starts of the same build reuse that folder,
-and the app removes older builds' folders (src/runtime/unpack_cleanup.py).
+and the app removes older builds' folders (src/teikr/runtime/unpack_cleanup.py).
 Each is smoke-tested with ``--smoke-test``. Other args are forwarded to Nuitka,
 e.g. ``--show-scons`` or ``--jobs=4``.
 
@@ -75,7 +75,7 @@ DIST_DIR = os.path.join(REPO_ROOT, "dist")
 APP_DATA_SPEC = "{HOME}/AppData/Roaming/sd_runner" if sys.platform == "win32" else "{HOME}/.local/share/sd_runner"
 LOCK_PATH = os.path.join(BUILD_DIR, "build-requirements.lock.txt")
 VERSION_FILE = "VERSION"
-VERSION_MODULE = os.path.join("src", "runtime", "version.py")
+VERSION_MODULE = os.path.join("src", "teikr", "runtime", "version.py")
 BUILD_INFO_PATH = os.path.join(BUILD_DIR, "build_info.json")
 LOG_DIR = os.path.join(REPO_ROOT, "build", "logs")
 # Set by app-release, which ships the memory-wait plugin, when it runs this script.
@@ -97,13 +97,13 @@ DATA_DIRS = (os.path.join("lib", "sounds"),)
 DATA_FILES = (
     VERSION_FILE,
     ICON_PNG,
-    os.path.join("src", "data", "blacklist_default.enc"),
-    os.path.join("src", "data", "urban_dictionary.enc"),
-    os.path.join("src", "data", "config_example.json"),
+    os.path.join("src", "teikr", "data", "blacklist_default.enc"),
+    os.path.join("src", "teikr", "data", "urban_dictionary.enc"),
+    os.path.join("src", "teikr", "data", "config_example.json"),
     "THIRD_PARTY_NOTICES.md",
     os.path.join("licenses", "lingua-language-detector-LICENSE.txt"),
 )
-WORKFLOWS_DIR = os.path.join("src", "data", "workflows")
+WORKFLOWS_DIR = os.path.join("src", "teikr", "data", "workflows")
 # test.json is the last prompt the app writes when save_last_prompt is on;
 # stableDiffusion3* are not shipped (.gitignore).
 WORKFLOWS_EXCLUDED = re.compile(r"^(test\.json|stableDiffusion3.*)$")
@@ -240,7 +240,7 @@ def _write_lock_file(python: str) -> None:
 
 
 def _version_module() -> dict:
-    """src/runtime/version.py's globals, loaded without importing the app."""
+    """src/teikr/runtime/version.py's globals, loaded without importing the app."""
     return runpy.run_path(os.path.join(REPO_ROOT, VERSION_MODULE))
 
 
@@ -271,7 +271,7 @@ def _check_transformers_version(packages: dict) -> None:
 
 
 def _write_build_info(version: str, build_id: str, environment: dict, with_oqs: bool) -> None:
-    """build_info.json, bundled at the resource root (src/runtime/version.py reads it)."""
+    """build_info.json, bundled at the resource root (src/teikr/runtime/version.py reads it)."""
     info = {
         "version": version,
         "build_id": build_id,
@@ -458,6 +458,10 @@ def _oqs_args(python: str, with_oqs: bool) -> list:
 
 def _nuitka_env(min_free_memory=None) -> dict:
     env = dict(os.environ)
+    # The application package is src/teikr; Nuitka finds it, and places it in
+    # the build as teikr/, through this search path entry.
+    env["PYTHONPATH"] = os.pathsep.join(
+        p for p in (os.path.join(REPO_ROOT, "src"), env.get("PYTHONPATH")) if p)
     if min_free_memory is not None:
         env[MIN_FREE_MEMORY_ENV] = min_free_memory
     return env
@@ -515,11 +519,11 @@ def _smoke_test(exe_path: str, with_oqs: bool) -> None:
         sys.exit(f"Smoke test failed: `{' '.join(command)}` exited {result.returncode}.")
 
 
-#: The display name, from src/runtime/version.py like the version helpers.
+#: The display name, from src/teikr/runtime/version.py like the version helpers.
 APP_NAME = _version_module()["APP_NAME"]
 
 # exe base name, entry script, unpack folder prefix, target-specific args.
-# The prefixes must match UNPACK_DIR_PREFIXES in src/runtime/unpack_cleanup.py.
+# The prefixes must match UNPACK_DIR_PREFIXES in src/teikr/runtime/unpack_cleanup.py.
 TARGETS = (
     (APP_NAME, "app_gui.py", APP_NAME.lower(), _gui_args),
     (f"{APP_NAME}Headless", "app_headless.py", f"{APP_NAME.lower()}-headless", _headless_args),

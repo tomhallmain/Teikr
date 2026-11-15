@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.prompts.language_codes import is_invalid_language_code, normalize_language_code
+from teikr.prompts.language_codes import is_invalid_language_code, normalize_language_code
 
 
 @pytest.mark.parametrize("code", [None, "", "  ", "en", "EN", "en-US", "en_GB"])

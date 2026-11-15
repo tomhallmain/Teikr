@@ -2,8 +2,8 @@ import json
 import csv
 import pytest
 
-from src.globals import BlacklistMode
-from src.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.globals import BlacklistMode
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
 
 
 # ---------------------------------------------------------------------------
@@ -19,7 +19,7 @@ def _patch_dictionary(monkeypatch, words: set = None) -> None:
     """Make Concepts.get_dictionary_set() return a controlled set of words."""
     word_set = words if words is not None else set()
     monkeypatch.setattr(
-        "src.prompts.concepts.Concepts.get_dictionary_set",
+        "teikr.prompts.concepts.Concepts.get_dictionary_set",
         lambda: word_set,
     )
 

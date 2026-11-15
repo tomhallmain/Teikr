@@ -5,9 +5,9 @@ import os
 
 import pytest
 
-import src.app_paths as app_paths
-from src.runtime import crash_log, version
-from src.runtime.smoke_test import SmokeTest
+import teikr.app_paths as app_paths
+from teikr.runtime import crash_log, version
+from teikr.runtime.smoke_test import SmokeTest
 
 
 @pytest.fixture

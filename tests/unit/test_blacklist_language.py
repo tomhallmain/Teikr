@@ -4,8 +4,8 @@ import csv
 
 import pytest
 
-from src.globals import BlacklistTextOrigin
-from src.prompts.blacklist import (
+from teikr.globals import BlacklistTextOrigin
+from teikr.prompts.blacklist import (
     Blacklist, BlacklistItem, ModelBlacklistItem, normalize_user_tag,
 )
 
@@ -178,11 +178,11 @@ class TestLanguagesInChecks:
         assert english == {}
 
     def test_items_with_a_language_take_no_part_in_the_suffix_check(self, monkeypatch):
-        monkeypatch.setattr("src.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
+        monkeypatch.setattr("teikr.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
         assert Blacklist.check_user_prompt_detailed("xwort") == {}
 
     def test_items_without_a_language_still_take_part(self, monkeypatch):
-        monkeypatch.setattr("src.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
+        monkeypatch.setattr("teikr.prompts.concepts.Concepts.get_dictionary_set", lambda: set())
         Blacklist.TAG_BLACKLIST.append(BlacklistItem("global"))
         assert Blacklist.check_user_prompt_detailed("xglobal")
 

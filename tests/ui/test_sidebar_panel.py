@@ -4,9 +4,9 @@ expansion and the blacklist check."""
 import pytest
 from PySide6.QtCore import Qt
 
-from src.config import config
-from src.persistence.app_info_cache import app_info_cache
-from src.ui.app_window.sidebar_panel import SidebarPanel
+from teikr.config import config
+from teikr.persistence.app_info_cache import app_info_cache
+from teikr.ui.app_window.sidebar_panel import SidebarPanel
 
 KEY = SidebarPanel.NEGATIVE_TAGS_COLLAPSED_KEY
 

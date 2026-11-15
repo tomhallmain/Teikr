@@ -1,9 +1,9 @@
 import unittest
-from src.prompts.blacklist import Blacklist, BlacklistItem
-from src.prompts.concepts import Concepts
-from src.prompts import blacklist_state
-from src.persistence.app_info_cache import app_info_cache
-from src.globals import BlacklistMode, BlacklistPromptMode, PromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.prompts.concepts import Concepts
+from teikr.prompts import blacklist_state
+from teikr.persistence.app_info_cache import app_info_cache
+from teikr.globals import BlacklistMode, BlacklistPromptMode, PromptMode
 
 class TestBlacklist(unittest.TestCase):
     def setUp(self):
@@ -495,7 +495,7 @@ class TestFirstTimeUserBlacklist(unittest.TestCase):
         # per-test isolated instance created by isolated_singletons.  We must do the
         # same here rather than rely on the module-level import (which is the bootstrap
         # instance and is never patched by isolated_singletons).
-        import src.persistence.app_info_cache as _aic
+        import teikr.persistence.app_info_cache as _aic
         return _aic.app_info_cache
 
     def setUp(self):
@@ -627,7 +627,7 @@ class TestRestoringBlacklistModes(unittest.TestCase):
 
     @property
     def _cache(self):
-        import src.persistence.app_info_cache as _aic
+        import teikr.persistence.app_info_cache as _aic
         return _aic.app_info_cache
 
     def test_an_unreadable_mode_keeps_the_current_one(self):

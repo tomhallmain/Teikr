@@ -12,8 +12,8 @@ _security_configured_cache that short-circuits the storage read.
 
 import pytest
 
-import src.ui.auth.password_core as password_core
-from src.ui.auth.password_core import PasswordManager
+import teikr.ui.auth.password_core as password_core
+from teikr.ui.auth.password_core import PasswordManager
 
 
 @pytest.fixture(autouse=True)

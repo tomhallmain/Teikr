@@ -70,8 +70,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from src.prompts.language_codes import normalize_language_code  # noqa: E402
+from teikr.prompts.language_codes import normalize_language_code  # noqa: E402
 
 
 # Files that hold concepts but are not categories a new concept should be filed
@@ -857,8 +858,8 @@ def load_blacklist_checker():
     """A ``concept -> bool`` check against the app's blacklist, or None."""
     os.chdir(PROJECT_ROOT)
     try:
-        from src.prompts import blacklist_state  # noqa: PLC0415
-        from src.prompts.blacklist import Blacklist  # noqa: PLC0415
+        from teikr.prompts import blacklist_state  # noqa: PLC0415
+        from teikr.prompts.blacklist import Blacklist  # noqa: PLC0415
         blacklist_state.set_blacklist()
         if Blacklist.is_empty():
             return None

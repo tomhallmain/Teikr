@@ -8,14 +8,14 @@ none of this downloads or runs a 14 GB checkpoint.
 
 import pytest
 
-from src.image_to_prompt import ImageToPromptBackend, ImageToPromptService
-from src.image_to_prompt.providers.llava_transformers import (
+from teikr.image_to_prompt import ImageToPromptBackend, ImageToPromptService
+from teikr.image_to_prompt.providers.llava_transformers import (
     LlavaTransformersImpl,
     strip_lead_in,
 )
-from src.image_to_prompt.providers.vlm_provider import VLMProvider
-from src.image_to_prompt.registry import ImageToPromptProviderRegistry
-from src.image_to_prompt.types import ImageToPromptRequest
+from teikr.image_to_prompt.providers.vlm_provider import VLMProvider
+from teikr.image_to_prompt.registry import ImageToPromptProviderRegistry
+from teikr.image_to_prompt.types import ImageToPromptRequest
 
 
 class FakeVlmImpl:

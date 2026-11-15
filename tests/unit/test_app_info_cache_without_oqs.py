@@ -10,7 +10,7 @@ import os
 import pytest
 
 import lib.encryptor as encryptor
-from src.persistence import app_info_cache as module
+from teikr.persistence import app_info_cache as module
 
 
 @pytest.fixture

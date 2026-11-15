@@ -12,8 +12,8 @@ is promoted.
 """
 
 from extensions.sd_runner_server import CommandType
-from src.runs.job_queue import ServerStagingQueue
-from src.runs.run_config import RunConfig
+from teikr.runs.job_queue import ServerStagingQueue
+from teikr.runs.run_config import RunConfig
 
 
 class TestRunConfigCarriesAnId:

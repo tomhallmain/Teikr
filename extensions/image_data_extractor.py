@@ -8,7 +8,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import pprint
 
-from src.config import config
+from teikr.config import config
 from lib.logging_setup import get_logger
 from lib.pillow_plugins import ensure_pillow_plugins_registered
 from lib.utils import Utils

@@ -1,12 +1,12 @@
 import io
 
 import pytest
-import src.runs.gen_config as gen_config_module
-from src.prompts.concepts import HardConcepts
-from src.runs.gen_config import GenConfig
-from src.prompts.prompter_configuration import PrompterConfiguration
+import teikr.runs.gen_config as gen_config_module
+from teikr.prompts.concepts import HardConcepts
+from teikr.runs.gen_config import GenConfig
+from teikr.prompts.prompter_configuration import PrompterConfiguration
 from tests.utils import make_gen_config, make_model, make_resolution, make_run_config
-from src.globals import ArchitectureType, Globals, PromptMode, WorkflowType
+from teikr.globals import ArchitectureType, Globals, PromptMode, WorkflowType
 
 
 # ---------------------------------------------------------------------------
@@ -450,7 +450,7 @@ class TestValidateWithoutConsole:
         assert "lake" in asked[0][1]
 
     def test_headless_notifications_decline(self):
-        from src.runs.headless_app import LoggingNotifications
+        from teikr.runs.headless_app import LoggingNotifications
 
         notifications = LoggingNotifications()
 

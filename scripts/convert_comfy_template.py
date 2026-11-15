@@ -364,7 +364,7 @@ if __name__ == "__main__":
         _debug_widgets()
         raise SystemExit
     root = r"C:\Users\tehal\miniconda\envs\comfy\Lib\site-packages\comfyui_workflow_templates_json\templates"
-    out = r"c:\Users\tehal\repos\sd-runner\src\data\workflows\comfyui"
+    out = r"c:\Users\tehal\repos\sd-runner\src\teikr\data\workflows\comfyui"
     pairs = [
         (root + r"\image_krea2_turbo_t2i.json", out + r"\image_krea2_turbo_t2i.json", "Krea2"),
         (root + r"\image_flux3_klein_t2i.json", out + r"\image_flux3_klein_t2i.json", "Flux3"),

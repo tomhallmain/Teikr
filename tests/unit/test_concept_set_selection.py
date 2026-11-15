@@ -4,9 +4,9 @@ import os
 
 import pytest
 
-from src.prompts import concepts as concepts_module
-from src.prompts.blacklist import Blacklist, BlacklistItem
-from src.prompts.concepts import Concepts
+from teikr.prompts import concepts as concepts_module
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.prompts.concepts import Concepts
 
 
 @pytest.fixture

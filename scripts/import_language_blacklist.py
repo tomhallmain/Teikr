@@ -26,9 +26,10 @@ import unicodedata
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
-from src.prompts.blacklist import BlacklistItem
-from src.prompts.language_codes import normalize_language_code
+from teikr.prompts.blacklist import BlacklistItem
+from teikr.prompts.language_codes import normalize_language_code
 
 MARKERS = "~@!="
 ACCEPT_PREFIX = "accept_"

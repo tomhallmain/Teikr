@@ -8,7 +8,7 @@ Expansion class (registry, to_dict/from_dict) is covered in test_expansion.py.
 import random
 
 import pytest
-from src.prompts.prompter import Prompter
+from teikr.prompts.prompter import Prompter
 
 
 # ---------------------------------------------------------------------------

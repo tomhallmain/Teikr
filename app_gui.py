@@ -13,8 +13,13 @@ import sys
 import threading
 import traceback
 
-from src.runtime.console_streams import make_console_streams_byte_safe
-from src.runtime.oqs_path import point_oqs_at_bundled_library
+# The application package is src/teikr. A checkout imports it from there; a
+# build has it compiled in and needs no search path for it.
+if "__compiled__" not in globals():
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
+
+from teikr.runtime.console_streams import make_console_streams_byte_safe
+from teikr.runtime.oqs_path import point_oqs_at_bundled_library
 
 _byte_safe_fds = make_console_streams_byte_safe()
 point_oqs_at_bundled_library()
@@ -22,13 +27,13 @@ point_oqs_at_bundled_library()
 from PySide6.QtCore import QtMsgType, qInstallMessageHandler
 from PySide6.QtWidgets import QApplication
 
-from src.ui.app_style import AppStyle
-from src.ui.app_icon import apply_app_icon
-from src.app_paths import resource_path
-from src.config import config
-from src.runtime.crash_log import enable_fault_log
-from src.runtime.unpack_cleanup import remove_stale_unpack_dirs
-from src.runtime.version import APP_NAME, describe as describe_version, source_drift
+from teikr.ui.app_style import AppStyle
+from teikr.ui.app_icon import apply_app_icon
+from teikr.app_paths import resource_path
+from teikr.config import config
+from teikr.runtime.crash_log import enable_fault_log
+from teikr.runtime.unpack_cleanup import remove_stale_unpack_dirs
+from teikr.runtime.version import APP_NAME, describe as describe_version, source_drift
 from lib.logging_setup import get_logger
 from lib.translations import I18N, _
 from lib.utils import Utils
@@ -82,7 +87,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
     """Check that a build can start, without opening a window. Returns an exit code."""
     import importlib
 
-    from src.runtime.smoke_test import SmokeTest
+    from teikr.runtime.smoke_test import SmokeTest
 
     smoke = SmokeTest()
     smoke.run_common(expect_oqs=expect_oqs)
@@ -99,7 +104,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
     smoke.check_call("sound effect (Qt Multimedia)", lambda: QSoundEffect() and None)
     smoke.check_call(
         "main window modules",
-        lambda: importlib.import_module("src.ui.app_window.app_window") and None,
+        lambda: importlib.import_module("teikr.ui.app_window.app_window") and None,
     )
     qt_app.quit()
     return smoke.result()
@@ -239,10 +244,10 @@ def main():
         # Password verified or not required -- create the main window
         logger.info("Creating the main window")
         try:
-            from src.ui.app_window.app_window import AppWindow
+            from teikr.ui.app_window.app_window import AppWindow
 
             # Clean up any old image converter temporary files on startup
-            from src.generators.base import BaseImageGenerator
+            from teikr.generators.base import BaseImageGenerator
             BaseImageGenerator.cleanup_image_converter()
 
             app_window = AppWindow()
@@ -270,7 +275,7 @@ def main():
     # ------------------------------------------------------------------
     # Check if startup password is required
     # ------------------------------------------------------------------
-    from src.ui.auth.app_startup_auth import check_startup_password_required
+    from teikr.ui.auth.app_startup_auth import check_startup_password_required
     logger.debug("Checking whether the start needs a password")
     check_startup_password_required(callback=startup_callback)
 

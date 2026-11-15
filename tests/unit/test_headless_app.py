@@ -14,8 +14,8 @@ from types import SimpleNamespace
 import pytest
 
 from extensions.sd_runner_server import CommandType
-from src.runs.headless_app import DirectBridge, LoggingNotifications
-from src.runs.run_controller import RunController
+from teikr.runs.headless_app import DirectBridge, LoggingNotifications
+from teikr.runs.run_controller import RunController
 
 
 def make_headless_controller(**app_fields) -> RunController:
@@ -108,24 +108,24 @@ class TestBlacklistIsEnforceableWithoutWidgets:
 
     def _controller(self, prompt_mode):
         from tests.utils import make_prompter_config
-        from src.runs.runner_app_config import RunnerAppConfig
+        from teikr.runs.runner_app_config import RunnerAppConfig
 
         cfg = RunnerAppConfig()
         cfg.prompter_config = make_prompter_config(prompt_mode)
         return make_headless_controller(runner_app_config=cfg)
 
     def test_a_clean_prompt_passes(self, monkeypatch):
-        from src.config import config
-        from src.globals import PromptMode
+        from teikr.config import config
+        from teikr.globals import PromptMode
 
         monkeypatch.setattr(config, "blacklist_prevent_execution", True)
         ctrl = self._controller(PromptMode.SFW)
         assert ctrl.validate_blacklist("a calm lake at sunrise") is True
 
     def test_a_blacklisted_prompt_is_refused(self, monkeypatch):
-        from src.prompts.blacklist import Blacklist
-        from src.config import config
-        from src.globals import BlacklistMode, PromptMode
+        from teikr.prompts.blacklist import Blacklist
+        from teikr.config import config
+        from teikr.globals import BlacklistMode, PromptMode
 
         monkeypatch.setattr(config, "blacklist_prevent_execution", True)
         Blacklist.set_blacklist_mode(BlacklistMode.REMOVE_ENTIRE_TAG)
@@ -159,7 +159,7 @@ class TestImportsNoQt:
             "        return self.find_module(name, path)\n"
             "sys.meta_path.insert(0, Blocker())\n"
             "import app_headless\n"
-            "from src.runs.headless_app import HeadlessApp\n"
+            "from teikr.runs.headless_app import HeadlessApp\n"
             # Constructed, not just imported: the controllers, the cache load
             # and the action wiring are where a Qt import would actually be
             # reached, and AppActions refuses to build with an action missing.

@@ -1,8 +1,8 @@
 from types import SimpleNamespace
 
-from src.runs.runner_app_config import RunnerAppConfig
-from src.globals import ResolutionGroup, Sampler, Scheduler
-from src.prompts.prompter_configuration import PrompterConfiguration
+from teikr.runs.runner_app_config import RunnerAppConfig
+from teikr.globals import ResolutionGroup, Sampler, Scheduler
+from teikr.prompts.prompter_configuration import PrompterConfiguration
 
 
 class TestRunnerAppConfigDefaults:

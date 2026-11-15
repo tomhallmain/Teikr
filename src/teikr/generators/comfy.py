@@ -1,0 +1,1081 @@
+import json
+import os
+from pathlib import Path
+from typing import Optional
+from urllib import request, response, parse, error
+import uuid
+import websocket
+import time
+
+from teikr.runs.gen_config import GenConfig
+from teikr.globals import Globals, WorkflowType, ComfyNodeName
+
+from teikr.generators.base import BaseImageGenerator
+from teikr.models.model import Model, LoraBundle
+from teikr.prompts.prompter_configuration import PrompterConfiguration
+from teikr.workflow_prompts.base import WorkflowPrompt
+from teikr.workflow_prompts.comfy import WorkflowPromptComfy
+from teikr.config import config
+from teikr.runtime.version import APP_NAME
+from teikr.prompts.blacklist import BlacklistException
+from lib.logging_setup import get_logger
+from lib.utils import Utils
+
+logger = get_logger("comfy_gen")
+
+
+def _elapsed_since(started_at: Optional[float]) -> Optional[float]:
+    """Seconds since *started_at*, or None if it was never set.
+
+    None means the backend never reported starting work on this prompt, so
+    there is no duration to attribute to it.
+    """
+    return None if started_at is None else time.time() - started_at
+
+class ComfyGen(BaseImageGenerator):
+    BASE_URL = config.comfyui_url.replace("http://", "").replace("https://", "")
+    PROMPT_URL = BASE_URL + "/prompt"
+    CLIENT_ID = str(uuid.uuid4())
+    _active_connections = []  # Track all active websocket connections
+
+    def __init__(self, config=GenConfig(), ui_callbacks=None):
+        super().__init__(config, ui_callbacks)
+        logger.debug(f"ComfyGen initialized with config: {config}")
+
+    @classmethod
+    def add_connection(cls, ws):
+        """Add a websocket connection to the tracking list"""
+        cls._active_connections.append(ws)
+        logger.debug(f"Added websocket connection. Total active connections: {len(cls._active_connections)}")
+
+    @classmethod
+    def remove_connection(cls, ws):
+        """Remove a websocket connection from the tracking list"""
+        if ws in cls._active_connections:
+            cls._active_connections.remove(ws)
+            logger.debug(f"Removed websocket connection. Total active connections: {len(cls._active_connections)}")
+
+    @classmethod
+    def close_all_connections(cls):
+        """Close all active websocket connections"""
+        logger.info(f"Closing all {len(cls._active_connections)} websocket connections...")
+        for ws in cls._active_connections[:]:  # Use a copy of the list to avoid modification during iteration
+            try:
+                ws.close()
+                cls.remove_connection(ws)
+            except Exception as e:
+                logger.warning(f"Error closing websocket connection: {e}")
+        logger.info("All websocket connections closed")
+
+    def prompt_setup(self, workflow_type: WorkflowType, action: str, prompt: Optional[WorkflowPrompt], model: Model, vae=None, resolution=None, **kw):
+        if prompt:
+            # NOTE this is only needed for redo_with_different_parameter case `if not prompt.validate_api_prompt()`
+            prompt.set_from_workflow(workflow_type.value)
+            model, vae = prompt.check_for_existing_image(model, vae, resolution)
+        else:
+            self.print_pre(action=action, model=model, vae=vae, resolution=resolution, **kw)
+            if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN_LORA:
+                lora = kw["lora"]
+                if isinstance(lora, LoraBundle):
+                    prompt = WorkflowPromptComfy("simple_image_gen_lora2.json")
+            if workflow_type == WorkflowType.INSTANT_LORA and model.is_xl():
+                prompt = WorkflowPromptComfy("instant_lora_xl.json")
+            if workflow_type == WorkflowType.RENOISER and model.is_xl():
+                prompt = WorkflowPromptComfy("renoiser_xl.json")
+            if model.is_krea2():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("image_krea2_turbo_t2i.json")
+                else:
+                    raise Exception(f"Krea 2 workflows other than simple image gen are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_minimax_h3():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("video_minimax_h3_t2v.json")
+                else:
+                    raise Exception(f"MiniMax H3 workflows other than simple image gen are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_flux3():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("image_flux3_klein_t2i.json")
+                else:
+                    raise Exception(f"Flux.3 workflows other than simple image gen are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_flux2_klein():
+                if workflow_type in (WorkflowType.SIMPLE_IMAGE_GEN, WorkflowType.SIMPLE_IMAGE_GEN_LORA):
+                    if model.is_flux2_klein_4b():
+                        prompt = WorkflowPromptComfy("image_flux2_text_to_image_4b.json")
+                    else:
+                        prompt = WorkflowPromptComfy("image_flux2_text_to_image_9b.json")
+                    if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                        prompt.bypass_lora_loaders()
+                elif workflow_type == WorkflowType.IMAGE_EDIT:
+                    prompt = WorkflowPromptComfy("image_flux2_klein_image_edit_4b_base.json")
+                else:
+                    raise Exception(f"Flux2 Klein workflows other than simple image gen, simple image gen lora, and image edit are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_flux():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("simple_image_gen_flux.json")
+                else:
+                    raise Exception(f"Flux workflows other than simple image gen are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_chroma():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("image_chroma_text_to_image.json")
+                elif workflow_type == WorkflowType.SIMPLE_IMAGE_GEN_LORA:
+                    prompt = WorkflowPromptComfy("image_chroma_text_to_image_lora.json")
+                else:
+                    raise Exception(f"Chroma workflows other than simple image gen and simple image gen lora are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_z_image_turbo():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("image_z_image_turbo.json")
+                elif workflow_type == WorkflowType.SIMPLE_IMAGE_GEN_LORA:
+                    # Use the ZImageTurbo LoRA workflow
+                    prompt = WorkflowPromptComfy("image_z_image_turbo_lora.json")
+                else:
+                    raise Exception(f"ZImageTurbo workflows other than simple image gen are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if model.is_qwen():
+                if workflow_type == WorkflowType.SIMPLE_IMAGE_GEN:
+                    prompt = WorkflowPromptComfy("qwen_t2i_subgraphed.json")
+                elif workflow_type == WorkflowType.SIMPLE_IMAGE_GEN_LORA:
+                    prompt = WorkflowPromptComfy("qwen_t2i_subgraphed_lora.json")
+                else:
+                    raise Exception(f"Qwen workflows other than simple image gen and simple image gen lora are not supported in {APP_NAME}'s ComfyUI implementation at this time")
+            if not prompt:
+                prompt = WorkflowPromptComfy(workflow_type.value)
+        return prompt, model, vae
+
+    def _get_workflows(self) -> dict:
+        """Return a dictionary mapping workflow IDs to methods"""
+        return {
+            WorkflowType.ANIMATE_DIFF: self.animate_diff,
+            WorkflowType.CONTROLNET: self.control_net,
+            WorkflowType.ELLA: self.ella,
+            WorkflowType.IMAGE_EDIT: self.image_edit,
+            WorkflowType.INPAINT_CLIPSEG: self.inpaint_clipseg,
+            WorkflowType.INSTANT_LORA: self.instant_lora,
+            WorkflowType.IP_ADAPTER: self.ip_adapter,
+            WorkflowType.IMG2IMG: self.img2img,
+            WorkflowType.REDO_PROMPT: self.redo_with_different_parameter,
+            WorkflowType.RENOISER: self.renoiser,
+            WorkflowType.SIMPLE_IMAGE_GEN_LORA: self.simple_image_gen_lora,
+            WorkflowType.SIMPLE_IMAGE_GEN_TILED_UPSCALE: self.simple_image_gen_tiled_upscale,
+            WorkflowType.SIMPLE_IMAGE_GEN: self.simple_image_gen,
+            WorkflowType.TURBO: self.simple_image_gen_turbo,
+            WorkflowType.UPSCALE_BETTER: self.upscale_better,
+            WorkflowType.UPSCALE_SIMPLE: self.upscale_simple,
+        }
+
+    def queue_prompt(self, prompt: WorkflowPromptComfy) -> list:
+        """Run one prompt and return the paths of the images it produced.
+
+        An empty list means nothing was written by a generation that otherwise
+        completed. A failure raises instead: a connection that dropped or a
+        backend error reaches the caller rather than being reported as "no
+        images". The byte payloads are discarded here; the paths are what
+        callers can act on.
+        """
+        data = prompt.get_json()
+        if config.debug:
+            logger.debug(data.decode("utf-8"))
+        output_paths = []
+        connection_id = str(uuid.uuid4())  # Unique per connection so ComfyUI routes events correctly
+        ws = None
+        edit_suffix, target_dir = self.output_treatments()
+        try:
+            ws = websocket.WebSocket()
+            ws.connect("ws://{}/ws?clientId={}".format(ComfyGen.BASE_URL, connection_id))
+            ComfyGen.add_connection(ws)
+            _images, output_paths, execution_seconds = ComfyGen.get_images(
+                ws,
+                json.loads(data.decode('utf-8')),
+                self.gen_config.get_prompter_config(),
+                related_image_path=self.related_image_path(),
+                client_id=connection_id,
+                edit_suffix=edit_suffix,
+                target_dir=target_dir,
+            )
+            self.record_generation_timing(execution_seconds)
+        except error.URLError:
+            raise Exception("Failed to connect to ComfyUI. Is ComfyUI running?")
+        finally:
+            # Cleanup only -- no return here. A `return` in a `finally` discards
+            # any exception on its way out, which silently swallowed every
+            # failure this method can raise, the connection error included.
+            if ws is not None:
+                try:
+                    ws.close()
+                except Exception:
+                    pass
+                ComfyGen.remove_connection(ws)
+            self.release_pending()
+        return output_paths
+
+    @staticmethod
+    def _listed_options(class_type: str) -> dict:
+        """Choices ComfyUI lists for each list-valued input of *class_type*."""
+        with request.urlopen(
+            "http://{}/object_info/{}".format(ComfyGen.BASE_URL, parse.quote(class_type))
+        ) as response:
+            info = json.loads(response.read()).get(class_type, {})
+        options = {}
+        inputs = info.get("input", {})
+        for section in ("required", "optional"):
+            for name, spec in (inputs.get(section) or {}).items():
+                if not isinstance(spec, list) or not spec:
+                    continue
+                if isinstance(spec[0], list):
+                    choices = spec[0]
+                elif spec[0] == "COMBO" and len(spec) > 1 and isinstance(spec[1], dict):
+                    choices = spec[1].get("options") or []
+                else:
+                    continue
+                options[name] = [c for c in choices if isinstance(c, str)]
+        return options
+
+    @staticmethod
+    def match_listed_filenames(workflow: dict, listed_options=None) -> None:
+        """Spell file inputs the way ComfyUI lists them.
+
+        ComfyUI compares a filename against its list exactly, so a template's
+        ``MiniMaxH3\\x.safetensors`` fails against a folder named ``MinimaxH3``
+        even though Windows treats the two as one path. A value that is not
+        listed but matches exactly one listed entry apart from letter case and
+        slash direction is replaced with that entry. Anything else is left for
+        ComfyUI to report.
+        """
+        listed_options = listed_options or ComfyGen._listed_options
+        cache: dict = {}
+
+        def normalize(value: str) -> str:
+            return value.replace("/", "\\").casefold()
+
+        for node_id, node in workflow.items():
+            if not isinstance(node, dict):
+                continue
+            class_type = node.get("class_type")
+            inputs = node.get("inputs")
+            if not class_type or not isinstance(inputs, dict):
+                continue
+            for name, value in inputs.items():
+                if not isinstance(value, str) or not value:
+                    continue
+                if class_type not in cache:
+                    try:
+                        cache[class_type] = listed_options(class_type)
+                    except Exception as e:
+                        logger.debug(f"Could not read ComfyUI's options for {class_type}: {e}")
+                        cache[class_type] = {}
+                choices = cache[class_type].get(name)
+                if not choices or value in choices:
+                    continue
+                matches = [c for c in choices if normalize(c) == normalize(value)]
+                if len(matches) == 1:
+                    logger.info(f"Node {node_id} {name}: using {matches[0]!r} for {value!r}")
+                    inputs[name] = matches[0]
+
+    @staticmethod
+    def _queue_prompt(prompt, client_id: str):
+        body = dict(prompt)  # already {"prompt": {...workflow...}}; avoid mutating the original
+        if isinstance(body.get("prompt"), dict):
+            ComfyGen.match_listed_filenames(body["prompt"])
+        body["client_id"] = client_id
+        data = json.dumps(body).encode('utf-8')
+        req = request.Request(
+            "http://{}/prompt".format(ComfyGen.BASE_URL),
+            data=data,
+            method='POST',
+            headers={'Content-Type': 'application/json'}
+        )
+        return json.loads(request.urlopen(req).read())
+
+    @staticmethod
+    def get_history(prompt_id):
+        max_retries = 5
+        retry_delay = 1  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                logger.debug(f"Getting history for prompt (attempt {attempt + 1}/{max_retries})...")
+                with request.urlopen("http://{}/history/{}".format(ComfyGen.BASE_URL, prompt_id)) as response:
+                    history = json.loads(response.read())
+                    if prompt_id in history:
+                        return history
+                    logger.debug(f"Prompt ID not found in history, waiting {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+            except Exception as e:
+                logger.error(f"Error getting history (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                else:
+                    raise Exception(f"Failed to get history for prompt {prompt_id} after {max_retries} attempts")
+        
+        raise Exception(f"Failed to get history for prompt {prompt_id} after {max_retries} attempts")
+
+    IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp", ".gif")
+    VIDEO_EXTENSIONS = (".mp4", ".webm", ".mkv", ".mov")
+    OUTPUT_EXTENSIONS = IMAGE_EXTENSIONS + VIDEO_EXTENSIONS
+
+    @staticmethod
+    def _finalize_output_image(
+        save_path: str,
+        prompter_config,
+        related_image_path,
+        target_dir,
+        edit_suffix: str,
+    ) -> str:
+        """Stamp an output image's metadata and move it into place.
+
+        Returns the final path, which is not the path passed in when an edit
+        suffix or a target directory applies.
+        """
+        if prompter_config is not None and save_path.lower().endswith(ComfyGen.IMAGE_EXTENSIONS):
+            if related_image_path is not None:
+                Globals.get_image_data_extractor().add_related_image_path(save_path, related_image_path)
+            Globals.get_image_data_extractor().add_prompt_decomposition_to_exif(
+                save_path,
+                prompter_config.original_positive_tags,
+                original_negative_tags=None,
+            )
+        return BaseImageGenerator.apply_output_postprocessing(
+            save_path, target_dir, edit_suffix, related_image_path
+        )
+
+    @staticmethod
+    def _recover_unnamed_output(queued_at: float):
+        """The image this generation wrote, when its filename could not be read.
+
+        Used only after ComfyUI reported the prompt as executed, so an image
+        exists; the question is which file it is. Answered by looking for what
+        appeared in the output directory since the prompt was queued.
+
+        Returns the path only when exactly one candidate is found. Several
+        generations run concurrently against one output directory, so two or
+        more new files cannot be attributed and are not guessed at -- the
+        caller then fails as it would have without this. Returns None on
+        anything ambiguous or unreadable.
+        """
+        output_dir = config.get_comfyui_save_path()
+        if not os.path.isdir(output_dir):
+            logger.error(
+                f"Cannot recover the output image: {output_dir} is not a directory. "
+                "Set comfyui_output_dir if ComfyUI writes somewhere else."
+            )
+            return None
+
+        def _is_new_output(entry):
+            return (
+                entry.is_file()
+                and entry.name.lower().endswith(ComfyGen.OUTPUT_EXTENSIONS)
+                and entry.stat().st_mtime >= queued_at
+            )
+
+        try:
+            new_files = []
+            for entry in os.scandir(output_dir):
+                if _is_new_output(entry):
+                    new_files.append(entry.path)
+                elif entry.is_dir():
+                    for child in os.scandir(entry.path):
+                        if _is_new_output(child):
+                            new_files.append(child.path)
+        except OSError as e:
+            logger.error(f"Cannot recover the output image: failed to read {output_dir}: {e}")
+            return None
+
+        if len(new_files) != 1:
+            logger.error(
+                f"Cannot recover the output image: found {len(new_files)} new files in "
+                f"{output_dir}, and only an unambiguous single one can be attributed "
+                "to this generation."
+            )
+            return None
+
+        logger.warning(
+            f"Recovered output image by elimination rather than by name: {new_files[0]}"
+        )
+        return new_files[0]
+
+    @staticmethod
+    def clear_history(prompt_id):
+        # TODO: Figure out how to clear a specific prompt from history
+        return
+        # data = json.dumps({"clear": "true"}).encode('utf-8')
+        # req = request.Request("http://{}/history/{}".format(ComfyGen.BASE_URL, prompt_id), data=data)
+        # try:
+        #     return request.urlopen(req)
+        # except error.URLError:
+        #     raise Exception("Failed to connect to ComfyUI. Is ComfyUI running?")
+    @staticmethod
+    def get_images(
+        ws,
+        prompt,
+        prompter_config: Optional[PrompterConfiguration]=None,
+        related_image_path: Optional[str] = None,
+        client_id: Optional[str] = None,
+        edit_suffix: str = "",
+        target_dir: str = "",
+    ):
+        logger.debug("Queueing prompt to ComfyUI...")
+        # Taken before the prompt is queued so nothing this generation writes can
+        # predate it. Only read if the filename lookup later fails.
+        queued_at = time.time()
+        prompt_id = ComfyGen._queue_prompt(prompt, client_id or ComfyGen.CLIENT_ID)['prompt_id']
+        logger.debug(f"Got prompt ID: {prompt_id}")
+        output_images = {}
+        # Where each image ended up, after any edit-suffix rename and target_dir
+        # move. Returned alongside the bytes because callers that want to do
+        # something with a generated file need its final name, and the byte
+        # payload cannot tell them what that is.
+        output_paths = []
+        current_node = None
+        websocket_error = None
+        # Set when the backend starts executing this prompt, so the duration
+        # reported back excludes time spent queued behind other prompts.
+        execution_started_at = None
+        execution_seconds = None
+        
+        try:
+            while True:
+                try:
+                    # Check if websocket is still connected before trying to receive
+                    if not ws.connected:
+                        logger.debug("WebSocket connection closed")
+                        break
+                        
+                    out = ws.recv()
+                    if isinstance(out, str):
+                        message = json.loads(out)
+                        # logger.trace(f"Received message: {message}")
+                        if message['type'] == 'executing':
+                            data = message['data']
+                            if data['node'] is None and data['prompt_id'] == prompt_id:
+                                logger.debug("Execution completed")
+                                execution_seconds = _elapsed_since(execution_started_at)
+                                break #Execution is done
+                            else:
+                                current_node = data['node']
+                                # First node of *our* prompt means the backend
+                                # stopped queueing and started working. Timing
+                                # from here rather than from the dispatch keeps
+                                # the wait behind other prompts out of the
+                                # measurement -- prompts run single file, so a
+                                # dispatch-relative duration would grow with
+                                # queue depth rather than describe this image.
+                                # The prompt_id guard matters: this branch also
+                                # sees other prompts' events.
+                                if (execution_started_at is None
+                                        and data.get('prompt_id') == prompt_id):
+                                    execution_started_at = time.time()
+                                logger.debug(f"Executing node: {current_node}")
+                        elif message['type'] == 'execution_error':
+                            data = message['data']
+                            if data['prompt_id'] == prompt_id:
+                                error_msg = data.get('message', 'Unknown execution error')
+                                websocket_error = Exception(f"ComfyUI execution error: {error_msg}")
+                                break
+                        elif message['type'] == 'progress':
+                            data = message['data']
+                            if data['prompt_id'] == prompt_id and data['value'] == data['max']:
+                                logger.debug("Progress reached 100%")
+                                # Taken before the settling sleep, which is this
+                                # side's bookkeeping rather than generation.
+                                execution_seconds = _elapsed_since(execution_started_at)
+                                # Wait a bit to ensure all messages are processed
+                                time.sleep(1)
+                                break
+                    else:
+                        logger.debug(f"Received binary data from node: {current_node}")
+                        # If you want to be able to decode the binary stream for latent previews, here is how you can do it:
+                        # bytesIO = BytesIO(out[8:])
+                        # preview_image = Image.open(bytesIO) # This is your preview in PIL image format, store it in a global
+                        continue #previews are binary data
+                except websocket.WebSocketConnectionClosedException as e:
+                    logger.debug("WebSocket connection closed unexpectedly")
+                    websocket_error = e
+                    break
+                except Exception as e:
+                    logger.error(f"Error processing websocket message: {e}")
+                    websocket_error = e
+                    break
+
+            # If we had a websocket error, don't try to get history
+            if websocket_error:
+                raise websocket_error
+
+            logger.debug("Getting history for prompt...")
+            try:
+                history = ComfyGen.get_history(prompt_id)[prompt_id]
+            except Exception as history_error:
+                # Execution finished cleanly -- the loop above only reaches here
+                # on a completion message -- so the image is on disk and only
+                # its name is unknown. Recover it from the output directory if
+                # it can be identified unambiguously.
+                logger.error(f"Could not read output filenames from history: {history_error}")
+                recovered = ComfyGen._recover_unnamed_output(queued_at)
+                if recovered is None:
+                    raise
+                recovered = ComfyGen._finalize_output_image(
+                    recovered, prompter_config, related_image_path, target_dir, edit_suffix
+                )
+                if recovered:
+                    output_paths.append(recovered)
+                # No byte payloads: those come from the history entry this
+                # generation never got. The path is what callers use.
+                return output_images, output_paths, execution_seconds
+
+            # Process images and add EXIF data with original prompt decomposition
+            for node_id in history['outputs']:
+                node_output = history['outputs'][node_id]
+                images_output = []
+                seen = set()
+                media = []
+                for key in ("images", "gifs", "videos"):
+                    for item in node_output.get(key) or []:
+                        ident = (item.get("subfolder") or "", item.get("filename"))
+                        if not item.get("filename") or ident in seen:
+                            continue
+                        seen.add(ident)
+                        media.append(item)
+                for image in media:
+                    logger.debug(f"Getting output: {image['filename']}")
+                    image_data = ComfyGen.get_image(image['filename'], image.get('subfolder', ''), image['type'])
+                    images_output.append(image_data)
+                    parts = [config.get_comfyui_save_path()]
+                    if image.get("subfolder"):
+                        parts.append(image["subfolder"])
+                    parts.append(image["filename"])
+                    save_path = ComfyGen._finalize_output_image(
+                        os.path.join(*parts),
+                        prompter_config, related_image_path, target_dir, edit_suffix,
+                    )
+                    if save_path:
+                        output_paths.append(save_path)
+                output_images[node_id] = images_output
+
+            ComfyGen.clear_history(prompt_id)
+            return output_images, output_paths, execution_seconds
+        except Exception as e:
+            logger.error(f"Error in get_images: {e}")
+            raise
+        finally:
+            logger.debug("Closing websocket connection...")
+            try:
+                if ws.connected:
+                    ws.close()
+                ComfyGen.remove_connection(ws)  # Remove the connection from tracking
+            except:
+                pass
+
+    @staticmethod
+    def get_image(filename, subfolder, folder_type):
+        data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
+        url_values = parse.urlencode(data)
+        with request.urlopen("http://{}/view?{}".format(ComfyGen.BASE_URL, url_values)) as response:
+            return response.read()
+
+    def simple_image_gen(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        prompt, model, vae = self.prompt_setup(WorkflowType.SIMPLE_IMAGE_GEN, "Assembling Simple Image Gen prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, n_latents=n_latents, positive=positive, negative=negative, **kw)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        positive = self.gen_config.redo_param("positive", positive)
+        negative = self.gen_config.redo_param("negative", negative)
+        if model.is_krea2():
+            positive, negative = model.get_model_text(positive, negative or "")
+            prompt.set_krea_prompts(positive, negative)
+        elif model.is_minimax_h3():
+            positive, _negative = model.get_model_text(positive, negative or "")
+            prompt.set_by_id("140:131", "prompt", positive)
+        elif model.is_flux3():
+            positive, negative = model.get_model_text(positive, negative or "")
+            prompt.set_by_id("18:17", "value", positive)
+            if negative:
+                prompt.set_by_id("18:5", "text", negative)
+        elif model.is_flux2_klein():
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                None, positive_id="75:74", model=model)
+        elif model.is_flux():
+            # NOTE Flux models don't have a negative prompt
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                None, positive_id="6", model=model)
+        elif model.is_chroma():
+            # NOTE Chroma uses different node IDs: positive="748", negative="749"
+            prompt.set_vae(self.gen_config.redo_param("vae", vae))
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                self.gen_config.redo_param("negative", negative),
+                positive_id="748", negative_id="749", model=model)
+        elif model.is_qwen():
+            # Qwen workflow uses CLIPTextEncode nodes 75:6 (positive) and 75:7 (negative)
+            # Don't override VAE; workflow JSON already has the correct VAE
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                self.gen_config.redo_param("negative", negative),
+                positive_id="75:6", negative_id="75:7", model=model)
+        elif model.is_z_image_turbo():
+            # NOTE ZImageTurbo uses node ID: positive="45" (negative is automatically zeroed via ConditioningZeroOut node 42)
+            prompt.set_vae(self.gen_config.redo_param("vae", vae))
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                None,  # Negative is handled automatically via ConditioningZeroOut
+                positive_id="45", negative_id=None, model=model)
+        else:
+            prompt.set_vae(self.gen_config.redo_param("vae", vae))
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                self.gen_config.redo_param("negative", negative),
+                positive_id="3", negative_id="4", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        if model.is_flux2_klein():
+            resolution_val = self.gen_config.redo_param("resolution", resolution)
+            if resolution_val:
+                prompt.set_by_id("75:68", "value", resolution_val.width)
+                prompt.set_by_id("75:69", "value", resolution_val.height)
+        else:
+            prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def simple_image_gen_lora(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        prompt, model, vae = self.prompt_setup(WorkflowType.SIMPLE_IMAGE_GEN_LORA, "Assembling Simple Image Gen LoRA prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, lora=lora, n_latents=n_latents, positive=positive, negative=negative)
+        model.validate_loras(lora)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        if not model.is_flux2_klein():
+            prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_lora(self.gen_config.redo_param("lora", lora))
+        if model.is_flux2_klein():
+            # Flux2 Klein has no negative; prompt positive node is in a subgraph
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                None, positive_id="75:74", model=model)
+        elif model.is_chroma():
+            # NOTE Chroma uses different node IDs: positive="748", negative="749"
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                self.gen_config.redo_param("negative", negative),
+                positive_id="748", negative_id="749", model=model)
+        elif model.is_qwen():
+            # NOTE Qwen uses subgraph IDs: positive="75:6", negative="75:7"
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                self.gen_config.redo_param("negative", negative),
+                positive_id="75:6", negative_id="75:7", model=model)
+        elif model.is_z_image_turbo():
+            # NOTE ZImageTurbo uses node ID: positive="45" (negative is automatically zeroed via ConditioningZeroOut node 42)
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                None,  # Negative is handled automatically via ConditioningZeroOut
+                positive_id="45", negative_id=None, model=model)
+        else:
+            prompt.set_clip_text_by_id(
+                self.gen_config.redo_param("positive", positive),
+                self.gen_config.redo_param("negative", negative),
+                positive_id="3", negative_id="4", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        if model.is_flux2_klein():
+            resolution_val = self.gen_config.redo_param("resolution", resolution)
+            if resolution_val:
+                prompt.set_by_id("75:68", "value", resolution_val.width)
+                prompt.set_by_id("75:69", "value", resolution_val.height)
+        else:
+            prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def simple_image_gen_tiled_upscale(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        prompt, model, vae = self.prompt_setup(WorkflowType.SIMPLE_IMAGE_GEN_TILED_UPSCALE, "Assembling Simple Image Gen Tiled Upscale prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, n_latents=n_latents, positive=positive, negative=negative)
+        model = self.gen_config.redo_param("model", model)
+        model.validate_loras(lora)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_lora(self.gen_config.redo_param("lora", lora))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id="3", negative_id="4", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        width, height = resolution.upscale_rounded()
+        prompt.set_for_class_type(ComfyNodeName.IMAGE_SCALE, "width", width)
+        prompt.set_for_class_type(ComfyNodeName.IMAGE_SCALE, "height", height)
+        return self.queue_prompt(prompt)
+
+    def simple_image_gen_turbo(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        prompt, model, vae = self.prompt_setup(WorkflowType.TURBO, "Assembling Simple Image Gen Turbo prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, n_latents=n_latents, positive=positive, negative=negative)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        # prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id="6", negative_id="7", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def ella(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        prompt, model, vae = self.prompt_setup(WorkflowType.ELLA, "Assembling Ella prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, n_latents=n_latents, positive=positive)
+        model = self.gen_config.redo_param("model", model)
+        if not model.is_sd_15() or resolution.is_xl():
+            raise Exception("ELLA only supports SD1.5 models and resolutions.")
+        prompt.set_model(model)
+#        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_for_class_type(ComfyNodeName.ELLA_T5_EMBEDS, "prompt", self.gen_config.redo_param("positive", positive))
+        prompt.set_for_class_type(ComfyNodeName.ELLA_SAMPLER, "seed", self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_for_class_type(ComfyNodeName.ELLA_SAMPLER, "steps", self.gen_config.steps) if self.gen_config.steps and self.gen_config.steps > 0 else None
+        resolution = self.gen_config.redo_param("resolution", resolution)
+        if resolution:
+            prompt.set_for_class_type(ComfyNodeName.ELLA_SAMPLER, "width", resolution.width)
+            prompt.set_for_class_type(ComfyNodeName.ELLA_SAMPLER, "height", resolution.height)
+        prompt.set_for_class_type(ComfyNodeName.ELLA_T5_EMBEDS, "batch_size", self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def renoiser(self, prompt="", model=None, vae=None, n_latents=None, positive=None, negative=None, control_net=None, **kw):
+        prompt, model, vae = self.prompt_setup(WorkflowType.RENOISER, "Assembling Renoiser prompt", prompt=prompt, model=model, vae=vae, resolution=None, n_latents=n_latents, positive=positive, negative=negative)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id="21", negative_id="24", model=model)
+        
+        control_net = self.gen_config.redo_param("control_net", control_net)
+        if control_net:
+            # Use generation_path instead of id to match control_net workflow behavior
+            image_path = control_net.generation_path if hasattr(control_net, 'generation_path') else control_net.id
+            prompt.set_by_id("56", "image", image_path) # There are two control nets in this workflow, not easy to find right linked input node
+            prompt.set_by_id("25", "strength", control_net.strength)
+            prompt.set_by_id("30", "strength", control_net.strength)
+        
+        # Use existing seed logic to ensure uniqueness and prevent ComfyUI caching
+        # Note: While seed may not significantly affect output quality for this workflow,
+        # varying it prevents ComfyUI from treating prompts as identical and caching/skipping them
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        
+        # Set ControlNet models based on model type
+        if model.is_xl():
+            # SDXL ControlNet models
+            prompt.set_by_id("19", "control_net_name", "t2i-adapter_diffusers_xl_depth_zoe.safetensors")
+            prompt.set_by_id("29", "control_net_name", "t2i-adapter_diffusers_xl_lineart.safetensors")
+        else:
+            # SD15 ControlNet models
+            prompt.set_by_id("19", "control_net_name", "control_v11f1p_sd15_depth.pth")
+            prompt.set_by_id("29", "control_net_name", "control_v11p_sd15_lineart.pth")
+        
+        return self.queue_prompt(prompt)
+
+    def inpaint_clipseg(self, prompt="", model=None, vae=None, n_latents=None, positive=None, negative=None, control_net=None, **kw):
+        prompt, model, vae = self.prompt_setup(WorkflowType.INPAINT_CLIPSEG, "Assembling clipseg-assisted inpaint prompt", prompt=prompt, model=model, vae=vae, resolution=None, n_latents=n_latents, positive=positive, negative=negative, inpaint_image=control_net)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id="2", negative_id="3", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        prompt.set_image_duplicator(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def upscale_simple(self, prompt="", model=None, control_net=None, **kw):
+        prompt, model, vae = self.prompt_setup(WorkflowType.UPSCALE_SIMPLE, "Assembling simple upscale image prompt", prompt=prompt, model=model, vae=vae, resolution=None, n_latents=1, positive="", negative="", upscale_image=control_net)
+        # prompt.set_upscaler_model()
+        prompt.set_image_scale_to_side(1024) # Max image side length
+        control_net = self.gen_config.redo_param("control_net", control_net)
+        if control_net:
+            prompt.set_linked_input_node(control_net.id, starting_class_type="ImageUpscaleWithModel")
+        return self.queue_prompt(prompt)
+
+    def upscale_better(self, prompt="", model=None, positive=None, negative=None, control_net=None, **kw):
+        """
+        Will upscale the image by 2x using SDXL model. If the output size is lower than XL resolutions, may not be a good result
+        """
+        prompt, model, vae = self.prompt_setup(WorkflowType.UPSCALE_BETTER, "Assembling upscale image better prompt", prompt=prompt, model=model, vae=None, resolution=None, n_latents=1, positive="", negative="", upscale_image=control_net)
+        if not model.is_xl():
+            raise Exception("SDXL model should be used for the upscale better workflow.")
+        positive = self.maybe_caption_image(control_net.id, positive)
+#        prompt.set_upscaler_model()
+        positive += ", photorealistic, 8kdslr, sharp focus"
+        negative += ", anime, illustration"
+        positive = self.gen_config.redo_param("positive", positive)
+        negative = self.gen_config.redo_param("negative", negative)
+        prompt.set_by_id("75", "text_g", positive)
+        prompt.set_by_id("75", "text_l", positive)
+        prompt.set_by_id("81", "text", negative)
+        prompt.set_by_id("82", "text_g", negative)
+        prompt.set_by_id("82", "text_l", negative)
+        prompt.set_other_sampler_inputs(self.gen_config)
+        control_net = self.gen_config.redo_param("control_net", control_net)
+        if control_net:
+            prompt.set_linked_input_node(control_net.id, starting_class_type="ImageUpscaleWithModel")
+        return self.queue_prompt(prompt)
+
+    def instant_lora(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, control_net=None, ip_adapter=None, **kw):
+        prompt, model, vae = self.prompt_setup(WorkflowType.INSTANT_LORA, "Assembling Instant LoRA prompt", prompt=prompt, model=model, vae=vae, resolution=None, n_latents=n_latents, positive=positive, negative=negative, control_net=control_net, ip_adapter=ip_adapter)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id=None, negative_id="18", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        prompt.set_for_class_type(ComfyNodeName.IMAGE_SCALE_TO_SIDE, "side_length", 1024 if self.gen_config.is_xl() else 768)
+        prompt.set_control_net(self.gen_config.redo_param("control_net", control_net))
+#        ip_adapter_model, clip_vision_model = self.gen_config.get_ip_adapter_models()
+ #       prompt.set_ip_adapter_model(ip_adapter_model)
+ #       prompt.set_clip_vision_model(clip_vision_model) TODO update these
+        prompt.set_ip_adapter_strength(ip_adapter.strength)
+        prompt.set_ip_adapter_image(self.gen_config.redo_param("ip_adapter", ip_adapter.get_id(control_net=control_net)))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def control_net(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, control_net=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        if not self.gen_config.override_resolution:
+            resolution = resolution.get_closest_to_image(control_net.generation_path)
+        prompt, model, vae = self.prompt_setup(WorkflowType.CONTROLNET, "Assembling Control Net prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, n_latents=n_latents, positive=positive, negative=negative, control_net=control_net, lora=lora)
+        model = self.gen_config.redo_param("model", model)
+        model.validate_loras(lora)
+        prompt.set_model(model)
+        
+        # vae = self.gen_config.redo_param("vae", vae)
+        # if vae:
+        #     if model.is_xl():
+        #         prompt.set_by_id("8", "vae_name", vae)
+        #     else:
+        #         prompt.set_by_id("16", "vae_name", vae)
+        #         prompt.set_by_id("31", "vae", ["16", 0])
+                
+        prompt.set_lora(self.gen_config.redo_param("lora", lora))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id="30", negative_id="18", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        if control_net.id is None:
+            return
+        prompt.set_control_net_image2(self.gen_config.redo_param("control_net", control_net.generation_path))
+        prompt.set_control_net_strength(control_net.strength)
+        
+        # Set ControlNet model - this should be set dynamically based on model type and control net type
+        # For now, using default - can be enhanced to detect based on control_net parameter
+        
+        prompt.set_latent_dimensions(resolution)
+#        prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def ip_adapter(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, control_net=None, ip_adapter=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        prompt, model, vae = self.prompt_setup(WorkflowType.IP_ADAPTER, "Assembling IP Adapter prompt", prompt=prompt, model=model, vae=vae, resolution=None, n_latents=n_latents, positive=positive, negative=negative, control_net=control_net, ip_adapter=ip_adapter)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id=None, negative_id="18", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        if ip_adapter.id is None:
+            return
+        ip_adapter_model, clip_vision_model = self.gen_config.get_ip_adapter_models()
+        prompt.set_ip_adapter_model(ip_adapter_model)
+        prompt.set_clip_vision_model(clip_vision_model)
+        prompt.set_ip_adapter_strength(ip_adapter.strength)
+        prompt.set_ip_adapter_image(self.gen_config.redo_param("ip_adapter", ip_adapter.generation_path))
+        prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        return self.queue_prompt(prompt)
+
+    def img2img(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, control_net=None, ip_adapter=None, **kw):
+        resolution = resolution.convert_for_model_type(model.architecture_type)
+        if not self.gen_config.override_resolution:
+            resolution = resolution.get_closest_to_image(ip_adapter.generation_path, round_to=16)
+        prompt, model, vae = self.prompt_setup(WorkflowType.IMG2IMG, "Assembling Img2Img prompt", prompt=prompt, model=model, vae=vae, resolution=resolution, n_latents=n_latents, positive=positive, negative=negative, lora=lora, ip_adapter=ip_adapter)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            self.gen_config.redo_param("negative", negative),
+            positive_id="6", negative_id="7", model=model)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        if ip_adapter.id is None:
+            return
+        prompt.set_by_id("10", "image", ip_adapter.generation_path)  # LoadImage node
+        prompt.set_by_id("3", "denoise", 1 - ip_adapter.strength)  # Inverse of ip_adapter strength like SDWebUI
+        # Set the target resolution for the ImageScale node
+        resolution = self.gen_config.redo_param("resolution", resolution)
+        if resolution:
+            prompt.set_by_id("12", "width", resolution.width)  # ImageScale node
+            prompt.set_by_id("12", "height", resolution.height)  # ImageScale node
+        # prompt.set_image_duplicator(self.gen_config.redo_param("n_latents", n_latents))
+        # TODO: Figure out how to handle the image duplicator
+        return self.queue_prompt(prompt)
+
+    def image_edit(self, prompt="", resolution=None, model=None, vae=None, n_latents=None, positive=None, negative=None, lora=None, control_net=None, ip_adapter=None, **kw):
+        if not model.is_flux2_klein_base():
+            raise Exception("Image Edit workflow requires a Flux2 Klein base model (e.g. flux-2-klein-base-4b.safetensors).")
+        prompt, model, vae = self.prompt_setup(
+            WorkflowType.IMAGE_EDIT, "Assembling Image Edit prompt",
+            prompt=prompt, model=model, vae=vae, resolution=None,
+            n_latents=n_latents, positive=positive, negative=negative,
+            control_net=control_net, ip_adapter=ip_adapter)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        # Positive text lives in the subgraph at node 75:74
+        prompt.set_clip_text_by_id(
+            self.gen_config.redo_param("positive", positive),
+            None, positive_id="75:74", model=model)
+        # Seed targets the RandomNoise node (set_seed handles this via class type check)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        # Resolution is derived from the source image inside the workflow (75:80 → 75:100)
+        # by default. When override_resolution is set, replace the node references on
+        # EmptyFlux2LatentImage and Flux2Scheduler with explicit dimensions instead.
+        if self.gen_config.override_resolution and resolution is not None:
+            resolution = resolution.convert_for_model_type(model.architecture_type)
+            resolution_val = self.gen_config.redo_param("resolution", resolution)
+            if resolution_val:
+                prompt.set_by_id("75:66", "width", resolution_val.width)
+                prompt.set_by_id("75:66", "height", resolution_val.height)
+                prompt.set_by_id("75:62", "width", resolution_val.width)
+                prompt.set_by_id("75:62", "height", resolution_val.height)
+        prompt.set_empty_latents(self.gen_config.redo_param("n_latents", n_latents))
+        # Primary source image to edit (LoadImage node 76)
+        if ip_adapter and ip_adapter.id:
+            prompt.set_load_image_by_id("76", ip_adapter.generation_path)
+            self.gen_config.prompt_image_path = ip_adapter.generation_path
+        # Secondary reference image (LoadImage node 81) — combinatorial mode
+        control_net = self.gen_config.redo_param("control_net", control_net)
+        if control_net and control_net.id:
+            prompt.set_load_image_by_id("81", control_net.generation_path)
+        return self.queue_prompt(prompt)
+
+    def animate_diff(self, prompt="", resolution=None, model=None, vae=None, lora=None, n_latents=None, positive=None, negative=None, control_net=None, ip_adapter=None, **kw):
+        prompt, model, vae = self.prompt_setup(WorkflowType.ANIMATE_DIFF, "Assembling Animate Diff prompt", prompt=prompt, model=model, vae=vae, resolution=None, n_latents=n_latents, positive=positive, negative=negative, first_image=control_net, second_image=ip_adapter)
+        model = self.gen_config.redo_param("model", model)
+        prompt.set_model(model)
+        prompt.set_vae(self.gen_config.redo_param("vae", vae))
+        prompt.set_lora(self.gen_config.redo_param("lora", lora))
+        prompt.set_clip_text(self.gen_config.redo_param("positive", positive), model, positive=True)
+        prompt.set_clip_text(self.gen_config.redo_param("negative", negative), model, positive=False)
+        prompt.set_seed(self.gen_config.redo_param("seed", self.get_seed()))
+        prompt.set_other_sampler_inputs(self.gen_config)
+        prompt.set_for_class_type(ComfyNodeName.IMAGE_SCALE_TO_SIDE, "side_length", 1024 if self.gen_config.is_xl() else 768)
+#        ip_adapter_model, clip_vision_model = self.gen_config.get_ip_adapter_models()
+        if control_net:
+            prompt.set_by_id("73", "image", control_net.generation_path) # There are two control nets in this workflow, not easy to find right linked input node
+            prompt.set_by_id("75", "image", control_net.generation_path if ip_adapter is None else ip_adapter.generation_path) # There are two control nets in this workflow, not easy to find right linked input node
+        prompt.set_ip_adapter_model("ip-adapter-plus_sdxl_vit-h.safetensors" if self.gen_config.is_xl() else "ip-adapter-plus_sd15.safetensors")
+        prompt.set_clip_vision_model("XL\\clip_vision_g.safetensors" if self.gen_config.is_xl() else"IPAdapter_image_encoder_sd15.safetensors")
+#        prompt.set_latent_dimensions(self.gen_config.redo_param("resolution", resolution))
+        return self.queue_prompt(prompt)
+
+    def redo_with_different_parameter(self, source_file="", resolution=None, model=None, vae=None,
+                                      lora=None, positive=None, negative=None, n_latents=None,
+                                      control_net=None, ip_adapter=None, **kw):
+        self.print_pre("Assembling redo prompt", model=model, resolution=resolution, vae=vae, n_latents=n_latents, positive="", negative="", lora=lora, control_net=control_net, ip_adapter=ip_adapter)
+        prompt = WorkflowPromptComfy(source_file)
+
+        # If this is not an API prompt, handle in an annoying way
+        is_api_prompt = prompt.validate_api_prompt()
+        if not is_api_prompt:
+            if config.debug:
+                logger.debug("Not an API prompt image: " + source_file)
+            try:
+                if prompt.try_set_workflow_non_api_prompt():
+                    resolution = prompt.temp_redo_inputs.resolution
+                    model = prompt.temp_redo_inputs.model
+                    vae = prompt.temp_redo_inputs.vae
+                    lora = prompt.temp_redo_inputs.lora
+                    skip, positive = self.filter_redo_positive(source_file, prompt.temp_redo_inputs.positive)
+                    if skip:
+                        return
+                    negative = prompt.temp_redo_inputs.negative
+                    control_net = prompt.temp_redo_inputs.control_net
+                    ip_adapter = prompt.temp_redo_inputs.ip_adapter
+                    self.run_workflow(prompt.workflow_filename, prompt=prompt, resolution=resolution, model=model, vae=vae, n_latents=n_latents, positive=positive,
+                                      negative=negative, lora=lora, control_net=control_net, ip_adapter=ip_adapter)
+                else:
+                    logger.error("Invalid prompt for file: " + source_file)
+                    return
+            except BlacklistException:
+                raise
+            except Exception:
+                logger.exception(f"Failed to redo non-API prompt image: {source_file}")
+                return
+
+        if is_api_prompt:
+            stored_positive = prompt.get_clip_text(positive=True)
+            skip, checked_positive = self.filter_redo_positive(source_file, stored_positive)
+            if skip:
+                return
+            if checked_positive != stored_positive:
+                prompt.replace_clip_text(checked_positive, positive=True)
+
+        prompt.change_preview_images_to_save_images()
+
+        try:
+            prompt.set_empty_latents(n_latents)
+        except Exception:
+            logger.error("Failed to set number of empty latents")
+
+        has_made_one_change = False
+        if "model" not in GenConfig.REDO_PARAMETERS and "models" not in GenConfig.REDO_PARAMETERS:
+            model = Model.get_model(prompt.get_model())
+
+        for attr in GenConfig.REDO_PARAMETERS:
+            try:
+                if attr.startswith("model"):
+                    prompt.set_model(model)
+                elif attr.startswith("vae"):
+                    prompt.set_vae(vae)
+                elif attr.startswith("resolution"):
+                    prompt.set_latent_dimensions(resolution)
+                elif attr.startswith("lora"):
+                    prompt.set_lora(lora)
+                elif attr.startswith("control_net"):
+                    prompt.set_control_net(control_net)
+                elif attr.startswith("ip_adapter"):
+                    prompt.set_ip_adapter_image(ip_adapter.generation_path)
+                elif attr == "positive":
+                    prompt.set_clip_text(positive, model, positive=True)
+                elif attr == "negative":
+                    prompt.set_clip_text(negative, model, positive=False)
+                elif attr == "n_latents":
+                    prompt.set_empty_latents(n_latents)
+                elif attr == "seed":
+                    prompt.set_seed(self.get_seed())
+                else:
+                    raise Exception("Unhandled redo parameter: " + attr)
+                if config.debug:
+                    logger.debug("Redoing parameter with different value: " + attr)
+                has_made_one_change = True
+            except Exception as e:
+                logger.error(e)
+
+        if not has_made_one_change and config.debug:
+            logger.debug("Did not make any changes to prompt for image: " + source_file)
+        
+        return self.queue_prompt(prompt)
+
+
+

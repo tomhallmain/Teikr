@@ -4,10 +4,10 @@ import json
 
 import pytest
 
-from src.globals import BlacklistMode, PromptMode
-from src.prompts.blacklist import Blacklist, BlacklistItem
-from src.prompts.concept_sets import SourceAnchors
-from src.prompts.concepts import Concepts
+from teikr.globals import BlacklistMode, PromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.prompts.concept_sets import SourceAnchors
+from teikr.prompts.concepts import Concepts
 
 ANCHORS = SourceAnchors({"Kuss": frozenset({"kiss"}), "Fluss": frozenset({"river"})}, None, "anchors")
 

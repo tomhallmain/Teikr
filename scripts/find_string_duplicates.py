@@ -15,6 +15,7 @@ from difflib import SequenceMatcher, unified_diff
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
 try:
     from sentence_transformers import SentenceTransformer

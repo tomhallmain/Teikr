@@ -14,7 +14,7 @@ import pytest
 
 from extensions.sd_runner_server import CommandType
 from tests.utils import make_run_config
-from src.persistence import cache_controller as cache_controller_module
+from teikr.persistence import cache_controller as cache_controller_module
 
 
 @pytest.fixture
@@ -264,7 +264,7 @@ class TestPendingRuns:
 
 def start_running(app_window, **kwargs):
     """Make *kwargs* the running job and its run, as _run_async does."""
-    from src.runs.run import Run
+    from teikr.runs.run import Run
     args = dict(workflow_tag="RENOISER", model_tags="a_model", total=1, batch_limit=1)
     args.update(kwargs)
     run_config = make_run_config(**args)
@@ -323,8 +323,8 @@ class TestInterruptedRun:
 
     def test_a_run_waiting_for_the_backend_counts_as_running(self, app_window, ctrl, cache):
         """The previous run is still current until the backend is up."""
-        from src.runs.run import Run
-        from src.runs.run_config import RunConfig
+        from teikr.runs.run import Run
+        from teikr.runs.run_config import RunConfig
         start_running(app_window)
         app_window.current_run = Run(RunConfig())
         app_window.current_run.is_complete = True

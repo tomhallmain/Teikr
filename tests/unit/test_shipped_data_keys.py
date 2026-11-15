@@ -1,4 +1,4 @@
-"""The keys of the encrypted files shipped in src/data.
+"""The keys of the encrypted files shipped in src/teikr/data.
 
 Both files are encrypted with keys derived from ``Globals.SHIPPED_DATA_KEY_ID``,
 which is kept apart from ``Globals.APP_IDENTIFIER``. These tests decrypt the
@@ -10,9 +10,9 @@ import json
 
 from lib.encryptor import symmetric_decrypt_data_from_file
 from lib.utils import Utils
-from src.globals import Globals
-from src.prompts.blacklist import Blacklist
-from src.prompts.concepts import Concepts
+from teikr.globals import Globals
+from teikr.prompts.blacklist import Blacklist
+from teikr.prompts.concepts import Concepts
 
 
 def test_the_key_seed_is_pinned():

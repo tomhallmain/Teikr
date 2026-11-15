@@ -6,10 +6,11 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
-from src.prompts.blacklist import Blacklist
-from src.prompts import blacklist_state
-from src.prompts.language_codes import normalize_language_code
+from teikr.prompts.blacklist import Blacklist
+from teikr.prompts import blacklist_state
+from teikr.prompts.language_codes import normalize_language_code
 
 
 def main() -> None:

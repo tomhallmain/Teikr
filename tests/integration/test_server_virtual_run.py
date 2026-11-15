@@ -12,10 +12,10 @@ start_thread runs synchronously so the effects are visible on return.
 """
 
 from extensions.sd_runner_server import CommandType, SDRunnerServer
-from src.globals import WorkflowType
-from src.models.model import Model
-from src.runs.run import Run
-from src.runs.run_controller import SERVER_ORIGIN
+from teikr.globals import WorkflowType
+from teikr.models.model import Model
+from teikr.runs.run import Run
+from teikr.runs.run_controller import SERVER_ORIGIN
 from tests.utils import FakeServerConn
 
 
@@ -282,7 +282,7 @@ class TestPromptTagsTravelOnTheRun:
 
     def test_tags_reach_the_prompter_when_the_run_starts(self, app_window, run_stubs, monkeypatch):
         """Not at enqueue: Prompter state must hold this run's tags as it begins."""
-        from src.prompts.prompter import Prompter
+        from teikr.prompts.prompter import Prompter
 
         seen = []
 
@@ -321,7 +321,7 @@ class TestPresetScheduleDiversion:
         assert {"control_net": "remote.png"} in app_window.job_queue_preset_schedules.pending_jobs
 
     def test_the_run_is_never_built_when_diverting(self, app_window, run_stubs, monkeypatch):
-        import src.runs.virtual_run_config as vrc
+        import teikr.runs.virtual_run_config as vrc
 
         def fail(*a, **kw):
             raise AssertionError("a diverted request must not be built")
@@ -335,7 +335,7 @@ class TestPresetScheduleDiversion:
     def test_a_diverted_request_is_not_refused_by_the_ceiling(
         self, app_window, run_stubs, executed, monkeypatch
     ):
-        from src.config import config
+        from teikr.config import config
         monkeypatch.setattr(config, "server_run_max_seconds", 10)
         monkeypatch.setattr(
             app_window.run_ctrl, "_estimate_run", lambda args: (9999, 500)
@@ -439,7 +439,7 @@ class TestServerRunCeiling:
         assert len(executed) == 1
 
     def test_run_over_the_ceiling_is_refused(self, app_window, run_stubs, executed, monkeypatch):
-        from src.config import config
+        from teikr.config import config
         monkeypatch.setattr(config, "server_run_max_seconds", 10)
         monkeypatch.setattr(
             app_window.run_ctrl, "_estimate_run", lambda args: (9999, 500)
@@ -452,7 +452,7 @@ class TestServerRunCeiling:
         assert executed == []
 
     def test_run_under_the_ceiling_is_accepted(self, app_window, run_stubs, executed, monkeypatch):
-        from src.config import config
+        from teikr.config import config
         monkeypatch.setattr(config, "server_run_max_seconds", 10000)
         monkeypatch.setattr(
             app_window.run_ctrl, "_estimate_run", lambda args: (9999, 500)
@@ -464,7 +464,7 @@ class TestServerRunCeiling:
 
     def test_a_failed_estimate_does_not_block_the_run(self, app_window, run_stubs, executed, monkeypatch):
         """The estimate is a guard, not a precondition."""
-        from src.config import config
+        from teikr.config import config
 
         def boom(args):
             raise RuntimeError("estimate blew up")
@@ -477,8 +477,8 @@ class TestServerRunCeiling:
         assert len(executed) == 1
 
     def test_no_models_is_reported_as_an_error_response(self, app_window, run_stubs, executed, monkeypatch):
-        from src.models.model import NoModelsFound
-        from src.config import config
+        from teikr.models.model import NoModelsFound
+        from teikr.config import config
 
         def no_models(args):
             raise NoModelsFound("No models found")
@@ -597,7 +597,7 @@ class TestSnapshotReflectsTheSidebar:
 
     def test_resolution_group_is_stored_as_a_name(self, app_window):
         """The combo shows a description; the cache carries this across sessions."""
-        from src.globals import ResolutionGroup
+        from teikr.globals import ResolutionGroup
 
         app_window.sidebar_panel.resolution_group_combo.setCurrentText(
             ResolutionGroup.SEVEN_SIXTY_EIGHT.get_description()

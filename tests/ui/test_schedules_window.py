@@ -17,10 +17,10 @@ import pytest
 from PySide6.QtWidgets import QApplication, QComboBox, QLabel
 
 from tests.utils import make_app_actions, make_schedule
-from src.presets.schedule import PresetTask, Schedule
-from src.presets.schedules_state import SchedulesState
-from src.ui.presets.schedules_window import SchedulesWindow, ScheduleModifyWindow
-from src.presets.presets_state import PresetsState
+from teikr.presets.schedule import PresetTask, Schedule
+from teikr.presets.schedules_state import SchedulesState
+from teikr.ui.presets.schedules_window import SchedulesWindow, ScheduleModifyWindow
+from teikr.presets.presets_state import PresetsState
 
 
 # ---------------------------------------------------------------------------

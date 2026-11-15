@@ -17,9 +17,10 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
-from src.app_paths import REPO_ROOT
-from src.prompts.concepts import Concepts
+from teikr.app_paths import REPO_ROOT
+from teikr.prompts.concepts import Concepts
 
 # Additional dictionary consulted alongside whichever concepts dir is currently
 # configured (Concepts.ALL_WORDS_LIST_FILENAME / Concepts.CONCEPTS_DIR), so

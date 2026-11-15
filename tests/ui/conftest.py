@@ -53,8 +53,8 @@ def app_window(qapp):
     """Function-scoped real AppWindow.  Tears down without the os._exit failsafe."""
     from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QApplication
-    from src.ui.app_window.app_window import AppWindow
-    from src.runs.ui_responsiveness import NullResponsiveness
+    from teikr.ui.app_window.app_window import AppWindow
+    from teikr.runs.ui_responsiveness import NullResponsiveness
     win = AppWindow()
     # Run the work inline. There is no one watching this window, so keeping it
     # painting buys nothing, and a worker thread under a nested event loop

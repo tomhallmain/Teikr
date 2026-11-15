@@ -5,8 +5,8 @@ dialog that is only constructed stays hidden, and the click logs nothing,
 so visibility is part of opening.
 """
 
-from src.globals import SoftwareType
-from src.ui.config_window import ConfigWindow
+from teikr.globals import SoftwareType
+from teikr.ui.config_window import ConfigWindow
 from tests.utils import close_window
 
 

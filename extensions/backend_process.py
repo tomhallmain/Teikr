@@ -28,7 +28,7 @@ import time
 from typing import Optional
 
 from extensions.backend_health import check, is_reachable
-from src.globals import SoftwareType
+from teikr.globals import SoftwareType
 from lib.logging_setup import get_logger
 from lib.utils import NO_CONSOLE_WINDOW
 

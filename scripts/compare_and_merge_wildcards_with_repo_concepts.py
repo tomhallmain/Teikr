@@ -37,6 +37,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
 
 # ---------------------------------------------------------------------------
@@ -336,7 +337,7 @@ SCRIPT_BLACKLIST_PATTERNS: tuple[re.Pattern, ...] = (
 # ---------------------------------------------------------------------------
 
 def _parse_line_like_concepts_load(line: str) -> str:
-    """Mirror src.prompts.concepts.Concepts.load line handling."""
+    """Mirror teikr.prompts.concepts.Concepts.load line handling."""
     val = ""
     for c in line:
         if c == "#":
@@ -391,8 +392,8 @@ def is_nsfw_wildcard_file(name: str) -> bool:
 def _try_load_blacklist() -> bool:
     """Attempt to load the blacklist via blacklist_state.set_blacklist(). Returns True if loaded."""
     try:
-        from src.prompts import blacklist_state
-        from src.prompts.blacklist import Blacklist
+        from teikr.prompts import blacklist_state
+        from teikr.prompts.blacklist import Blacklist
         blacklist_state.set_blacklist()
         return not Blacklist.is_empty()
     except Exception:
@@ -404,7 +405,7 @@ def _make_blacklist_checker(blacklist_loaded: bool):
     if not blacklist_loaded:
         return lambda _: False
     try:
-        from src.prompts.blacklist import Blacklist
+        from teikr.prompts.blacklist import Blacklist
         def check(concept: str) -> bool:
             return Blacklist.get_violation_item(concept) is not None
         return check
@@ -419,7 +420,7 @@ def build_repo_concept_set(
     include_nsfl: bool,
     case_sensitive: bool,
 ) -> set[str]:
-    from src.prompts.concepts import Concepts
+    from teikr.prompts.concepts import Concepts
     category_states = {
         "SFW": True,
         "NSFW": bool(include_nsfw),
@@ -491,7 +492,7 @@ def main() -> int:
     if not args.skip_blacklist:
         blacklist_loaded = _try_load_blacklist()
         if blacklist_loaded:
-            from src.prompts.blacklist import Blacklist
+            from teikr.prompts.blacklist import Blacklist
             print(f"Blacklist loaded: {len(Blacklist.TAG_BLACKLIST)} items")
         else:
             print("Blacklist not loaded (run with --skip-blacklist to suppress this warning).")

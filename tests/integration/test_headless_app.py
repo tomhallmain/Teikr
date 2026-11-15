@@ -14,10 +14,10 @@ the progress sink, the thread bridge and ``post_run`` are the parts that differ
 import pytest
 
 from extensions.sd_runner_server import CommandType
-from src.globals import WorkflowType
-from src.runs.headless_app import HeadlessApp
-from src.runs.job_queue import SDRunsQueue, ServerStagingQueue
-from src.runs.run_controller import SERVER_ORIGIN
+from teikr.globals import WorkflowType
+from teikr.runs.headless_app import HeadlessApp
+from teikr.runs.job_queue import SDRunsQueue, ServerStagingQueue
+from teikr.runs.run_controller import SERVER_ORIGIN
 
 
 @pytest.fixture
@@ -160,8 +160,8 @@ class TestPasswordGateWithNothingToPromptFrom:
     def test_the_handler_is_installed_by_construction(self, headless_app):
         """Its own handler, not merely the default -- both refuse, so asserting
         the answer would pass with nothing installed at all."""
-        from src.ui.auth import password_core
-        from src.globals import ProtectedActions
+        from teikr.ui.auth import password_core
+        from teikr.globals import ProtectedActions
 
         assert password_core._unprompted_gate_handler is not None
         assert password_core.answer_unprompted_gate(
@@ -169,8 +169,8 @@ class TestPasswordGateWithNothingToPromptFrom:
         ) is False
 
     def test_a_gate_with_no_window_does_not_call_through(self, headless_app):
-        from src.globals import ProtectedActions
-        from src.ui.auth.password_utils import require_password
+        from teikr.globals import ProtectedActions
+        from teikr.ui.auth.password_utils import require_password
 
         called = []
 

@@ -14,11 +14,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.image_to_prompt.types import (
+from teikr.image_to_prompt.types import (
     ImageToPromptBackend,
     ImageToPromptResult,
 )
-from src.ui.prompts.image_to_prompt_window import ImageToPromptWindow
+from teikr.ui.prompts.image_to_prompt_window import ImageToPromptWindow
 from tests.utils import close_window
 
 

@@ -12,14 +12,14 @@ are drawn from what the format actually emits rather than one idealised sample.
 
 import pytest
 
-from src.metadata.a1111 import (
+from teikr.metadata.a1111 import (
     A1111Parameters,
     extract_loras,
     parse_a1111_parameters,
     resolve_sampler,
     split_settings,
 )
-from src.globals import Sampler, Scheduler
+from teikr.globals import Sampler, Scheduler
 
 
 TYPICAL = """beautiful woman, red dress, outdoor setting

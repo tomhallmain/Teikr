@@ -1,9 +1,9 @@
 import math
 
 import pytest
-from src.config import config
-from src.globals import Globals
-from src.runs.time_estimator import TimeEstimator
+from teikr.config import config
+from teikr.globals import Globals
+from teikr.runs.time_estimator import TimeEstimator
 
 
 class TestDelaySeconds:
@@ -129,7 +129,7 @@ class TestEstimateRunSeconds:
                 == TimeEstimator.delay_seconds(4))
 
     def measured_config(self, seconds=10.0):
-        from src.runs.generation_timing import generation_timing
+        from teikr.runs.generation_timing import generation_timing
 
         gen_config = self.make_config()
         generation_timing.record(
@@ -203,7 +203,7 @@ class TestEstimateRunSeconds:
     def test_a_broken_timing_store_does_not_break_the_estimate(self, force_delay, monkeypatch):
         """An estimate is advisory and must never fail the run it describes."""
         monkeypatch.setattr(config, "force_delay", force_delay)
-        from src.runs import generation_timing as timing_module
+        from teikr.runs import generation_timing as timing_module
 
         def explode(*args, **kwargs):
             raise RuntimeError("timing store unavailable")

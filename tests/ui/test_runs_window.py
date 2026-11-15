@@ -2,7 +2,7 @@
 import pytest
 from PySide6.QtWidgets import QApplication
 
-from src.ui.runs.runs_window import (
+from teikr.ui.runs.runs_window import (
     FILTER_EDIT_SUFFIX, FILTER_ORIGIN, RunsWindow,
     _fmt_timestamp, _origin, _short,
     pending_filter_value, staging_filter_value,

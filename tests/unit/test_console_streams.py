@@ -5,7 +5,7 @@ import types
 
 import pytest
 
-from src.runtime import console_streams
+from teikr.runtime import console_streams
 
 U8TEXT = 0x40000
 TEXT = 0x4000

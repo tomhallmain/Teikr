@@ -20,8 +20,8 @@ import time
 from typing import NamedTuple, Optional
 from urllib import error, request
 
-from src.config import config
-from src.globals import SoftwareType
+from teikr.config import config
+from teikr.globals import SoftwareType
 from lib.logging_setup import get_logger
 
 logger = get_logger("backend_health")
@@ -250,7 +250,7 @@ def _swarmui_functional(base: str, budget: _Budget) -> HealthResult:
     # is an instance method and would fetch one as a side effect.
     session = None
     try:
-        from src.generators.swarmui import SwarmUIGen
+        from teikr.generators.swarmui import SwarmUIGen
         session = SwarmUIGen._session_id
     except Exception as e:
         logger.debug(f"Could not read the SwarmUI session: {e}")

@@ -3,15 +3,15 @@
 import pytest
 
 from lib.translations import _
-from src.globals import BlacklistMode, PromptMode
-from src.prompts.blacklist import Blacklist, BlacklistException, BlacklistItem
-from src.workflow_prompts.comfy import WorkflowPromptComfy
+from teikr.globals import BlacklistMode, PromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistException, BlacklistItem
+from teikr.workflow_prompts.comfy import WorkflowPromptComfy
 
 
 @pytest.fixture
 def dictionary(monkeypatch):
     """Replace the dictionary with *words* and skip loading the real one."""
-    from src.prompts.concepts import Concepts
+    from teikr.prompts.concepts import Concepts
 
     def _set(words):
         monkeypatch.setattr(Concepts, "ALL_WORDS_LIST", list(words))
@@ -21,7 +21,7 @@ def dictionary(monkeypatch):
 
 @pytest.fixture
 def prevent_execution(monkeypatch):
-    from src.config import config
+    from teikr.config import config
     monkeypatch.setattr(config, "blacklist_prevent_execution", True)
 
 
@@ -141,7 +141,7 @@ class TestReplaceMode:
             "One or more tags were removed due to blacklist failure.")
 
     def test_a_taken_prompt_is_replaced(self, dictionary, prevent_execution):
-        from src.prompts.prompter import Prompter
+        from teikr.prompts.prompter import Prompter
         dictionary(["sunflower"])
         Blacklist.set_blacklist([BlacklistItem("wolf")])
         Blacklist.set_blacklist_mode(BlacklistMode.REPLACE_WORD_OR_PHRASE)
@@ -200,7 +200,7 @@ class TestStoredClipText:
 class TestFilterRedoPositive:
     @staticmethod
     def _filter(positive):
-        from src.generators.base import BaseImageGenerator
+        from teikr.generators.base import BaseImageGenerator
         return BaseImageGenerator.filter_redo_positive(None, "image.png", positive)
 
     def test_a_blocked_tag_is_removed(self, prevent_execution):
@@ -218,7 +218,7 @@ class TestFilterRedoPositive:
         assert self._filter(None) == (True, None)
 
     def test_without_prevent_execution_the_text_is_unchanged(self, monkeypatch):
-        from src.config import config
+        from teikr.config import config
         monkeypatch.setattr(config, "blacklist_prevent_execution", False)
         Blacklist.set_blacklist([BlacklistItem("wolf")])
         assert self._filter("grey wolf") == (False, "grey wolf")

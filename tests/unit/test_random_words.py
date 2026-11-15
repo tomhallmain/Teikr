@@ -17,9 +17,9 @@ import random
 
 import pytest
 
-from src.globals import PromptMode
-from src.prompts.blacklist import Blacklist, BlacklistItem
-from src.prompts.concepts import Concepts, ConceptConfiguration
+from teikr.globals import PromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.prompts.concepts import Concepts, ConceptConfiguration
 
 
 VOCABULARY = [
@@ -196,7 +196,7 @@ class TestUrbanDictionaryCorpus:
         assert "slangword" in pool[0]
 
     def test_the_setting_turns_it_off_in_nsfw(self, pool, monkeypatch):
-        import src.prompts.concepts as concepts_module
+        import teikr.prompts.concepts as concepts_module
         monkeypatch.setattr(concepts_module.config, "nsfw_urban_dictionary", False)
 
         words(1, PromptMode.NSFW)

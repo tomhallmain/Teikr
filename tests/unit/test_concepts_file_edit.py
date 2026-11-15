@@ -10,7 +10,7 @@ and concepts/ is mirrored line-for-line by Konzepte/ for translation.
 
 import pytest
 
-from src.prompts.concepts import Concepts, ConceptsFile
+from teikr.prompts.concepts import Concepts, ConceptsFile
 
 
 # ---------------------------------------------------------------------------

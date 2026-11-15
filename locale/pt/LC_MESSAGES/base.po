@@ -34,20 +34,20 @@ msgstr "Minimizar"
 msgid "Maximize"
 msgstr "Maximizar"
 
-#: lib/custom_title_bar.py:168 src/ui/auth/password_admin_window.py:352
-#: src/ui/models/models_window.py:146 src/ui/models/models_window.py:203
-#: src/ui/models/models_window.py:618
-#: src/ui/models/recent_adapters_window.py:207
-#: src/ui/models/recent_adapters_window.py:249
-#: src/ui/models/recent_adapters_window.py:312
-#: src/ui/models/recent_adapters_window.py:364
-#: src/ui/prompts/blacklist_preview_window.py:83
-#: src/ui/prompts/prompt_config_window.py:256 src/ui/runs/runs_window.py:237
-#: src/ui/runs/runs_window.py:455
+#: lib/custom_title_bar.py:168 src/teikr/ui/auth/password_admin_window.py:352
+#: src/teikr/ui/models/models_window.py:146 src/teikr/ui/models/models_window.py:203
+#: src/teikr/ui/models/models_window.py:618
+#: src/teikr/ui/models/recent_adapters_window.py:207
+#: src/teikr/ui/models/recent_adapters_window.py:249
+#: src/teikr/ui/models/recent_adapters_window.py:312
+#: src/teikr/ui/models/recent_adapters_window.py:364
+#: src/teikr/ui/prompts/blacklist_preview_window.py:83
+#: src/teikr/ui/prompts/prompt_config_window.py:256 src/teikr/ui/runs/runs_window.py:237
+#: src/teikr/ui/runs/runs_window.py:455
 msgid "Close"
 msgstr "Fechar"
 
-#: lib/custom_title_bar.py:291 src/ui/prompts/blacklist_window.py:1066
+#: lib/custom_title_bar.py:291 src/teikr/ui/prompts/blacklist_window.py:1066
 msgid "Restore"
 msgstr "Restaurar"
 
@@ -63,14 +63,14 @@ msgstr "Nenhum gatilho encontrado em LoRA"
 msgid "Error extracting triggers: {0}"
 msgstr "Erro ao extrair os gatilhos: {0}"
 
-#: lib/qt_alert.py:25 src/ui/auth/app_startup_auth.py:80
-#: src/ui/auth/password_dialog.py:201
+#: lib/qt_alert.py:25 src/teikr/ui/auth/app_startup_auth.py:80
+#: src/teikr/ui/auth/password_dialog.py:201
 msgid "OK"
 msgstr "CERTO"
 
-#: lib/qt_alert.py:26 src/ui/auth/app_startup_auth.py:77
-#: src/ui/auth/password_admin_window.py:81 src/ui/auth/password_dialog.py:198
-#: src/ui/auth/password_dialog.py:268 src/ui/auth/password_dialog.py:289
+#: lib/qt_alert.py:26 src/teikr/ui/auth/app_startup_auth.py:77
+#: src/teikr/ui/auth/password_admin_window.py:81 src/teikr/ui/auth/password_dialog.py:198
+#: src/teikr/ui/auth/password_dialog.py:268 src/teikr/ui/auth/password_dialog.py:289
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -138,423 +138,423 @@ msgstr "meses"
 msgid "years"
 msgstr "anos"
 
-#: src/globals.py:29
+#: src/teikr/globals.py:29
 msgid "Fixed"
 msgstr "Fixado"
 
-#: src/globals.py:30
+#: src/teikr/globals.py:30
 msgid "SFW"
 msgstr "SFW"
 
-#: src/globals.py:31
+#: src/teikr/globals.py:31
 msgid "NSFW"
 msgstr "NSFW"
 
-#: src/globals.py:32
+#: src/teikr/globals.py:32
 msgid "NSFL"
 msgstr "NSFL"
 
-#: src/globals.py:33
+#: src/teikr/globals.py:33
 msgid "Take"
 msgstr "Toma"
 
-#: src/globals.py:34
+#: src/teikr/globals.py:34
 msgid "Random"
 msgstr "Aleatório"
 
-#: src/globals.py:35 src/ui/prompts/prompt_config_window.py:97
+#: src/teikr/globals.py:35 src/teikr/ui/prompts/prompt_config_window.py:97
 msgid "Nonsense"
 msgstr "Disparate"
 
-#: src/globals.py:36
+#: src/teikr/globals.py:36
 msgid "Any Art"
 msgstr "Qualquer Arte"
 
-#: src/globals.py:37
+#: src/teikr/globals.py:37
 msgid "Painterly"
 msgstr "Pinturas"
 
-#: src/globals.py:38
+#: src/teikr/globals.py:38
 msgid "Anime"
 msgstr "Anime"
 
-#: src/globals.py:39
+#: src/teikr/globals.py:39
 msgid "Glitch"
 msgstr "Glitch"
 
-#: src/globals.py:40
+#: src/teikr/globals.py:40
 msgid "List"
 msgstr "Lista"
 
-#: src/globals.py:41
+#: src/teikr/globals.py:41
 msgid "Improve"
 msgstr "Melhorar"
 
-#: src/globals.py:72
+#: src/teikr/globals.py:72
 msgid "Remove word/phrase (only the blacklisted part)"
 msgstr "Remover palavra/frase (apenas a parte colocada na lista negra)"
 
-#: src/globals.py:73
+#: src/teikr/globals.py:73
 msgid "Remove entire tag (if any part matches)"
 msgstr "Remover toda a etiqueta (se alguma parte corresponder)"
 
-#: src/globals.py:75
+#: src/teikr/globals.py:75
 msgid "Fail prompt (block generation)"
 msgstr "Aviso de falha (bloqueia as gerações)"
 
-#: src/globals.py:76
+#: src/teikr/globals.py:76
 msgid "Log only (do not remove, just log)"
 msgstr "Apenas registo (não remover, apenas registar)"
 
-#: src/globals.py:108 src/globals.py:133
+#: src/teikr/globals.py:108 src/teikr/globals.py:133
 msgid "Disallow"
 msgstr "Proibir"
 
-#: src/globals.py:109 src/globals.py:134
+#: src/teikr/globals.py:109 src/teikr/globals.py:134
 msgid "Allow in NSFW"
 msgstr "Permitir em modos NSFW"
 
-#: src/globals.py:169
+#: src/teikr/globals.py:169
 msgid "All visual media"
 msgstr "Todas as mídias visuais"
 
-#: src/globals.py:170
+#: src/teikr/globals.py:170
 msgid "Text to Image"
 msgstr "Texto para Imagem"
 
-#: src/globals.py:171 src/globals.py:362
+#: src/teikr/globals.py:171 src/teikr/globals.py:362
 msgid "Image to Image"
 msgstr "Imagem para imagem"
 
-#: src/globals.py:172
+#: src/teikr/globals.py:172
 msgid "Image to Text"
 msgstr "Imagem para Texto"
 
-#: src/globals.py:173
+#: src/teikr/globals.py:173
 msgid "Image Classification"
 msgstr "Classificação de Imagens"
 
-#: src/globals.py:174
+#: src/teikr/globals.py:174
 msgid "Zero-shot Image Classification"
 msgstr "Classe Zero na Classificação de Imagem"
 
-#: src/globals.py:175
+#: src/teikr/globals.py:175
 msgid "Object Detection"
 msgstr "Detecção de Objetos"
 
-#: src/globals.py:176
+#: src/teikr/globals.py:176
 msgid "Image Segmentation"
 msgstr "Segmentação de Imagem"
 
-#: src/globals.py:177
+#: src/teikr/globals.py:177
 msgid "Depth Estimation"
 msgstr "Estimação da Profundidade"
 
-#: src/globals.py:178
+#: src/teikr/globals.py:178
 msgid "Visual Question Answering"
 msgstr "Resposta Visual às Questões"
 
-#: src/globals.py:179
+#: src/teikr/globals.py:179
 msgid "Video Classification"
 msgstr "Classificação de Vídeos"
 
-#: src/globals.py:180
+#: src/teikr/globals.py:180
 msgid "Text to Video"
 msgstr "Texto para Vídeo"
 
-#: src/globals.py:181
+#: src/teikr/globals.py:181
 msgid "Image Feature Extraction"
 msgstr "Extração de Características da Imagem"
 
-#: src/globals.py:212 src/ui/models/models_window.py:257
+#: src/teikr/globals.py:212 src/teikr/ui/models/models_window.py:257
 msgid "Downloads"
 msgstr "Downloads"
 
-#: src/globals.py:213 src/ui/models/models_window.py:257
+#: src/teikr/globals.py:213 src/teikr/ui/models/models_window.py:257
 msgid "Likes"
 msgstr "Gostos"
 
-#: src/globals.py:214
+#: src/teikr/globals.py:214
 msgid "Last Modified"
 msgstr "Última Modificação"
 
-#: src/globals.py:215
+#: src/teikr/globals.py:215
 msgid "Created At"
 msgstr "Criado em"
 
-#: src/globals.py:216
+#: src/teikr/globals.py:216
 msgid "Trending Score"
 msgstr "Tendência Pontuação"
 
-#: src/globals.py:240
+#: src/teikr/globals.py:240
 msgid "Descending"
 msgstr "descendente"
 
-#: src/globals.py:241
+#: src/teikr/globals.py:241
 msgid "Ascending"
 msgstr "Ascendente"
 
-#: src/globals.py:356
+#: src/teikr/globals.py:356
 msgid "Simple Image Gen"
 msgstr "Geração simples de imagens"
 
-#: src/globals.py:357
+#: src/teikr/globals.py:357
 msgid "Simple Image Gen Lora"
 msgstr "Geração simples de imagens LoRA"
 
-#: src/globals.py:358
+#: src/teikr/globals.py:358
 msgid "Simple Image Gen Tiled Upscale"
 msgstr "Geração simples de imagens em mosaico de alta qualidade"
 
-#: src/globals.py:359
+#: src/teikr/globals.py:359
 msgid "Ella"
 msgstr "ELLA"
 
-#: src/globals.py:360
+#: src/teikr/globals.py:360
 msgid "Instant Lora"
 msgstr "LoRA instantâneo"
 
-#: src/globals.py:361 src/ui/models/recent_adapters_window.py:283
+#: src/teikr/globals.py:361 src/teikr/ui/models/recent_adapters_window.py:283
 msgid "IP Adapter"
 msgstr "Adaptador IP"
 
-#: src/globals.py:363
+#: src/teikr/globals.py:363
 msgid "Image Edit"
 msgstr "Edição de imagens"
 
-#: src/globals.py:364 src/ui/models/recent_adapters_window.py:282
+#: src/teikr/globals.py:364 src/teikr/ui/models/recent_adapters_window.py:282
 msgid "ControlNet"
 msgstr "ControlNet"
 
-#: src/globals.py:365
+#: src/teikr/globals.py:365
 msgid "Inpaint ClipSeg"
 msgstr "Recorte ClipSeg"
 
-#: src/globals.py:366
+#: src/teikr/globals.py:366
 msgid "Animate Diff"
 msgstr "Animar Diferença"
 
-#: src/globals.py:367
+#: src/teikr/globals.py:367
 msgid "Renoiser"
 msgstr "Renoiser"
 
-#: src/globals.py:368 src/globals.py:677
+#: src/teikr/globals.py:368 src/teikr/globals.py:677
 msgid "Turbo"
 msgstr "Turbo"
 
-#: src/globals.py:369
+#: src/teikr/globals.py:369
 msgid "Upscale Simple"
 msgstr "Melhorar a imagem Simples"
 
-#: src/globals.py:370
+#: src/teikr/globals.py:370
 msgid "Upscale Better"
 msgstr "Melhorar a imagem Versão melhorada"
 
-#: src/globals.py:371
+#: src/teikr/globals.py:371
 msgid "Redo Prompt"
 msgstr "Repita o prompt"
 
-#: src/globals.py:484 src/globals.py:545
+#: src/teikr/globals.py:484 src/teikr/globals.py:545
 msgid "Any"
 msgstr "Qualquer"
 
-#: src/globals.py:485
+#: src/teikr/globals.py:485
 msgid "Euler"
 msgstr "Euler"
 
-#: src/globals.py:486
+#: src/teikr/globals.py:486
 msgid "Euler Ancestral"
 msgstr "Euler Ancestral"
 
-#: src/globals.py:487
+#: src/teikr/globals.py:487
 msgid "DPM 2"
 msgstr "DPM 2"
 
-#: src/globals.py:488
+#: src/teikr/globals.py:488
 msgid "DPM 2 Ancestral"
 msgstr "DPM 2 Ancestral"
 
-#: src/globals.py:489
+#: src/teikr/globals.py:489
 msgid "DPM++ SDE"
 msgstr "DPM++ SDE"
 
-#: src/globals.py:490
+#: src/teikr/globals.py:490
 msgid "DPM++ SDE GPU"
 msgstr "DPM++ SDE GPU"
 
-#: src/globals.py:491
+#: src/teikr/globals.py:491
 msgid "DPM++ 2M"
 msgstr "DPM++ 2M"
 
-#: src/globals.py:492
+#: src/teikr/globals.py:492
 msgid "DPM++ 2M SDE"
 msgstr "DPM++ 2M SDE"
 
-#: src/globals.py:493
+#: src/teikr/globals.py:493
 msgid "DPM++ 2M SDE GPU"
 msgstr "DPM++ 2M SDE GPU"
 
-#: src/globals.py:494
+#: src/teikr/globals.py:494
 msgid "DPM++ 3M SDE"
 msgstr "DPM++ 3M SDE"
 
-#: src/globals.py:495
+#: src/teikr/globals.py:495
 msgid "DPM++ 3M SDE GPU"
 msgstr "DPM++ 3M SDE GPU"
 
-#: src/globals.py:496
+#: src/teikr/globals.py:496
 msgid "DDIM"
 msgstr "DDIM"
 
-#: src/globals.py:497
+#: src/teikr/globals.py:497
 msgid "DDPM"
 msgstr "DDPM"
 
-#: src/globals.py:498
+#: src/teikr/globals.py:498
 msgid "LCM"
 msgstr "LCM"
 
-#: src/globals.py:546
+#: src/teikr/globals.py:546
 msgid "Normal"
 msgstr "Normal"
 
-#: src/globals.py:547
+#: src/teikr/globals.py:547
 msgid "Karras"
 msgstr "Karras"
 
-#: src/globals.py:548
+#: src/teikr/globals.py:548
 msgid "Simple"
 msgstr "Simples"
 
-#: src/globals.py:549
+#: src/teikr/globals.py:549
 msgid "Exponential"
 msgstr "Exponencial"
 
-#: src/globals.py:550
+#: src/teikr/globals.py:550
 msgid "SGM Uniform"
 msgstr "Uniforme SGM"
 
-#: src/globals.py:551
+#: src/teikr/globals.py:551
 msgid "DDIM Uniform"
 msgstr "Uniforme DDIM"
 
-#: src/globals.py:674
+#: src/teikr/globals.py:674
 msgid "SD 1.5"
 msgstr "SD 1.5"
 
-#: src/globals.py:675
+#: src/teikr/globals.py:675
 msgid "SDXL"
 msgstr "SDXL"
 
-#: src/globals.py:676
+#: src/teikr/globals.py:676
 msgid "Illustrious"
 msgstr "Illustrious"
 
-#: src/globals.py:678
+#: src/teikr/globals.py:678
 msgid "Flux"
 msgstr "Flux"
 
-#: src/globals.py:679
+#: src/teikr/globals.py:679
 msgid "Flux.2 Klein 9B"
 msgstr "Flux.2 Klein 9B"
 
-#: src/globals.py:680
+#: src/teikr/globals.py:680
 msgid "Flux.2 Klein 4B"
 msgstr "Flux.2 Klein 4B"
 
-#: src/globals.py:681
+#: src/teikr/globals.py:681
 msgid "Flux.3"
 msgstr "Flux.3"
 
-#: src/globals.py:682
+#: src/teikr/globals.py:682
 msgid "Krea 2"
 msgstr "Krea 2"
 
-#: src/globals.py:683
+#: src/teikr/globals.py:683
 msgid "MiniMax H3"
 msgstr "MiniMax H3"
 
-#: src/globals.py:684
+#: src/teikr/globals.py:684
 msgid "Chroma"
 msgstr "Chroma"
 
-#: src/globals.py:685
+#: src/teikr/globals.py:685
 msgid "ZImageTurbo"
 msgstr "ZImageTurbo"
 
-#: src/globals.py:686
+#: src/teikr/globals.py:686
 msgid "Qwen"
 msgstr "Qwen"
 
-#: src/globals.py:687 src/ui/models/models_window.py:633
+#: src/teikr/globals.py:687 src/teikr/ui/models/models_window.py:633
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: src/globals.py:713
+#: src/teikr/globals.py:713
 msgid "1536"
 msgstr "1536"
 
-#: src/globals.py:714
+#: src/teikr/globals.py:714
 msgid "1328"
 msgstr "1328"
 
-#: src/globals.py:715
+#: src/teikr/globals.py:715
 msgid "1024"
 msgstr "1024"
 
-#: src/globals.py:716
+#: src/teikr/globals.py:716
 msgid "768"
 msgstr "768"
 
-#: src/globals.py:717
+#: src/teikr/globals.py:717
 msgid "512"
 msgstr "512"
 
-#: src/globals.py:757
+#: src/teikr/globals.py:757
 msgid "Open Application"
 msgstr "Abrir a aplicação"
 
-#: src/globals.py:758
+#: src/teikr/globals.py:758
 msgid "NSFW/NSFL Prompt Modes"
 msgstr "Modos de resposta NSFW/NSFL"
 
-#: src/globals.py:759
+#: src/teikr/globals.py:759
 msgid "Take Prompt Mode (unfiltered image prompts)"
 msgstr "Modo Take Prompt (prompt de imagens sem filtragem)"
 
-#: src/globals.py:760
+#: src/teikr/globals.py:760
 msgid "Edit Blacklist"
 msgstr "Editar lista negra"
 
-#: src/globals.py:761
+#: src/teikr/globals.py:761
 msgid "Reveal Blacklist Concepts"
 msgstr "Revelar conceitos da lista negra"
 
-#: src/globals.py:762
+#: src/teikr/globals.py:762
 msgid "Edit Schedules"
 msgstr "Editar horários"
 
-#: src/globals.py:763
+#: src/teikr/globals.py:763
 msgid "Edit Timed Schedules"
 msgstr "Editar horários programados"
 
-#: src/globals.py:764
+#: src/teikr/globals.py:764
 msgid "Edit Expansions"
 msgstr "Editar expansões"
 
-#: src/globals.py:765
+#: src/teikr/globals.py:765
 msgid "Edit Presets"
 msgstr "Editar predefinições"
 
-#: src/globals.py:766 src/ui/app_window/sidebar_panel.py:462
+#: src/teikr/globals.py:766 src/teikr/ui/app_window/sidebar_panel.py:462
 msgid "Edit Concepts"
 msgstr "Editar conceitos"
 
-#: src/globals.py:767
+#: src/teikr/globals.py:767
 msgid "Access Password Administration"
 msgstr "Acesso à administração da palavra-passe"
 
-#: src/image_to_prompt/providers/captioner_provider.py:61
+#: src/teikr/image_to_prompt/providers/captioner_provider.py:61
 msgid ""
 "Captioner backend requires torch + transformers. Install optional deps (e.g."
 " `pip install -r requirements-optional.txt`)."
@@ -562,7 +562,7 @@ msgstr ""
 "O backend do Captioner requer torch + transformers. Instale dependências "
 "opcionais (ex.: `pip install -r requirements-optional.txt`)."
 
-#: src/image_to_prompt/providers/captioner_provider.py:129
+#: src/teikr/image_to_prompt/providers/captioner_provider.py:129
 msgid ""
 "Failed to initialize BLIP captioner backend. Ensure optional captioner "
 "dependencies are installed."
@@ -570,7 +570,7 @@ msgstr ""
 "Falha ao inicializar o backend de legendagem BLIP. Certifique‑se de que as "
 "dependências opcionais do legendador estejam instaladas."
 
-#: src/image_to_prompt/providers/llava_transformers.py:136
+#: src/teikr/image_to_prompt/providers/llava_transformers.py:136
 msgid ""
 "VLM backend requires torch + transformers. Install optional deps (e.g. `pip "
 "install -r requirements-optional.txt`). The VLM model class needs "
@@ -580,7 +580,7 @@ msgstr ""
 "(ex.: `pip install -r requirements-optional.txt`). A classe de modelo VLM "
 "precisa do transformers 4.36 ou mais recente."
 
-#: src/image_to_prompt/providers/llava_transformers.py:224
+#: src/teikr/image_to_prompt/providers/llava_transformers.py:224
 msgid ""
 "vlm_load_in_4bit is set but bitsandbytes and accelerate are not both "
 "installed. Install them, or turn the setting off to load at full precision."
@@ -589,14 +589,14 @@ msgstr ""
 " instalados. Instale-os ou desative a configuração para carregar com "
 "precisão total."
 
-#: src/models/model.py:718
+#: src/teikr/models/model.py:718
 msgid ""
 "One or more loras are blacklisted. Please try again with a different lora."
 msgstr ""
 "Uma ou mais loras estão na lista negra. Tente novamente com uma lora "
 "diferente."
 
-#: src/models/model.py:722
+#: src/teikr/models/model.py:722
 msgid ""
 "The following loras are blacklisted: {0}\n"
 "\n"
@@ -606,14 +606,14 @@ msgstr ""
 "\n"
 "Tente novamente com uma lora diferente."
 
-#: src/models/model.py:727
+#: src/teikr/models/model.py:727
 msgid ""
 "One or more models are blacklisted. Please try again with a different model."
 msgstr ""
 "Um ou mais modelos estão na lista negra. Tente novamente com um modelo "
 "diferente."
 
-#: src/models/model.py:731
+#: src/teikr/models/model.py:731
 msgid ""
 "The following models are blacklisted: {0}\n"
 "\n"
@@ -623,76 +623,76 @@ msgstr ""
 "\n"
 "Tente novamente com um modelo diferente."
 
-#: src/presets/presets_state.py:185
+#: src/teikr/presets/presets_state.py:185
 msgid "New Preset (ERROR no presets found)"
 msgstr "Nova predefinição (ERRO não foram encontradas predefinições)"
 
-#: src/presets/presets_state.py:191
+#: src/teikr/presets/presets_state.py:191
 msgid "Not enough presets found."
 msgstr "Não foram encontradas predefinições suficientes."
 
-#: src/presets/schedule.py:12 src/presets/timed_schedule.py:6
+#: src/teikr/presets/schedule.py:12 src/teikr/presets/timed_schedule.py:6
 msgid "New Schedule"
 msgstr "Novo calendário"
 
-#: src/presets/schedule.py:70
+#: src/teikr/presets/schedule.py:70
 msgid "{0} ({1} runs)"
 msgstr "{0} ({1} corre)"
 
-#: src/presets/timed_schedule.py:38
+#: src/teikr/presets/timed_schedule.py:38
 msgid "Tomorrow"
 msgstr "Amanhã"
 
-#: src/presets/timed_schedule.py:73
-#: src/ui/presets/timed_schedules_window.py:68
+#: src/teikr/presets/timed_schedule.py:73
+#: src/teikr/ui/presets/timed_schedules_window.py:68
 msgid "Every day"
 msgstr "Todos os dias"
 
-#: src/presets/timed_schedule.py:76
+#: src/teikr/presets/timed_schedule.py:76
 msgid "{0} - Days: {1} - Times: {2}-{3} - Shutdown: {4}"
 msgstr "{0} - Dias: {1} - Horas: {2}-{3} - Desligamento: {4}"
 
-#: src/presets/timed_schedules_manager.py:20
+#: src/teikr/presets/timed_schedules_manager.py:20
 msgid "Default"
 msgstr "Padrão"
 
-#: src/presets/timed_schedules_manager.py:47
+#: src/teikr/presets/timed_schedules_manager.py:47
 msgid "Default Shutdown"
 msgstr "Desligamento padrão"
 
-#: src/presets/timed_schedules_manager.py:92
+#: src/teikr/presets/timed_schedules_manager.py:92
 msgid "Not enough schedules found."
 msgstr "Não foram encontrados programas suficientes."
 
-#: src/presets/timed_schedules_manager.py:176
+#: src/teikr/presets/timed_schedules_manager.py:176
 msgid "Shutdown scheduled: {}"
 msgstr "Desligamento programado: {}"
 
-#: src/prompts/blacklist.py:737
+#: src/teikr/prompts/blacklist.py:737
 msgid "Matched blacklist items: {0}"
 msgstr "Itens da lista negra correspondentes: {0}"
 
-#: src/prompts/blacklist.py:742 tests/unit/test_blacklist_replace_mode.py:141
+#: src/teikr/prompts/blacklist.py:742 tests/unit/test_blacklist_replace_mode.py:141
 msgid "One or more tags were removed due to blacklist failure."
 msgstr "Uma ou mais etiquetas foram removidas devido a falha na lista negra."
 
-#: src/prompts/blacklist.py:965
+#: src/teikr/prompts/blacklist.py:965
 msgid "Filtering concepts for blacklist: "
 msgstr "Conceitos de filtragem para a lista negra: "
 
-#: src/prompts/concepts.py:1359
+#: src/teikr/prompts/concepts.py:1359
 msgid "{0} -> blacklisted"
 msgstr "{0} -> na lista negra"
 
-#: src/prompts/prompter.py:557
+#: src/teikr/prompts/prompter.py:557
 msgid "Blacklist validation failed on extracted image prompt"
 msgstr "Falha na validação da lista negra no prompt de imagem extraído"
 
-#: src/prompts/prompter.py:578
+#: src/teikr/prompts/prompter.py:578
 msgid "Extracted prompt too similar to blocked concept \"{0}\" ({1:.0%})"
 msgstr "Prompt extraído muito semelhante ao conceito bloqueado \"{0}\" ({1:.0%})"
 
-#: src/runs/gen_config.py:158
+#: src/teikr/runs/gen_config.py:158
 msgid ""
 "You are using HARD concept {0} in prompt - this is hard for image generation"
 " models."
@@ -700,15 +700,15 @@ msgstr ""
 "Você está usando o conceito HARD {0} no prompt - isso é difícil para os "
 "modelos de geração de imagem."
 
-#: src/runs/gen_config.py:161
+#: src/teikr/runs/gen_config.py:161
 msgid "You are using EXCLUSIONARY concept {0} in prompt."
 msgstr "Você está usando o conceito excluyente {0} no prompt."
 
-#: src/runs/gen_config.py:164
+#: src/teikr/runs/gen_config.py:164
 msgid "You are using BORING concept {0} in prompt."
 msgstr "Você está usando o conceito CHATO {0} no prompt."
 
-#: src/runs/gen_config.py:167
+#: src/teikr/runs/gen_config.py:167
 msgid ""
 "The renoiser workflow creates images that are fairly bright, but no dark "
 "keywords detected."
@@ -716,7 +716,7 @@ msgstr ""
 "O fluxo de trabalho Renoiser cria imagens bastante claras, mas nenhuma "
 "palavra‑chave escura foi detectada."
 
-#: src/runs/gen_config.py:170
+#: src/teikr/runs/gen_config.py:170
 msgid ""
 "WARNING: The renoiser workflow is configured with {0} resolutions. Since "
 "seed variation has minimal effect on renoiser output, this will result in "
@@ -728,32 +728,32 @@ msgstr ""
 "resultará em entradas efetivamente duplicadas para a mesma imagem do Control"
 " Net. Cada resolução produzirá resultados quase idênticos."
 
-#: src/runs/gen_config.py:175 src/runs/run_controller.py:554
-#: src/runs/run_controller.py:604
+#: src/teikr/runs/gen_config.py:175 src/teikr/runs/run_controller.py:554
+#: src/teikr/runs/run_controller.py:604
 msgid "Confirm Run"
 msgstr "Confirmar execução"
 
-#: src/runs/gen_config.py:179
+#: src/teikr/runs/gen_config.py:179
 msgid "Confirm (y/n): "
 msgstr "Confirmar (s/n): "
 
-#: src/runs/job_queue.py:63
+#: src/teikr/runs/job_queue.py:63
 msgid " (Pending runs: {0})"
 msgstr " (Execuções pendentes: {0})"
 
-#: src/runs/job_queue.py:65
+#: src/teikr/runs/job_queue.py:65
 msgid "Pending schedules: {0}"
 msgstr "Agendas pendentes: {0}"
 
-#: src/runs/job_queue.py:250
+#: src/teikr/runs/job_queue.py:250
 msgid "Server staging: {0} pending"
 msgstr "Preparação do servidor: {0} pendente"
 
-#: src/runs/run_config.py:165
+#: src/teikr/runs/run_config.py:165
 msgid "No prompter config found!"
 msgstr "Não foi encontrada nenhuma configuração do prompter!"
 
-#: src/runs/run_config.py:169
+#: src/teikr/runs/run_config.py:169
 msgid ""
 "Ensure configuration is correct - do you really want to create more than 10 "
 "images using the same prompt?"
@@ -761,11 +761,11 @@ msgstr ""
 "Certifique-se de que a configuração está correta - quer mesmo criar mais de "
 "dez imagens utilizando o mesmo prompt?"
 
-#: src/runs/run_config.py:177
+#: src/teikr/runs/run_config.py:177
 msgid "No models found matching '{0}'"
 msgstr "Nenhum modelo encontrado correspondendo a '{0}'"
 
-#: src/runs/run_config.py:186
+#: src/teikr/runs/run_config.py:186
 msgid ""
 "A model switch was detected and the model massage tags don't match. This "
 "warning will only be shown once."
@@ -773,15 +773,15 @@ msgstr ""
 "Foi detectada uma mudança de modelo e as etiquetas para o ajuste do modelo "
 "não coincidem. Este aviso só é apresentado uma vez."
 
-#: src/runs/run_config.py:273
+#: src/teikr/runs/run_config.py:273
 msgid "Workflow '{0}' requires an IP adapter to be specified."
 msgstr "O fluxo de trabalho '{0}' requer a especificação de um adaptador IP."
 
-#: src/runs/run_config.py:277
+#: src/teikr/runs/run_config.py:277
 msgid "Workflow '{0}' requires a control net to be specified."
 msgstr "O workflow '{0}' requer a especificação de uma rede de controle."
 
-#: src/runs/run_config.py:282
+#: src/teikr/runs/run_config.py:282
 msgid ""
 "WARNING: Multiple resolutions in renoiser workflow will produce nearly "
 "identical results (duplicates)."
@@ -789,43 +789,43 @@ msgstr ""
 "AVISO: Várias resoluções no fluxo de trabalho do Renoiser produzirão "
 "resultados quase idênticos (duplicados)."
 
-#: src/runs/run_controller.py:293
+#: src/teikr/runs/run_controller.py:293
 msgid "Blacklist validation failed."
 msgstr "Falha na validação da lista negra."
 
-#: src/runs/run_controller.py:289 src/runs/run_controller.py:297
-#: src/runs/run_controller.py:301 src/ui/app_window/sidebar_panel.py:857
+#: src/teikr/runs/run_controller.py:289 src/teikr/runs/run_controller.py:297
+#: src/teikr/runs/run_controller.py:301 src/teikr/ui/app_window/sidebar_panel.py:857
 msgid "Invalid Prompt Tags"
 msgstr "Etiquetas de aviso inválidas"
 
-#: src/runs/run_controller.py:301
+#: src/teikr/runs/run_controller.py:301
 msgid "Blacklist validation failed!"
 msgstr "A validação da lista negra falhou!"
 
-#: src/runs/run_controller.py:311
+#: src/teikr/runs/run_controller.py:311
 msgid "Prompt too similar to blocked concept \"{0}\" ({1:.0%})"
 msgstr "O prompt é demasiado semelhante ao conceito bloqueado «{0}» ({1:.0%})"
 
-#: src/runs/run_controller.py:315
+#: src/teikr/runs/run_controller.py:315
 msgid "Similarity Check Failed"
 msgstr "Falha na verificação de semelhança"
 
-#: src/runs/run_controller.py:471 src/runs/run_controller.py:631
+#: src/teikr/runs/run_controller.py:471 src/teikr/runs/run_controller.py:631
 #: tests/integration/test_run_dispatch.py:325
 msgid "Run Error"
 msgstr "Erro de execução"
 
-#: src/runs/run_controller.py:400 src/runs/run_controller.py:515
-#: src/ui/runs/runs_window.py:219 tests/unit/test_failure_streak.py:160
+#: src/teikr/runs/run_controller.py:400 src/teikr/runs/run_controller.py:515
+#: src/teikr/ui/runs/runs_window.py:219 tests/unit/test_failure_streak.py:160
 msgid "Resume Queue"
 msgstr "Retomar fila"
 
-#: src/runs/run_controller.py:515 src/ui/app_window/sidebar_panel.py:133
-#: src/ui/runs/runs_window.py:215
+#: src/teikr/runs/run_controller.py:515 src/teikr/ui/app_window/sidebar_panel.py:133
+#: src/teikr/ui/runs/runs_window.py:215
 msgid "Pause Queue"
 msgstr "Pausar fila"
 
-#: src/runs/run_controller.py:555
+#: src/teikr/runs/run_controller.py:555
 msgid ""
 "Starting a new run will cancel the current preset schedule. Are you sure you"
 " want to proceed?"
@@ -833,32 +833,32 @@ msgstr ""
 "O início de um novo ciclo cancelará o programa predefinido atual. Tem a "
 "certeza de que pretende continuar?"
 
-#: src/runs/run_controller.py:594
+#: src/teikr/runs/run_controller.py:594
 msgid "Blacklist Validation Error"
 msgstr "Erro de validação da lista negra"
 
-#: src/runs/run_controller.py:600 src/runs/run_controller.py:627
-#: src/runs/run_controller.py:689
+#: src/teikr/runs/run_controller.py:600 src/teikr/runs/run_controller.py:627
+#: src/teikr/runs/run_controller.py:689
 msgid "No models found"
 msgstr "Nenhum modelo encontrado"
 
-#: src/runs/run_controller.py:605
+#: src/teikr/runs/run_controller.py:605
 msgid "Are you sure you want to proceed?"
 msgstr "Tens a certeza de que queres continuar?"
 
-#: src/runs/run_controller.py:617
+#: src/teikr/runs/run_controller.py:617
 msgid "Setting up run..."
 msgstr "Configurando a execução..."
 
-#: src/runs/run_controller.py:631
+#: src/teikr/runs/run_controller.py:631
 msgid "Could not estimate the run."
 msgstr "Não foi possível estimar a execução."
 
-#: src/runs/run_controller.py:643
+#: src/teikr/runs/run_controller.py:643
 msgid "Long Running Job Confirmation"
 msgstr "Confirmação de tarefa de longa duração"
 
-#: src/runs/run_controller.py:644
+#: src/teikr/runs/run_controller.py:644
 msgid ""
 "The estimated time for this run is {0}, which exceeds the threshold of {1}.\n"
 "\n"
@@ -872,155 +872,155 @@ msgstr ""
 "\n"
 "Você tem certeza de que quer continuar?"
 
-#: src/runs/run_controller.py:906 tests/integration/test_run_dispatch.py:376
+#: src/teikr/runs/run_controller.py:906 tests/integration/test_run_dispatch.py:376
 msgid "Preset Schedule Error"
 msgstr "Erro de agenda pré-definida"
 
-#: src/runs/run_controller.py:964
+#: src/teikr/runs/run_controller.py:964
 msgid " (unlimited)"
 msgstr " (ilimitado)"
 
-#: src/runs/run_controller.py:978
+#: src/teikr/runs/run_controller.py:978
 msgid "Batch: {0}/{1}"
 msgstr "Lote: {0}/{1}"
 
-#: src/runs/run_controller.py:985
+#: src/teikr/runs/run_controller.py:985
 msgid "Adapter: {0}/{1}"
 msgstr "Adaptador: {0}/{1}"
 
-#: src/runs/run_controller.py:989
+#: src/teikr/runs/run_controller.py:989
 msgid "Remaining: {0} adapters"
 msgstr "Restantes: {0} adaptadores"
 
-#: src/runs/run_controller.py:998
+#: src/teikr/runs/run_controller.py:998
 msgid "{0} remaining adapters"
 msgstr "{0} adaptadores restantes"
 
-#: src/runs/run_controller.py:1021
+#: src/teikr/runs/run_controller.py:1021
 msgid "{0} pending generations"
 msgstr "{0} gerações pendentes"
 
-#: src/runs/time_estimator.py:66
+#: src/teikr/runs/time_estimator.py:66
 msgid "~{0}d"
 msgstr "~{0}d"
 
-#: src/runs/time_estimator.py:68
+#: src/teikr/runs/time_estimator.py:68
 msgid "{0}h"
 msgstr "{0}h"
 
-#: src/runs/time_estimator.py:70
+#: src/teikr/runs/time_estimator.py:70
 msgid "{0}m"
 msgstr "{0}m"
 
-#: src/runs/time_estimator.py:71
+#: src/teikr/runs/time_estimator.py:71
 msgid "{0}s"
 msgstr "{0}s"
 
-#: src/ui/app_window/sidebar_panel.py:439 src/ui/config_window.py:33
+#: src/teikr/ui/app_window/sidebar_panel.py:439 src/teikr/ui/config_window.py:33
 msgid "Config"
 msgstr "Configuração"
 
-#: src/ui/config_window.py:63
+#: src/teikr/ui/config_window.py:63
 msgid "Backend URLs"
 msgstr "URLs do backend"
 
-#: src/ui/config_window.py:65
+#: src/teikr/ui/config_window.py:65
 msgid "ComfyUI URL"
 msgstr "ComfyUI URL"
 
-#: src/ui/config_window.py:68
+#: src/teikr/ui/config_window.py:68
 msgid "SD WebUI URL"
 msgstr "SD WebUI URL"
 
-#: src/ui/config_window.py:71
+#: src/teikr/ui/config_window.py:71
 msgid "Forge URL"
 msgstr "Forge URL"
 
-#: src/ui/config_window.py:74
+#: src/teikr/ui/config_window.py:74
 msgid "SDNext URL"
 msgstr "SDNext URL"
 
-#: src/ui/config_window.py:77
+#: src/teikr/ui/config_window.py:77
 msgid "SwarmUI URL"
 msgstr "SwarmUI URL"
 
-#: src/ui/config_window.py:80
+#: src/teikr/ui/config_window.py:80
 msgid "InvokeAI URL"
 msgstr "InvokeAI URL"
 
-#: src/ui/config_window.py:83
+#: src/teikr/ui/config_window.py:83
 msgid "Fooocus URL"
 msgstr "Fooocus URL"
 
-#: src/ui/config_window.py:87
+#: src/teikr/ui/config_window.py:87
 msgid "Save Paths"
 msgstr "Caminhos de salvamento"
 
-#: src/ui/config_window.py:89
+#: src/teikr/ui/config_window.py:89
 msgid "SD WebUI Save Path"
 msgstr "Caminho de gravação da SD WebUI"
 
-#: src/ui/config_window.py:92
+#: src/teikr/ui/config_window.py:92
 msgid "Forge Save Path"
 msgstr "Caminho de gravação do Forge"
 
-#: src/ui/config_window.py:95
+#: src/teikr/ui/config_window.py:95
 msgid "SDNext Save Path"
 msgstr "Caminho de gravação do SDNext"
 
-#: src/ui/config_window.py:98
+#: src/teikr/ui/config_window.py:98
 msgid "SwarmUI Save Path"
 msgstr "Caminho de gravação do SwarmUI"
 
-#: src/ui/config_window.py:101
+#: src/teikr/ui/config_window.py:101
 msgid "InvokeAI Save Path"
 msgstr "Caminho de gravação do InvokeAI"
 
-#: src/ui/config_window.py:104
+#: src/teikr/ui/config_window.py:104
 msgid "Fooocus Save Path"
 msgstr "Caminho de gravação do Fooocus"
 
-#: src/ui/config_window.py:108
+#: src/teikr/ui/config_window.py:108
 msgid "Directories"
 msgstr "Diretórios"
 
-#: src/ui/config_window.py:110
+#: src/teikr/ui/config_window.py:110
 msgid "Models Directory"
 msgstr "Diretório de Modelos"
 
-#: src/ui/config_window.py:113
+#: src/teikr/ui/config_window.py:113
 msgid "Image Output Directory"
 msgstr "Diretório de saída de imagens"
 
-#: src/ui/config_window.py:116
+#: src/teikr/ui/config_window.py:116
 msgid "Image Temps Directory"
 msgstr "Diretório temporário de imagens"
 
-#: src/ui/config_window.py:119
+#: src/teikr/ui/config_window.py:119
 msgid "IPAdapter Directory"
 msgstr "Diretório do IPAdapter"
 
-#: src/ui/config_window.py:122
+#: src/teikr/ui/config_window.py:122
 msgid "ComfyUI Location"
 msgstr "Localização do ComfyUI"
 
-#: src/ui/config_window.py:125
+#: src/teikr/ui/config_window.py:125
 msgid "SD WebUI Location"
 msgstr "Localização do SD WebUI"
 
-#: src/ui/config_window.py:128
+#: src/teikr/ui/config_window.py:128
 msgid "SD Prompt Reader Location"
 msgstr "Localização do SD Prompt Reader"
 
-#: src/ui/config_window.py:131
+#: src/teikr/ui/config_window.py:131
 msgid "Image Searcher Directory 2"
 msgstr "Diretório de Motores de Pesquisa de Imagens 2"
 
-#: src/ui/config_window.py:135
+#: src/teikr/ui/config_window.py:135
 msgid "Start Commands"
 msgstr "Comandos de início"
 
-#: src/ui/config_window.py:137
+#: src/teikr/ui/config_window.py:137
 msgid ""
 "Blank leaves that software unstarted. The command runs in its location "
 "folder."
@@ -1028,143 +1028,143 @@ msgstr ""
 "Folhas em branco impedem que o software seja iniciado. O comando é executado"
 " na pasta de sua localização."
 
-#: src/ui/config_window.py:146
+#: src/teikr/ui/config_window.py:146
 msgid "ComfyUI Start Command"
 msgstr "Comando de início do ComfyUI"
 
-#: src/ui/config_window.py:147
+#: src/teikr/ui/config_window.py:147
 msgid "SD WebUI Start Command"
 msgstr "Comando de início do SD WebUI"
 
-#: src/ui/config_window.py:148
+#: src/teikr/ui/config_window.py:148
 msgid "Forge Start Command"
 msgstr "Comando de início do Forge"
 
-#: src/ui/config_window.py:149
+#: src/teikr/ui/config_window.py:149
 msgid "SDNext Start Command"
 msgstr "SDNext Comando de início"
 
-#: src/ui/config_window.py:150
+#: src/teikr/ui/config_window.py:150
 msgid "SwarmUI Start Command"
 msgstr "Comando de início do SwarmUI"
 
-#: src/ui/config_window.py:151
+#: src/teikr/ui/config_window.py:151
 msgid "InvokeAI Start Command"
 msgstr "Comando de início InvokeAI"
 
-#: src/ui/config_window.py:152
+#: src/teikr/ui/config_window.py:152
 msgid "Fooocus Start Command"
 msgstr "Comando de início do Fooocus"
 
-#: src/ui/config_window.py:163
+#: src/teikr/ui/config_window.py:163
 msgid "UI"
 msgstr "IU"
 
-#: src/ui/config_window.py:165
+#: src/teikr/ui/config_window.py:165
 msgid "Foreground Color"
 msgstr "Cor de primeiro plano"
 
-#: src/ui/config_window.py:168
+#: src/teikr/ui/config_window.py:168
 msgid "Background Color"
 msgstr "Cor de fundo"
 
-#: src/ui/config_window.py:171
+#: src/teikr/ui/config_window.py:171
 msgid "UI Scale Factor"
 msgstr "Fator de escala da interface do utilizador"
 
-#: src/ui/config_window.py:174
+#: src/teikr/ui/config_window.py:174
 msgid "Locale"
 msgstr "Localização"
 
-#: src/ui/config_window.py:178
+#: src/teikr/ui/config_window.py:178
 msgid "Behavior"
 msgstr "Comportamento"
 
-#: src/ui/config_window.py:180
+#: src/teikr/ui/config_window.py:180
 msgid "Blacklist Prevents Execution"
 msgstr "A lista negra impede a execução"
 
-#: src/ui/config_window.py:183
+#: src/teikr/ui/config_window.py:183
 msgid "Purge Blacklisted Prompts from History"
 msgstr "Eliminar os comandos da lista negra do histórico"
 
-#: src/ui/config_window.py:186
+#: src/teikr/ui/config_window.py:186
 msgid "Save Last Prompt"
 msgstr "Guardar o último prompt"
 
-#: src/ui/config_window.py:189
+#: src/teikr/ui/config_window.py:189
 msgid "Delay After Single Run"
 msgstr "Atraso após uma única execução"
 
-#: src/ui/config_window.py:192
+#: src/teikr/ui/config_window.py:192
 msgid "Force Delay"
 msgstr "Forçar atraso"
 
-#: src/ui/config_window.py:195
+#: src/teikr/ui/config_window.py:195
 msgid "Debug Mode"
 msgstr "Modo de depuração"
 
-#: src/ui/config_window.py:198
+#: src/teikr/ui/config_window.py:198
 msgid "Encrypt Log File"
 msgstr "Criptografar arquivo de log"
 
-#: src/ui/config_window.py:201
+#: src/teikr/ui/config_window.py:201
 msgid "Print Settings on Start"
 msgstr "Definições de impressão no Início"
 
-#: src/ui/config_window.py:204
+#: src/teikr/ui/config_window.py:204
 msgid "Max Executor Threads"
 msgstr "Número máximo de threads do Executor"
 
-#: src/ui/config_window.py:208
+#: src/teikr/ui/config_window.py:208
 msgid "Server"
 msgstr "Servidor"
 
-#: src/ui/config_window.py:210
+#: src/teikr/ui/config_window.py:210
 msgid "Server Host"
 msgstr "Host do servidor"
 
-#: src/ui/config_window.py:213
+#: src/teikr/ui/config_window.py:213
 msgid "Server Port"
 msgstr "Porta do servidor"
 
-#: src/ui/config_window.py:216
+#: src/teikr/ui/config_window.py:216
 msgid "Server Password"
 msgstr "Palavra-passe do servidor"
 
-#: src/ui/config_window.py:220
+#: src/teikr/ui/config_window.py:220
 msgid "Dictionary Override"
 msgstr "Substituição do dicionário"
 
-#: src/ui/config_window.py:222
+#: src/teikr/ui/config_window.py:222
 msgid "Override Dictionary Path"
 msgstr "Substituir o caminho do dicionário"
 
-#: src/ui/config_window.py:225
+#: src/teikr/ui/config_window.py:225
 msgid "Append to Default Dictionary"
 msgstr "Adicionar ao dicionário predefinido"
 
-#: src/ui/config_window.py:228
+#: src/teikr/ui/config_window.py:228
 msgid "Use Urban Dictionary Corpus in NSFW Modes"
 msgstr "Usar o corpus do Urban Dictionary em modos NSFW"
 
-#: src/ui/config_window.py:232 src/ui/prompts/blacklist_window.py:184
+#: src/teikr/ui/config_window.py:232 src/teikr/ui/prompts/blacklist_window.py:184
 msgid "Similarity Check"
 msgstr "Verificação de semelhança"
 
-#: src/ui/config_window.py:234
+#: src/teikr/ui/config_window.py:234
 msgid "CLIP Model Path"
 msgstr "Percurso do modelo CLIP"
 
-#: src/ui/config_window.py:268
+#: src/teikr/ui/config_window.py:268
 msgid "Save Config"
 msgstr "Guardar configuração"
 
-#: src/ui/config_window.py:371
+#: src/teikr/ui/config_window.py:371
 msgid "Save Failed"
 msgstr "Falha ao guardar"
 
-#: src/ui/config_window.py:372
+#: src/teikr/ui/config_window.py:372
 msgid ""
 "Could not write config file:\n"
 "\n"
@@ -1172,11 +1172,11 @@ msgstr ""
 "Não foi possível gravar o ficheiro de configuração:\n"
 "\n"
 
-#: src/ui/config_window.py:379
+#: src/teikr/ui/config_window.py:379
 msgid "Config Validation Error"
 msgstr "Erro de validação da configuração"
 
-#: src/ui/config_window.py:380
+#: src/teikr/ui/config_window.py:380
 msgid ""
 "Fix these fields before saving:\n"
 "\n"
@@ -1184,11 +1184,11 @@ msgstr ""
 "Corrija estes campos antes de guardar:\n"
 "\n"
 
-#: src/ui/config_window.py:391
+#: src/teikr/ui/config_window.py:391
 msgid "Config Saved"
 msgstr "Configuração guardada"
 
-#: src/ui/config_window.py:392
+#: src/teikr/ui/config_window.py:392
 msgid ""
 "Settings saved successfully.\n"
 "\n"
@@ -1198,281 +1198,281 @@ msgstr ""
 "\n"
 "Algumas alterações (diretórios, URLs, escala da interface do utilizador, configurações regionais) requerem o reinício da aplicação para que tenham efeito total."
 
-#: src/ui/app_window/app_window.py:391
+#: src/teikr/ui/app_window/app_window.py:391
 msgid "Theme switched to {0}."
 msgstr "O tema mudou para {0}."
 
-#: src/ui/app_window/app_window.py:400
+#: src/teikr/ui/app_window/app_window.py:400
 msgid "Debug mode toggled."
 msgstr "Modo de depuração ativado."
 
-#: src/ui/app_window/app_window.py:959
+#: src/teikr/ui/app_window/app_window.py:959
 msgid "Starting {0}..."
 msgstr "Iniciando {0}..."
 
-#: src/ui/app_window/app_window.py:966
+#: src/teikr/ui/app_window/app_window.py:966
 msgid "{0} is ready"
 msgstr "{0} está pronto"
 
-#: src/ui/app_window/app_window.py:968
+#: src/teikr/ui/app_window/app_window.py:968
 msgid "{0} is still starting"
 msgstr "{0} ainda está iniciando"
 
-#: src/ui/app_window/app_window.py:970 src/ui/app_window/app_window.py:978
+#: src/teikr/ui/app_window/app_window.py:970 src/teikr/ui/app_window/app_window.py:978
 msgid "Could not start {0}"
 msgstr "Não foi possível iniciar {0}"
 
-#: src/ui/app_window/app_window.py:1026 src/ui/app_window/app_window.py:1041
+#: src/teikr/ui/app_window/app_window.py:1026 src/teikr/ui/app_window/app_window.py:1041
 msgid "Updating history for blacklist changes — please wait…"
 msgstr ""
 "Atualizando a história para alterações na lista negra — por favor aguarde…"
 
-#: src/ui/app_window/app_window.py:1028
+#: src/teikr/ui/app_window/app_window.py:1028
 msgid "Saving application data is taking longer than expected — please wait…"
 msgstr ""
 "Salvando os dados da aplicação está demorando mais do que o esperado — por "
 "favor aguarde..."
 
-#: src/ui/app_window/app_window.py:1030
+#: src/teikr/ui/app_window/app_window.py:1030
 msgid "Closing"
 msgstr "Encerramento"
 
-#: src/ui/app_window/app_window.py:1125
+#: src/teikr/ui/app_window/app_window.py:1125
 msgid "Confirm Quit"
 msgstr "Confirmar Sair"
 
-#: src/ui/app_window/app_window.py:1126
+#: src/teikr/ui/app_window/app_window.py:1126
 msgid "Would you like to quit the application?"
 msgstr "Deseja abandonar a aplicação?"
 
-#: src/ui/app_window/notification_controller.py:240
-#: src/ui/auth/app_startup_auth.py:125
-#: src/ui/auth/password_admin_window.py:128
-#: src/ui/auth/password_admin_window.py:534 src/ui/auth/password_dialog.py:306
-#: src/ui/models/models_window.py:538 src/ui/models/models_window.py:672
-#: src/ui/models/models_window.py:679 src/ui/models/models_window.py:681
-#: src/ui/prompts/blacklist_modify_window.py:203
-#: src/ui/prompts/blacklist_modify_window.py:210
-#: src/ui/prompts/blacklist_preview_window.py:223
-#: src/ui/prompts/concept_editor_window.py:481
-#: src/ui/prompts/concept_editor_window.py:610
-#: src/ui/prompts/concept_editor_window.py:649
+#: src/teikr/ui/app_window/notification_controller.py:240
+#: src/teikr/ui/auth/app_startup_auth.py:125
+#: src/teikr/ui/auth/password_admin_window.py:128
+#: src/teikr/ui/auth/password_admin_window.py:534 src/teikr/ui/auth/password_dialog.py:306
+#: src/teikr/ui/models/models_window.py:538 src/teikr/ui/models/models_window.py:672
+#: src/teikr/ui/models/models_window.py:679 src/teikr/ui/models/models_window.py:681
+#: src/teikr/ui/prompts/blacklist_modify_window.py:203
+#: src/teikr/ui/prompts/blacklist_modify_window.py:210
+#: src/teikr/ui/prompts/blacklist_preview_window.py:223
+#: src/teikr/ui/prompts/concept_editor_window.py:481
+#: src/teikr/ui/prompts/concept_editor_window.py:610
+#: src/teikr/ui/prompts/concept_editor_window.py:649
 msgid "Error"
 msgstr "Erro"
 
-#: src/ui/app_window/sidebar_panel.py:113
+#: src/teikr/ui/app_window/sidebar_panel.py:113
 msgid "Run SD Workflows"
 msgstr "Executar fluxos de trabalho SD"
 
-#: src/ui/app_window/sidebar_panel.py:119
+#: src/teikr/ui/app_window/sidebar_panel.py:119
 msgid "Run Workflows"
 msgstr "Executar fluxos de trabalho"
 
-#: src/ui/app_window/sidebar_panel.py:122 src/ui/runs/runs_window.py:113
+#: src/teikr/ui/app_window/sidebar_panel.py:122 src/teikr/ui/runs/runs_window.py:113
 msgid "Runs"
 msgstr "Execuções"
 
-#: src/ui/app_window/sidebar_panel.py:123
+#: src/teikr/ui/app_window/sidebar_panel.py:123
 msgid "View queue and run history"
 msgstr "Ver fila e histórico de execução"
 
-#: src/ui/app_window/sidebar_panel.py:129
+#: src/teikr/ui/app_window/sidebar_panel.py:129
 msgid "Cancel Run"
 msgstr "Cancelar execução"
 
-#: src/ui/app_window/sidebar_panel.py:134 src/ui/runs/runs_window.py:216
+#: src/teikr/ui/app_window/sidebar_panel.py:134 src/teikr/ui/runs/runs_window.py:216
 msgid "Pause after the current job completes"
 msgstr "Pausar após a conclusão do trabalho atual"
 
-#: src/ui/app_window/sidebar_panel.py:167
+#: src/teikr/ui/app_window/sidebar_panel.py:167
 msgid "Software"
 msgstr "Software"
 
-#: src/ui/app_window/sidebar_panel.py:173 src/ui/runs/runs_window.py:157
-#: src/ui/runs/runs_window.py:166 src/ui/runs/runs_window.py:442
+#: src/teikr/ui/app_window/sidebar_panel.py:173 src/teikr/ui/runs/runs_window.py:157
+#: src/teikr/ui/runs/runs_window.py:166 src/teikr/ui/runs/runs_window.py:442
 msgid "Workflow"
 msgstr "Fluxo de trabalho"
 
-#: src/ui/app_window/sidebar_panel.py:181
+#: src/teikr/ui/app_window/sidebar_panel.py:181
 msgid "Set N Latents"
 msgstr "Número de latentes"
 
-#: src/ui/app_window/sidebar_panel.py:187
+#: src/teikr/ui/app_window/sidebar_panel.py:187
 msgid "Set Total"
 msgstr "Total"
 
-#: src/ui/app_window/sidebar_panel.py:192
+#: src/teikr/ui/app_window/sidebar_panel.py:192
 msgid "Batch Limit"
 msgstr "Limite de lote"
 
-#: src/ui/app_window/sidebar_panel.py:195
+#: src/teikr/ui/app_window/sidebar_panel.py:195
 msgid "Delay Seconds"
 msgstr "Segundos de atraso"
 
-#: src/ui/app_window/sidebar_panel.py:203
+#: src/teikr/ui/app_window/sidebar_panel.py:203
 msgid "Resolutions"
 msgstr "Resoluções"
 
-#: src/ui/app_window/sidebar_panel.py:206
+#: src/teikr/ui/app_window/sidebar_panel.py:206
 msgid "Resolution Group"
 msgstr "Grupo de resolução"
 
-#: src/ui/app_window/sidebar_panel.py:217
-#: src/ui/models/model_presets_window.py:361
+#: src/teikr/ui/app_window/sidebar_panel.py:217
+#: src/teikr/ui/models/model_presets_window.py:361
 msgid "Model Tags"
 msgstr "Etiquetas de modelos"
 
-#: src/ui/app_window/sidebar_panel.py:218
-#: src/ui/app_window/sidebar_panel.py:244 src/ui/models/models_window.py:64
+#: src/teikr/ui/app_window/sidebar_panel.py:218
+#: src/teikr/ui/app_window/sidebar_panel.py:244 src/teikr/ui/models/models_window.py:64
 msgid "Models"
 msgstr "Modelos"
 
-#: src/ui/app_window/sidebar_panel.py:223
-#: src/ui/models/model_presets_window.py:274
+#: src/teikr/ui/app_window/sidebar_panel.py:223
+#: src/teikr/ui/models/model_presets_window.py:274
 msgid "Model Presets"
 msgstr "Predefinições do modelo"
 
-#: src/ui/app_window/sidebar_panel.py:243
+#: src/teikr/ui/app_window/sidebar_panel.py:243
 msgid "LoRA Tags"
 msgstr "Etiquetas LoRA"
 
-#: src/ui/app_window/sidebar_panel.py:263
+#: src/teikr/ui/app_window/sidebar_panel.py:263
 msgid "Default LoRA Strength"
 msgstr "Força LoRA por defeito"
 
-#: src/ui/app_window/sidebar_panel.py:270
+#: src/teikr/ui/app_window/sidebar_panel.py:270
 msgid "B/W Colorization Tags"
 msgstr "Etiquetas de coloração P/B"
 
-#: src/ui/app_window/sidebar_panel.py:276
+#: src/teikr/ui/app_window/sidebar_panel.py:276
 msgid "Control Net or Redo files"
 msgstr "Controlar a rede ou refazer ficheiros"
 
-#: src/ui/app_window/sidebar_panel.py:277
-#: src/ui/app_window/sidebar_panel.py:297
-#: src/ui/app_window/sidebar_panel.py:332
+#: src/teikr/ui/app_window/sidebar_panel.py:277
+#: src/teikr/ui/app_window/sidebar_panel.py:297
+#: src/teikr/ui/app_window/sidebar_panel.py:332
 msgid "Recent"
 msgstr "Recente"
 
-#: src/ui/app_window/sidebar_panel.py:289
+#: src/teikr/ui/app_window/sidebar_panel.py:289
 msgid "Default Control Net Strength"
 msgstr "Força da rede de controlo por defeito"
 
-#: src/ui/app_window/sidebar_panel.py:296
+#: src/teikr/ui/app_window/sidebar_panel.py:296
 msgid "IPAdapter files"
 msgstr "Ficheiros IPAdapter"
 
-#: src/ui/app_window/sidebar_panel.py:309
+#: src/teikr/ui/app_window/sidebar_panel.py:309
 msgid "Default IPAdapter Strength"
 msgstr "Força do IPAdapter por defeito"
 
-#: src/ui/app_window/sidebar_panel.py:316 src/ui/runs/runs_window.py:192
+#: src/teikr/ui/app_window/sidebar_panel.py:316 src/teikr/ui/runs/runs_window.py:192
 msgid "Edit Suffix"
 msgstr "Editar sufixo"
 
-#: src/ui/app_window/sidebar_panel.py:322
+#: src/teikr/ui/app_window/sidebar_panel.py:322
 msgid "Target Dir"
 msgstr "Diretório de destino"
 
-#: src/ui/app_window/sidebar_panel.py:326
+#: src/teikr/ui/app_window/sidebar_panel.py:326
 msgid "Optional directory to move generated images into after save"
 msgstr ""
 "Diretório opcional para onde transferir as imagens geradas após o "
 "armazenamento"
 
-#: src/ui/app_window/sidebar_panel.py:331
+#: src/teikr/ui/app_window/sidebar_panel.py:331
 msgid "Source Prompts from Directory"
 msgstr "Obter os prompts a partir de um diretório"
 
-#: src/ui/app_window/sidebar_panel.py:344
+#: src/teikr/ui/app_window/sidebar_panel.py:344
 msgid "Add User Prompt Tags to Sourced Prompt"
 msgstr "Adicionar etiquetas de prompt do utilizador ao prompt de origem"
 
-#: src/ui/app_window/sidebar_panel.py:353
+#: src/teikr/ui/app_window/sidebar_panel.py:353
 msgid "Redo Parameters"
 msgstr "Parâmetros de repetição"
 
-#: src/ui/app_window/sidebar_panel.py:371
-#: src/ui/prompts/prompt_config_window.py:417
+#: src/teikr/ui/app_window/sidebar_panel.py:371
+#: src/teikr/ui/prompts/prompt_config_window.py:417
 msgid "Prompts Configuration"
 msgstr "Configuração de avisos"
 
-#: src/ui/app_window/sidebar_panel.py:377
+#: src/teikr/ui/app_window/sidebar_panel.py:377
 msgid "Preset Schedule"
 msgstr "Agendamento Pronto"
 
-#: src/ui/app_window/sidebar_panel.py:383 src/ui/presets/presets_window.py:91
+#: src/teikr/ui/app_window/sidebar_panel.py:383 src/teikr/ui/presets/presets_window.py:91
 msgid "Presets"
 msgstr "Pré-configurações"
 
-#: src/ui/app_window/sidebar_panel.py:389
-#: src/ui/presets/timed_schedules_window.py:189
+#: src/teikr/ui/app_window/sidebar_panel.py:389
+#: src/teikr/ui/presets/timed_schedules_window.py:189
 msgid "Timed Schedules"
 msgstr "Horários agendados"
 
-#: src/ui/app_window/sidebar_panel.py:398
-#: src/ui/prompts/blacklist_window.py:182
+#: src/teikr/ui/app_window/sidebar_panel.py:398
+#: src/teikr/ui/prompts/blacklist_window.py:182
 msgid "Tag Blacklist"
 msgstr "Lista negra de etiquetas"
 
-#: src/ui/app_window/sidebar_panel.py:404
+#: src/teikr/ui/app_window/sidebar_panel.py:404
 msgid "Expansions"
 msgstr "Expansões"
 
-#: src/ui/app_window/sidebar_panel.py:410
+#: src/teikr/ui/app_window/sidebar_panel.py:410
 msgid "Prompt Config"
 msgstr "Configuração de Prompt"
 
-#: src/ui/app_window/sidebar_panel.py:419
-#: src/ui/prompts/prompt_generator_window.py:54
+#: src/teikr/ui/app_window/sidebar_panel.py:419
+#: src/teikr/ui/prompts/prompt_generator_window.py:54
 msgid "Prompt Generator"
 msgstr "Gereador de Prompt"
 
-#: src/ui/app_window/sidebar_panel.py:430
-#: src/ui/prompts/image_to_prompt_window.py:56
+#: src/teikr/ui/app_window/sidebar_panel.py:430
+#: src/teikr/ui/prompts/image_to_prompt_window.py:56
 msgid "Image to Prompt"
 msgstr "Imagem para Prompt"
 
-#: src/ui/app_window/sidebar_panel.py:452
+#: src/teikr/ui/app_window/sidebar_panel.py:452
 msgid "Prompt Mode"
 msgstr "Modo de solicitação"
 
-#: src/ui/app_window/sidebar_panel.py:471
+#: src/teikr/ui/app_window/sidebar_panel.py:471
 msgid "Concepts Dir"
 msgstr "Diretório de conceitos"
 
-#: src/ui/app_window/sidebar_panel.py:481
+#: src/teikr/ui/app_window/sidebar_panel.py:481
 msgid "Override Resolution"
 msgstr "Substituir a resolução"
 
-#: src/ui/app_window/sidebar_panel.py:485
+#: src/teikr/ui/app_window/sidebar_panel.py:485
 msgid "Inpainting"
 msgstr "Inpainting"
 
-#: src/ui/app_window/sidebar_panel.py:489
-#: src/ui/prompts/prompt_config_window.py:324
+#: src/teikr/ui/app_window/sidebar_panel.py:489
+#: src/teikr/ui/prompts/prompt_config_window.py:324
 msgid "Override Base Negative"
 msgstr "Anular o negativo de base"
 
-#: src/ui/app_window/sidebar_panel.py:494
+#: src/teikr/ui/app_window/sidebar_panel.py:494
 msgid "Run Preset Schedule"
 msgstr "Executar programa predefinido"
 
-#: src/ui/app_window/sidebar_panel.py:498
-#: src/ui/prompts/prompt_config_window.py:339
+#: src/teikr/ui/app_window/sidebar_panel.py:498
+#: src/teikr/ui/prompts/prompt_config_window.py:339
 msgid "Continuous Seed Variation"
 msgstr "Variação contínua da semente"
 
-#: src/ui/app_window/sidebar_panel.py:502
-#: src/ui/prompts/prompt_config_window.py:344
+#: src/teikr/ui/app_window/sidebar_panel.py:502
+#: src/teikr/ui/prompts/prompt_config_window.py:344
 msgid "Slight Dimension Variation"
 msgstr "Ligeira variação dimensional"
 
-#: src/ui/app_window/sidebar_panel.py:506
+#: src/teikr/ui/app_window/sidebar_panel.py:506
 msgid "Second Derivative"
 msgstr "Segunda derivada"
 
-#: src/ui/app_window/sidebar_panel.py:508
+#: src/teikr/ui/app_window/sidebar_panel.py:508
 msgid ""
 "Feed each generated image back through the same workflow with the same "
 "settings, so every image is followed by one made from it. Only applies to "
@@ -1483,28 +1483,28 @@ msgstr ""
 "criada a partir dela. Aplica‑se apenas a fluxos de trabalho que aceitam uma "
 "imagem de entrada."
 
-#: src/ui/app_window/sidebar_panel.py:516
+#: src/teikr/ui/app_window/sidebar_panel.py:516
 msgid "Prompt Massage Tags"
 msgstr "Etiquetas de ajustamento de solicitação"
 
-#: src/ui/app_window/sidebar_panel.py:523 src/ui/runs/runs_window.py:167
-#: src/ui/runs/runs_window.py:442
+#: src/teikr/ui/app_window/sidebar_panel.py:523 src/teikr/ui/runs/runs_window.py:167
+#: src/teikr/ui/runs/runs_window.py:442
 msgid "Positive Tags"
 msgstr "Etiquetas positivas"
 
-#: src/ui/app_window/sidebar_panel.py:530
+#: src/teikr/ui/app_window/sidebar_panel.py:530
 msgid "Negative Tags"
 msgstr "Etiquetas negativas"
 
-#: src/ui/app_window/sidebar_panel.py:546
+#: src/teikr/ui/app_window/sidebar_panel.py:546
 msgid "Exclusion Tags (regex)"
 msgstr "Tags de exclusão (regex)"
 
-#: src/ui/app_window/sidebar_panel.py:548
+#: src/teikr/ui/app_window/sidebar_panel.py:548
 msgid "regex to exclude concepts, e.g. cat|dog"
 msgstr "regex para excluir conceitos, p. ex. cat|dog"
 
-#: src/ui/app_window/sidebar_panel.py:550
+#: src/teikr/ui/app_window/sidebar_panel.py:550
 msgid ""
 "Per-run regex filter: any generated concept matching this pattern is removed"
 " from the prompt"
@@ -1512,253 +1512,253 @@ msgstr ""
 "Filtro regex por execução: qualquer conceito gerado que corresponda a este "
 "padrão é removido do prompt"
 
-#: src/ui/app_window/sidebar_panel.py:756
+#: src/teikr/ui/app_window/sidebar_panel.py:756
 msgid "Password Cancelled"
 msgstr "Palavra-passe cancelada"
 
-#: src/ui/app_window/sidebar_panel.py:757
+#: src/teikr/ui/app_window/sidebar_panel.py:757
 msgid "Password cancelled or incorrect, revert to previous mode"
 msgstr "Palavra-passe cancelada ou incorrecta, voltar ao modo anterior"
 
-#: src/ui/app_window/window_launcher.py:67
+#: src/teikr/ui/app_window/window_launcher.py:67
 msgid "Blacklist Window Error"
 msgstr "Erro da janela de lista negra"
 
-#: src/ui/app_window/window_launcher.py:77
+#: src/teikr/ui/app_window/window_launcher.py:77
 msgid "Presets Window Error"
 msgstr "Erro da janela de predefinições"
 
-#: src/ui/app_window/window_launcher.py:84
+#: src/teikr/ui/app_window/window_launcher.py:84
 msgid "Schedules Window Error"
 msgstr "Erro na janela de horários"
 
-#: src/ui/app_window/window_launcher.py:91
+#: src/teikr/ui/app_window/window_launcher.py:91
 msgid "Timed Schedules Window Error"
 msgstr "Erro na janela de programações"
 
-#: src/ui/app_window/window_launcher.py:101
+#: src/teikr/ui/app_window/window_launcher.py:101
 msgid "Concept Editor Window Error"
 msgstr "Erro na janela do editor de conceito"
 
-#: src/ui/app_window/window_launcher.py:108
+#: src/teikr/ui/app_window/window_launcher.py:108
 msgid "Expansions Window Error"
 msgstr "Erro na janela de expansões"
 
-#: src/ui/app_window/window_launcher.py:123
+#: src/teikr/ui/app_window/window_launcher.py:123
 #: tests/ui/test_window_launcher.py:219
 msgid "Prompt Config Window Error"
 msgstr "Erro de janela de configuração do Prompt"
 
-#: src/ui/app_window/window_launcher.py:129
+#: src/teikr/ui/app_window/window_launcher.py:129
 msgid "Prompt Generator Window Error"
 msgstr "Erro da janela do gerador de prompts"
 
-#: src/ui/app_window/window_launcher.py:141
+#: src/teikr/ui/app_window/window_launcher.py:141
 msgid "Frequent Tags Window Error"
 msgstr "Erro da janela de tags frequentes"
 
-#: src/ui/app_window/window_launcher.py:147
+#: src/teikr/ui/app_window/window_launcher.py:147
 msgid "Image to Prompt Window Error"
 msgstr "Erro na janela Imagem para Prompt"
 
-#: src/ui/app_window/window_launcher.py:153
+#: src/teikr/ui/app_window/window_launcher.py:153
 msgid "Config Window Error"
 msgstr "Erro na janela de configuração"
 
-#: src/ui/app_window/window_launcher.py:162
+#: src/teikr/ui/app_window/window_launcher.py:162
 msgid "Models Window Error"
 msgstr "Erro na janela de modelos"
 
-#: src/ui/app_window/window_launcher.py:168
+#: src/teikr/ui/app_window/window_launcher.py:168
 msgid "Model Presets Window Error"
 msgstr "Erro na janela de predefinições do modelo"
 
-#: src/ui/app_window/window_launcher.py:174
+#: src/teikr/ui/app_window/window_launcher.py:174
 msgid "LoRA Models Window Error"
 msgstr "Erro na janela de modelos LoRA"
 
-#: src/ui/app_window/window_launcher.py:180
+#: src/teikr/ui/app_window/window_launcher.py:180
 msgid "ControlNet Adapters Window Error"
 msgstr "Erro da janela de adaptadores ControlNet"
 
-#: src/ui/app_window/window_launcher.py:186
+#: src/teikr/ui/app_window/window_launcher.py:186
 msgid "IPAdapter Adapters Window Error"
 msgstr "Erro na janela de adaptadores IPAdapter"
 
-#: src/ui/app_window/window_launcher.py:192
+#: src/teikr/ui/app_window/window_launcher.py:192
 msgid "Source Prompt Adapters Window Error"
 msgstr "Erro na janela de adaptadores de prompt de origem"
 
-#: src/ui/app_window/window_launcher.py:201
+#: src/teikr/ui/app_window/window_launcher.py:201
 msgid "Runs Window Error"
 msgstr "Erro da janela de execuções"
 
-#: src/ui/app_window/window_launcher.py:218
+#: src/teikr/ui/app_window/window_launcher.py:218
 #: tests/ui/test_window_launcher.py:236
 msgid "Password Admin Window Error"
 msgstr "Erro de janela de admin de senha"
 
-#: src/ui/auth/app_startup_auth.py:29 src/ui/auth/app_startup_auth.py:42
+#: src/teikr/ui/auth/app_startup_auth.py:29 src/teikr/ui/auth/app_startup_auth.py:42
 msgid "Application Password Required"
 msgstr "Palavra-passe de aplicação necessária"
 
-#: src/ui/auth/app_startup_auth.py:50
+#: src/teikr/ui/auth/app_startup_auth.py:50
 msgid "A password is required to open this application."
 msgstr "É necessária uma palavra-passe para abrir esta aplicação de software."
 
-#: src/ui/auth/app_startup_auth.py:57 src/ui/auth/password_dialog.py:179
+#: src/teikr/ui/auth/app_startup_auth.py:57 src/teikr/ui/auth/password_dialog.py:179
 msgid "Password:"
 msgstr "Palavra-passe:"
 
-#: src/ui/auth/app_startup_auth.py:125 src/ui/auth/password_dialog.py:307
+#: src/teikr/ui/auth/app_startup_auth.py:125 src/teikr/ui/auth/password_dialog.py:307
 msgid "Incorrect password"
 msgstr "Palavra-passe incorrecta"
 
-#: src/ui/auth/password_admin_window.py:36
-#: src/ui/auth/password_admin_window.py:51
-#: src/ui/auth/password_admin_window.py:84
-#: src/ui/auth/password_admin_window.py:288
+#: src/teikr/ui/auth/password_admin_window.py:36
+#: src/teikr/ui/auth/password_admin_window.py:51
+#: src/teikr/ui/auth/password_admin_window.py:84
+#: src/teikr/ui/auth/password_admin_window.py:288
 msgid "Change Password"
 msgstr "Alterar a palavra-passe"
 
-#: src/ui/auth/password_admin_window.py:58
+#: src/teikr/ui/auth/password_admin_window.py:58
 msgid "Current Password:"
 msgstr "Palavra-passe atual:"
 
-#: src/ui/auth/password_admin_window.py:65
-#: src/ui/auth/password_admin_window.py:304
+#: src/teikr/ui/auth/password_admin_window.py:65
+#: src/teikr/ui/auth/password_admin_window.py:304
 msgid "New Password:"
 msgstr "Nova palavra-passe:"
 
-#: src/ui/auth/password_admin_window.py:72
+#: src/teikr/ui/auth/password_admin_window.py:72
 msgid "Confirm New Password:"
 msgstr "Confirmar a nova palavra-passe:"
 
-#: src/ui/auth/password_admin_window.py:97
+#: src/teikr/ui/auth/password_admin_window.py:97
 msgid "Current password is incorrect."
 msgstr "A palavra-passe atual está incorrecta."
 
-#: src/ui/auth/password_admin_window.py:101
+#: src/teikr/ui/auth/password_admin_window.py:101
 msgid "New passwords do not match."
 msgstr "As novas palavras-passe não correspondem."
 
-#: src/ui/auth/password_admin_window.py:105
-#: src/ui/auth/password_admin_window.py:467
+#: src/teikr/ui/auth/password_admin_window.py:105
+#: src/teikr/ui/auth/password_admin_window.py:467
 msgid "Password must be at least 6 characters long."
 msgstr "A palavra-passe deve ter pelo menos 6 caracteres."
 
-#: src/ui/auth/password_admin_window.py:113
-#: src/ui/auth/password_admin_window.py:116
+#: src/teikr/ui/auth/password_admin_window.py:113
+#: src/teikr/ui/auth/password_admin_window.py:116
 msgid "Password changed successfully."
 msgstr "Palavra-passe alterada com sucesso."
 
-#: src/ui/auth/password_admin_window.py:116
-#: src/ui/auth/password_admin_window.py:536
+#: src/teikr/ui/auth/password_admin_window.py:116
+#: src/teikr/ui/auth/password_admin_window.py:536
 msgid "Info"
 msgstr "Informações"
 
-#: src/ui/auth/password_admin_window.py:120
+#: src/teikr/ui/auth/password_admin_window.py:120
 msgid "Failed to change password."
 msgstr "Falha ao alterar a palavra-passe."
 
-#: src/ui/auth/password_admin_window.py:125
-#: src/ui/auth/password_admin_window.py:528
+#: src/teikr/ui/auth/password_admin_window.py:125
+#: src/teikr/ui/auth/password_admin_window.py:528
 msgid "Administration Error"
 msgstr "Erro de Administração"
 
-#: src/ui/auth/password_admin_window.py:142
+#: src/teikr/ui/auth/password_admin_window.py:142
 msgid "Password Administration"
 msgstr "Administração da palavra-passe"
 
-#: src/ui/auth/password_admin_window.py:187
+#: src/teikr/ui/auth/password_admin_window.py:187
 msgid "Password Protection Settings"
 msgstr "Definições de proteção por palavra-passe"
 
-#: src/ui/auth/password_admin_window.py:199
+#: src/teikr/ui/auth/password_admin_window.py:199
 msgid "Protected Actions"
 msgstr "Acções protegidas"
 
-#: src/ui/auth/password_admin_window.py:207
+#: src/teikr/ui/auth/password_admin_window.py:207
 msgid "Select which actions require password authentication:"
 msgstr "Selecione as acções que requerem autenticação por palavra-passe:"
 
-#: src/ui/auth/password_admin_window.py:223
+#: src/teikr/ui/auth/password_admin_window.py:223
 msgid "(Always protected if a password is set)"
 msgstr "(Sempre protegido se estiver definida uma palavra-passe)"
 
-#: src/ui/auth/password_admin_window.py:239
+#: src/teikr/ui/auth/password_admin_window.py:239
 msgid "Session Timeout Settings"
 msgstr "Definições de tempo limite da sessão"
 
-#: src/ui/auth/password_admin_window.py:247
+#: src/teikr/ui/auth/password_admin_window.py:247
 msgid "Enable session timeout (remember password for a period)"
 msgstr ""
 "Ativar o tempo limite da sessão (memorizar a palavra-passe durante um "
 "período)"
 
-#: src/ui/auth/password_admin_window.py:256
+#: src/teikr/ui/auth/password_admin_window.py:256
 msgid "Session timeout duration (minutes):"
 msgstr "Duração do tempo limite da sessão (minutos):"
 
-#: src/ui/auth/password_admin_window.py:266
+#: src/teikr/ui/auth/password_admin_window.py:266
 msgid "Security Advice Settings"
 msgstr "Configurações de conselhos de segurança"
 
-#: src/ui/auth/password_admin_window.py:271
+#: src/teikr/ui/auth/password_admin_window.py:271
 msgid "Show security advice when no password is configured"
 msgstr ""
 "Mostrar aviso de segurança quando nenhuma palavra-passe estiver configurada"
 
-#: src/ui/auth/password_admin_window.py:277
+#: src/teikr/ui/auth/password_admin_window.py:277
 msgid "Password Setup"
 msgstr "Configuração da palavra-passe"
 
-#: src/ui/auth/password_admin_window.py:284
+#: src/teikr/ui/auth/password_admin_window.py:284
 msgid "Password is configured"
 msgstr "A palavra-passe está configurada"
 
-#: src/ui/auth/password_admin_window.py:292
-#: src/ui/auth/password_admin_window.py:491
+#: src/teikr/ui/auth/password_admin_window.py:292
+#: src/teikr/ui/auth/password_admin_window.py:491
 msgid "Remove Password"
 msgstr "Remover a palavra-passe"
 
-#: src/ui/auth/password_admin_window.py:296
+#: src/teikr/ui/auth/password_admin_window.py:296
 msgid "Set up a password to enable protection:"
 msgstr "Definir uma palavra-passe para ativar a proteção:"
 
-#: src/ui/auth/password_admin_window.py:315
+#: src/teikr/ui/auth/password_admin_window.py:315
 msgid "Confirm Password:"
 msgstr "Confirmar a palavra-passe:"
 
-#: src/ui/auth/password_admin_window.py:323
+#: src/teikr/ui/auth/password_admin_window.py:323
 msgid "Set Password"
 msgstr "Definir palavra-passe"
 
-#: src/ui/auth/password_admin_window.py:336
-#: src/ui/auth/password_admin_window.py:400
-#: src/ui/models/recent_adapters_window.py:361
+#: src/teikr/ui/auth/password_admin_window.py:336
+#: src/teikr/ui/auth/password_admin_window.py:400
+#: src/teikr/ui/models/recent_adapters_window.py:361
 msgid "Reset to Defaults"
 msgstr "Repor as predefinições"
 
-#: src/ui/auth/password_admin_window.py:340
-#: src/ui/auth/password_admin_window.py:425
+#: src/teikr/ui/auth/password_admin_window.py:340
+#: src/teikr/ui/auth/password_admin_window.py:425
 msgid "Set to Current"
 msgstr "Definir como atual"
 
-#: src/ui/auth/password_admin_window.py:344
+#: src/teikr/ui/auth/password_admin_window.py:344
 msgid "Export Cache as JSON"
 msgstr "Exportar cache como JSON"
 
-#: src/ui/auth/password_admin_window.py:348
-#: src/ui/models/recent_adapters_window.py:358
+#: src/teikr/ui/auth/password_admin_window.py:348
+#: src/teikr/ui/models/recent_adapters_window.py:358
 msgid "Save Settings"
 msgstr "Guardar definições"
 
-#: src/ui/auth/password_admin_window.py:394
+#: src/teikr/ui/auth/password_admin_window.py:394
 msgid "Password protection settings saved."
 msgstr "Definições de proteção por palavra-passe guardadas."
 
-#: src/ui/auth/password_admin_window.py:401
+#: src/teikr/ui/auth/password_admin_window.py:401
 msgid ""
 "Are you sure you want to reset all password protection settings to their "
 "default values?"
@@ -1766,11 +1766,11 @@ msgstr ""
 "Tem a certeza de que pretende repor todas as definições de proteção por "
 "palavra-passe para os valores predefinidos?"
 
-#: src/ui/auth/password_admin_window.py:420
+#: src/teikr/ui/auth/password_admin_window.py:420
 msgid "Settings reset to defaults."
 msgstr "As definições são repostas para os valores predefinidos."
 
-#: src/ui/auth/password_admin_window.py:426
+#: src/teikr/ui/auth/password_admin_window.py:426
 msgid ""
 "Are you sure you want to restore all settings to their current saved state? "
 "This will discard any unsaved changes."
@@ -1778,27 +1778,27 @@ msgstr ""
 "Tem a certeza de que pretende restaurar todas as definições para o estado "
 "atual guardado? Isto irá eliminar quaisquer alterações não guardadas."
 
-#: src/ui/auth/password_admin_window.py:444
+#: src/teikr/ui/auth/password_admin_window.py:444
 msgid "Settings restored to current saved state."
 msgstr "Definições restauradas para o estado atual guardado."
 
-#: src/ui/auth/password_admin_window.py:455
+#: src/teikr/ui/auth/password_admin_window.py:455
 msgid "Please enter a password."
 msgstr "Introduzir uma palavra-passe."
 
-#: src/ui/auth/password_admin_window.py:461
+#: src/teikr/ui/auth/password_admin_window.py:461
 msgid "Passwords do not match."
 msgstr "As palavras-passe não coincidem."
 
-#: src/ui/auth/password_admin_window.py:473
+#: src/teikr/ui/auth/password_admin_window.py:473
 msgid "Password set successfully."
 msgstr "Palavra-passe definida com êxito."
 
-#: src/ui/auth/password_admin_window.py:479
+#: src/teikr/ui/auth/password_admin_window.py:479
 msgid "Failed to set password."
 msgstr "Falha na definição da palavra-passe."
 
-#: src/ui/auth/password_admin_window.py:492
+#: src/teikr/ui/auth/password_admin_window.py:492
 msgid ""
 "Are you sure you want to remove password protection? This will disable all "
 "password requirements."
@@ -1806,72 +1806,72 @@ msgstr ""
 "Tem a certeza de que pretende remover a proteção por palavra-passe? Isto irá"
 " desativar todos os requisitos de palavra-passe."
 
-#: src/ui/auth/password_admin_window.py:500
+#: src/teikr/ui/auth/password_admin_window.py:500
 msgid "Password removed successfully."
 msgstr "Palavra-passe removida com sucesso."
 
-#: src/ui/auth/password_admin_window.py:504
+#: src/teikr/ui/auth/password_admin_window.py:504
 msgid "Failed to remove password."
 msgstr "Falha ao remover a palavra-passe."
 
-#: src/ui/auth/password_admin_window.py:546
+#: src/teikr/ui/auth/password_admin_window.py:546
 msgid "Cache exported as JSON to:"
 msgstr "Cache exportada como JSON para:"
 
-#: src/ui/auth/password_admin_window.py:550
+#: src/teikr/ui/auth/password_admin_window.py:550
 msgid "Failed to export cache as JSON:"
 msgstr "Falha ao exportar a cache como JSON:"
 
-#: src/ui/auth/password_dialog.py:62
+#: src/teikr/ui/auth/password_dialog.py:62
 msgid "⚠ Caps Lock is ON"
 msgstr "⚠ A tecla Caps Lock está ativada"
 
-#: src/ui/auth/password_dialog.py:98 src/ui/auth/password_dialog.py:153
+#: src/teikr/ui/auth/password_dialog.py:98 src/teikr/ui/auth/password_dialog.py:153
 msgid "Password Required"
 msgstr "Palavra-passe necessária"
 
-#: src/ui/auth/password_dialog.py:100
+#: src/teikr/ui/auth/password_dialog.py:100
 msgid "Password Protection"
 msgstr "Proteção por palavra-passe"
 
-#: src/ui/auth/password_dialog.py:161
+#: src/teikr/ui/auth/password_dialog.py:161
 msgid "Password required for: {0}"
 msgstr "Palavra-passe necessária para: {0}"
 
-#: src/ui/auth/password_dialog.py:208
+#: src/teikr/ui/auth/password_dialog.py:208
 msgid "Password Protection Available"
 msgstr "Proteção por palavra-passe disponível"
 
-#: src/ui/auth/password_dialog.py:216
+#: src/teikr/ui/auth/password_dialog.py:216
 msgid "This action requires password protection: {0}"
 msgstr "Esta ação requer a proteção por palavra-passe: {0}"
 
-#: src/ui/auth/password_dialog.py:235
+#: src/teikr/ui/auth/password_dialog.py:235
 msgid "Password protection is not currently configured. You can:"
 msgstr ""
 "A proteção por palavra-passe não está atualmente configurada. É possível:"
 
-#: src/ui/auth/password_dialog.py:244
+#: src/teikr/ui/auth/password_dialog.py:244
 msgid "• Configure password protection for sensitive actions"
 msgstr "• Configurar a proteção por palavra-passe para acções sensíveis"
 
-#: src/ui/auth/password_dialog.py:252
+#: src/teikr/ui/auth/password_dialog.py:252
 msgid "• Continue without password protection (less secure)"
 msgstr "• Continuar sem proteção por palavra-passe (menos seguro)"
 
-#: src/ui/auth/password_dialog.py:259
+#: src/teikr/ui/auth/password_dialog.py:259
 msgid "Don't show this security advice again"
 msgstr "Não mostrar mais este aviso de segurança"
 
-#: src/ui/auth/password_dialog.py:271
+#: src/teikr/ui/auth/password_dialog.py:271
 msgid "Continue Without Protection"
 msgstr "Continuar sem proteção"
 
-#: src/ui/auth/password_dialog.py:274 src/ui/auth/password_dialog.py:292
+#: src/teikr/ui/auth/password_dialog.py:274 src/teikr/ui/auth/password_dialog.py:292
 msgid "Configure Protection"
 msgstr "Configurar a proteção"
 
-#: src/ui/auth/password_dialog.py:280
+#: src/teikr/ui/auth/password_dialog.py:280
 msgid ""
 "Password protection is required for this action but is not currently "
 "configured."
@@ -1879,11 +1879,11 @@ msgstr ""
 "A proteção por palavra-passe é necessária para esta ação, mas não está "
 "atualmente configurada."
 
-#: src/ui/auth/password_utils.py:42
+#: src/teikr/ui/auth/password_utils.py:42
 msgid "Password Unavailable"
 msgstr "Senha indisponível"
 
-#: src/ui/auth/password_utils.py:43
+#: src/teikr/ui/auth/password_utils.py:43
 msgid ""
 "The password is stored with quantum-safe (OQS) encryption, which this build "
 "does not include, so protected actions are unavailable. Use a build made "
@@ -1893,291 +1893,291 @@ msgstr ""
 "compilação não inclui, portanto as ações protegidas não estão disponíveis. "
 "Use uma compilação com suporte OQS."
 
-#: src/ui/models/model_presets_window.py:83
+#: src/teikr/ui/models/model_presets_window.py:83
 msgid "New Model Preset"
 msgstr "Nova predefinição de modelo"
 
-#: src/ui/models/model_presets_window.py:85
+#: src/teikr/ui/models/model_presets_window.py:85
 msgid "Modify Preset: {0}"
 msgstr "Modificar predefinição: {0}"
 
-#: src/ui/models/model_presets_window.py:99
+#: src/teikr/ui/models/model_presets_window.py:99
 msgid "Model Tags (comma-separated substrings, matched against model names)"
 msgstr ""
 "Marcas de modelo (substrings separadas por vírgulas, correspondidas com "
 "nomes de modelos)"
 
-#: src/ui/models/model_presets_window.py:101
+#: src/teikr/ui/models/model_presets_window.py:101
 msgid "e.g. ponyDiffusion,everclear"
 msgstr "p. ex. ponyDiffusion,everclear"
 
-#: src/ui/models/model_presets_window.py:108
+#: src/teikr/ui/models/model_presets_window.py:108
 msgid "Architecture Override"
 msgstr "Substituição de arquitetura"
 
-#: src/ui/models/model_presets_window.py:110
+#: src/teikr/ui/models/model_presets_window.py:110
 msgid "— auto-detect —"
 msgstr "— detecção automática —"
 
-#: src/ui/models/model_presets_window.py:120
+#: src/teikr/ui/models/model_presets_window.py:120
 msgid "CLIP Req (optional)"
 msgstr "Solicitação CLIP (opcional)"
 
-#: src/ui/models/model_presets_window.py:123
+#: src/teikr/ui/models/model_presets_window.py:123
 msgid "e.g. -2"
 msgstr "p. ex. -2"
 
-#: src/ui/models/model_presets_window.py:132
+#: src/teikr/ui/models/model_presets_window.py:132
 msgid "Prompt Tags (per mode)"
 msgstr "Tags de prompt (por modo)"
 
-#: src/ui/models/model_presets_window.py:146
+#: src/teikr/ui/models/model_presets_window.py:146
 msgid "Add mode tab"
 msgstr "Adicionar aba de modo"
 
-#: src/ui/models/model_presets_window.py:149
+#: src/teikr/ui/models/model_presets_window.py:149
 msgid "Remove current tab"
 msgstr "Remover aba atual"
 
-#: src/ui/models/model_presets_window.py:157
-#: src/ui/prompts/blacklist_modify_window.py:155
-#: src/ui/prompts/expansions_window.py:106
+#: src/teikr/ui/models/model_presets_window.py:157
+#: src/teikr/ui/prompts/blacklist_modify_window.py:155
+#: src/teikr/ui/prompts/expansions_window.py:106
 msgid "Done"
 msgstr "Feito"
 
-#: src/ui/models/model_presets_window.py:173
+#: src/teikr/ui/models/model_presets_window.py:173
 msgid "Positive tags"
 msgstr "Tags positivas"
 
-#: src/ui/models/model_presets_window.py:178
+#: src/teikr/ui/models/model_presets_window.py:178
 msgid "Negative tags"
 msgstr "Tags negativas"
 
-#: src/ui/models/model_presets_window.py:210
-#: src/ui/models/model_presets_window.py:224
+#: src/teikr/ui/models/model_presets_window.py:210
+#: src/teikr/ui/models/model_presets_window.py:224
 msgid "Invalid Preset"
 msgstr "Preset inválido"
 
-#: src/ui/models/model_presets_window.py:211
+#: src/teikr/ui/models/model_presets_window.py:211
 msgid "Model Tags must be non-empty."
 msgstr "As tags do modelo não podem estar vazias."
 
-#: src/ui/models/model_presets_window.py:225
+#: src/teikr/ui/models/model_presets_window.py:225
 msgid "CLIP Req must be a number (e.g. -2) or left blank."
 msgstr "CLIP Req deve ser um número (ex. -2) ou deixado em branco."
 
-#: src/ui/models/model_presets_window.py:293
+#: src/teikr/ui/models/model_presets_window.py:293
 msgid "Model presets (saved to config.json)"
 msgstr "Predefinições do modelo (salvas em config.json)"
 
-#: src/ui/models/model_presets_window.py:295
-#: src/ui/presets/presets_window.py:123
+#: src/teikr/ui/models/model_presets_window.py:295
+#: src/teikr/ui/presets/presets_window.py:123
 msgid "Add preset"
 msgstr "Adicionar predefinição"
 
-#: src/ui/models/model_presets_window.py:301
+#: src/teikr/ui/models/model_presets_window.py:301
 msgid "Filter by model tags…"
 msgstr "Filtrar por tags de modelo…"
 
-#: src/ui/models/model_presets_window.py:314
-#: src/ui/presets/schedules_window.py:261
-#: src/ui/presets/timed_schedules_window.py:240
-#: src/ui/prompts/blacklist_window.py:463
-#: src/ui/prompts/blacklist_window.py:506
-#: src/ui/prompts/expansions_window.py:255
+#: src/teikr/ui/models/model_presets_window.py:314
+#: src/teikr/ui/presets/schedules_window.py:261
+#: src/teikr/ui/presets/timed_schedules_window.py:240
+#: src/teikr/ui/prompts/blacklist_window.py:463
+#: src/teikr/ui/prompts/blacklist_window.py:506
+#: src/teikr/ui/prompts/expansions_window.py:255
 msgid "Modify"
 msgstr "Modificar"
 
-#: src/ui/models/model_presets_window.py:315
-#: src/ui/presets/presets_window.py:298 src/ui/presets/presets_window.py:327
-#: src/ui/presets/presets_window.py:356 src/ui/presets/schedules_window.py:125
-#: src/ui/presets/schedules_window.py:266
-#: src/ui/presets/timed_schedules_window.py:247
-#: src/ui/prompts/concept_editor_window.py:242
-#: src/ui/prompts/expansions_window.py:256
+#: src/teikr/ui/models/model_presets_window.py:315
+#: src/teikr/ui/presets/presets_window.py:298 src/teikr/ui/presets/presets_window.py:327
+#: src/teikr/ui/presets/presets_window.py:356 src/teikr/ui/presets/schedules_window.py:125
+#: src/teikr/ui/presets/schedules_window.py:266
+#: src/teikr/ui/presets/timed_schedules_window.py:247
+#: src/teikr/ui/prompts/concept_editor_window.py:242
+#: src/teikr/ui/prompts/expansions_window.py:256
 msgid "Delete"
 msgstr "Eliminar"
 
-#: src/ui/models/model_presets_window.py:342
+#: src/teikr/ui/models/model_presets_window.py:342
 msgid "Filter: \"{0}\"  ({1} of {2} presets)"
 msgstr "Filtro: \"{0}\"  ({1} de {2} predefinições)"
 
-#: src/ui/models/model_presets_window.py:345
+#: src/teikr/ui/models/model_presets_window.py:345
 msgid "{0} presets"
 msgstr "{0} predefinições"
 
-#: src/ui/models/model_presets_window.py:349
+#: src/teikr/ui/models/model_presets_window.py:349
 msgid "No presets match the current filter."
 msgstr "Nenhuma predefinição corresponde ao filtro atual."
 
-#: src/ui/models/model_presets_window.py:351
+#: src/teikr/ui/models/model_presets_window.py:351
 msgid "No presets defined. Click 'Add preset' to create one."
 msgstr ""
 "Não existem predefinições definidas. Clique em «Adicionar predefinição» para"
 " criar uma."
 
-#: src/ui/models/model_presets_window.py:361
-#: src/ui/models/models_window.py:119 src/ui/models/models_window.py:172
+#: src/teikr/ui/models/model_presets_window.py:361
+#: src/teikr/ui/models/models_window.py:119 src/teikr/ui/models/models_window.py:172
 msgid "Architecture"
 msgstr "Arquitetura"
 
-#: src/ui/models/model_presets_window.py:361
+#: src/teikr/ui/models/model_presets_window.py:361
 msgid "CLIP Req"
 msgstr "CLIP Sol"
 
-#: src/ui/models/model_presets_window.py:361
+#: src/teikr/ui/models/model_presets_window.py:361
 msgid "Prompt Modes"
 msgstr "Modos de prompt"
 
-#: src/ui/models/model_presets_window.py:420
-#: src/ui/models/model_presets_window.py:451
+#: src/teikr/ui/models/model_presets_window.py:420
+#: src/teikr/ui/models/model_presets_window.py:451
 msgid "Select a preset first"
 msgstr "Selecione primeiro uma predefinição"
 
-#: src/ui/models/model_presets_window.py:454
+#: src/teikr/ui/models/model_presets_window.py:454
 msgid "Delete preset?"
 msgstr "Excluir predefinição?"
 
-#: src/ui/models/model_presets_window.py:455
+#: src/teikr/ui/models/model_presets_window.py:455
 msgid "Delete preset for \"{0}\"?"
 msgstr "Excluir predefinição para \"{0}\"?"
 
-#: src/ui/models/model_presets_window.py:470
+#: src/teikr/ui/models/model_presets_window.py:470
 msgid "Presets saved to config.json"
 msgstr "Predefinições salvas em config.json"
 
-#: src/ui/models/model_presets_window.py:473
+#: src/teikr/ui/models/model_presets_window.py:473
 msgid "Save Error"
 msgstr "Erro ao salvar"
 
-#: src/ui/models/models_window.py:77
+#: src/teikr/ui/models/models_window.py:77
 msgid "Checkpoints"
 msgstr "Pontos de controlo"
 
-#: src/ui/models/models_window.py:78
+#: src/teikr/ui/models/models_window.py:78
 msgid "LoRAs & Adapters"
 msgstr "LoRAs e adaptadores"
 
-#: src/ui/models/models_window.py:79
+#: src/teikr/ui/models/models_window.py:79
 msgid "HF Hub"
 msgstr "HF Hub"
 
-#: src/ui/models/models_window.py:108 src/ui/models/models_window.py:162
-#: src/ui/models/recent_adapters_window.py:179
-#: src/ui/models/recent_adapters_window.py:224
-#: src/ui/models/recent_adapters_window.py:269 src/ui/runs/runs_window.py:434
+#: src/teikr/ui/models/models_window.py:108 src/teikr/ui/models/models_window.py:162
+#: src/teikr/ui/models/recent_adapters_window.py:179
+#: src/teikr/ui/models/recent_adapters_window.py:224
+#: src/teikr/ui/models/recent_adapters_window.py:269 src/teikr/ui/runs/runs_window.py:434
 msgid "Filter"
 msgstr "Filtro"
 
-#: src/ui/models/models_window.py:119
+#: src/teikr/ui/models/models_window.py:119
 msgid "Model Name"
 msgstr "Nome do modelo"
 
-#: src/ui/models/models_window.py:119 src/ui/models/models_window.py:172
-#: src/ui/models/recent_adapters_window.py:190
-#: src/ui/models/recent_adapters_window.py:230
-#: src/ui/models/recent_adapters_window.py:298
+#: src/teikr/ui/models/models_window.py:119 src/teikr/ui/models/models_window.py:172
+#: src/teikr/ui/models/recent_adapters_window.py:190
+#: src/teikr/ui/models/recent_adapters_window.py:230
+#: src/teikr/ui/models/recent_adapters_window.py:298
 msgid "Created"
 msgstr "Criado"
 
-#: src/ui/models/models_window.py:134 src/ui/models/models_window.py:186
-#: src/ui/models/recent_adapters_window.py:196
+#: src/teikr/ui/models/models_window.py:134 src/teikr/ui/models/models_window.py:186
+#: src/teikr/ui/models/recent_adapters_window.py:196
 msgid "Replace"
 msgstr "Substituir"
 
-#: src/ui/models/models_window.py:137 src/ui/models/models_window.py:189
-#: src/ui/models/recent_adapters_window.py:196
+#: src/teikr/ui/models/models_window.py:137 src/teikr/ui/models/models_window.py:189
+#: src/teikr/ui/models/recent_adapters_window.py:196
 msgid "Add"
 msgstr "Adicionar"
 
-#: src/ui/models/models_window.py:140 src/ui/models/models_window.py:197
-#: src/ui/models/recent_adapters_window.py:206 src/ui/runs/runs_window.py:212
-#: src/ui/runs/runs_window.py:452
+#: src/teikr/ui/models/models_window.py:140 src/teikr/ui/models/models_window.py:197
+#: src/teikr/ui/models/recent_adapters_window.py:206 src/teikr/ui/runs/runs_window.py:212
+#: src/teikr/ui/runs/runs_window.py:452
 msgid "Refresh"
 msgstr "Atualizar"
 
-#: src/ui/models/models_window.py:143 src/ui/models/models_window.py:200
-#: src/ui/models/models_window.py:503
+#: src/teikr/ui/models/models_window.py:143 src/teikr/ui/models/models_window.py:200
+#: src/teikr/ui/models/models_window.py:503
 msgid "Show Blacklisted"
 msgstr "Mostrar lista negra"
 
-#: src/ui/models/models_window.py:172
+#: src/teikr/ui/models/models_window.py:172
 msgid "LoRA/Adapter Name"
 msgstr "Adaptador"
 
-#: src/ui/models/models_window.py:192
+#: src/teikr/ui/models/models_window.py:192
 msgid "LoRA Info"
 msgstr "Info sobre LoRA"
 
-#: src/ui/models/models_window.py:220 src/ui/models/models_window.py:278
+#: src/teikr/ui/models/models_window.py:220 src/teikr/ui/models/models_window.py:278
 msgid "Search"
 msgstr "Pesquisar"
 
-#: src/ui/models/models_window.py:222
+#: src/teikr/ui/models/models_window.py:222
 msgid "e.g. flux, sdxl, controlnet, ip-adapter"
 msgstr "por exemplo, flux, sdxl, controlnet, ip-adapter"
 
-#: src/ui/models/models_window.py:226 src/ui/models/models_window.py:257
+#: src/teikr/ui/models/models_window.py:226 src/teikr/ui/models/models_window.py:257
 msgid "Task"
 msgstr "Tarefa"
 
-#: src/ui/models/models_window.py:232
+#: src/teikr/ui/models/models_window.py:232
 msgid "Sort"
 msgstr "Ordenar"
 
-#: src/ui/models/models_window.py:239
+#: src/teikr/ui/models/models_window.py:239
 msgid "Direction"
 msgstr "Direção"
 
-#: src/ui/models/models_window.py:246
+#: src/teikr/ui/models/models_window.py:246
 msgid "Limit"
 msgstr "Limite"
 
-#: src/ui/models/models_window.py:257
+#: src/teikr/ui/models/models_window.py:257
 msgid "Repo"
 msgstr "Repositório"
 
-#: src/ui/models/models_window.py:257
+#: src/teikr/ui/models/models_window.py:257
 msgid "License"
 msgstr "licença"
 
-#: src/ui/models/models_window.py:257
+#: src/teikr/ui/models/models_window.py:257
 msgid "Gated"
 msgstr "Fiscaliado"
 
-#: src/ui/models/models_window.py:274
+#: src/teikr/ui/models/models_window.py:274
 msgid "Filename"
 msgstr "Nome do arquivo"
 
-#: src/ui/models/models_window.py:282
+#: src/teikr/ui/models/models_window.py:282
 msgid "Download File"
 msgstr "Baixar Arquivo"
 
-#: src/ui/models/models_window.py:286
+#: src/teikr/ui/models/models_window.py:286
 msgid "Download Snapshot"
 msgstr "Download Instantâneo"
 
-#: src/ui/models/models_window.py:300
+#: src/teikr/ui/models/models_window.py:300
 msgid "Select a model repository first"
 msgstr "Selecione um repositório de modelos"
 
-#: src/ui/models/models_window.py:333
+#: src/teikr/ui/models/models_window.py:333
 msgid "Found {0} results"
 msgstr "Foram encontrados {0} resultados"
 
-#: src/ui/models/models_window.py:336
+#: src/teikr/ui/models/models_window.py:336
 msgid "HF Hub Search Error"
 msgstr "Erro de pesquisa no HF Hub"
 
-#: src/ui/models/models_window.py:348
+#: src/teikr/ui/models/models_window.py:348
 msgid "Enter a filename first"
 msgstr "Insira um nome de arquivo primeiro"
 
-#: src/ui/models/models_window.py:353
+#: src/teikr/ui/models/models_window.py:353
 msgid "Download Complete"
 msgstr "Download Concluído"
 
-#: src/ui/models/models_window.py:354 src/ui/models/models_window.py:381
+#: src/teikr/ui/models/models_window.py:354 src/teikr/ui/models/models_window.py:381
 msgid ""
 "Downloaded to:\n"
 "{0}"
@@ -2185,121 +2185,121 @@ msgstr ""
 "Baixado para:\n"
 "{0}"
 
-#: src/ui/models/models_window.py:359
+#: src/teikr/ui/models/models_window.py:359
 msgid "HF Hub Download Error"
 msgstr "Erro de download do HF Hub"
 
-#: src/ui/models/models_window.py:380
+#: src/teikr/ui/models/models_window.py:380
 msgid "Snapshot Download Complete"
 msgstr "Download do instantâneo concluído"
 
-#: src/ui/models/models_window.py:386
+#: src/teikr/ui/models/models_window.py:386
 msgid "HF Hub Snapshot Error"
 msgstr "Erro do Snapshot do Hub de HF"
 
-#: src/ui/models/models_window.py:464
-#: src/ui/models/recent_adapters_window.py:463
+#: src/teikr/ui/models/models_window.py:464
+#: src/teikr/ui/models/recent_adapters_window.py:463
 #: tests/ui/test_recent_adapters_window.py:140
 msgid "Cache"
 msgstr "Cache"
 
-#: src/ui/models/models_window.py:503
+#: src/teikr/ui/models/models_window.py:503
 msgid "Hide Blacklisted"
 msgstr "Ocultar lista negra"
 
-#: src/ui/models/models_window.py:519
+#: src/teikr/ui/models/models_window.py:519
 msgid "Feature Unavailable"
 msgstr "Recurso indisponível"
 
-#: src/ui/models/models_window.py:520
+#: src/teikr/ui/models/models_window.py:520
 msgid "LoRA trigger extraction is not available."
 msgstr "A extração de gatilhos LoRA não está disponível."
 
-#: src/ui/models/models_window.py:528
+#: src/teikr/ui/models/models_window.py:528
 msgid "No Selection"
 msgstr "Sem seleção"
 
-#: src/ui/models/models_window.py:529
+#: src/teikr/ui/models/models_window.py:529
 msgid "Please select a LoRA to view information."
 msgstr "Selecione um LoRA para visualizar as informações."
 
-#: src/ui/models/models_window.py:539
+#: src/teikr/ui/models/models_window.py:539
 msgid "Model not found: {0}"
 msgstr "Modelo não encontrado: {0}"
 
-#: src/ui/models/models_window.py:561
+#: src/teikr/ui/models/models_window.py:561
 msgid "LoRA Information: {0}"
 msgstr "Informações LoRA: {0}"
 
-#: src/ui/models/models_window.py:571
+#: src/teikr/ui/models/models_window.py:571
 msgid "LoRA Information"
 msgstr "Informações LoRA"
 
-#: src/ui/models/models_window.py:576
+#: src/teikr/ui/models/models_window.py:576
 msgid "Name:"
 msgstr "Nome:"
 
-#: src/ui/models/models_window.py:577
+#: src/teikr/ui/models/models_window.py:577
 msgid "Architecture:"
 msgstr "Arquitetura:"
 
-#: src/ui/models/models_window.py:578
+#: src/teikr/ui/models/models_window.py:578
 msgid "File Path:"
 msgstr "Caminho do ficheiro:"
 
-#: src/ui/models/models_window.py:579
+#: src/teikr/ui/models/models_window.py:579
 msgid "Created:"
 msgstr "Criado:"
 
-#: src/ui/models/models_window.py:580
+#: src/teikr/ui/models/models_window.py:580
 msgid "Strength:"
 msgstr "Força:"
 
-#: src/ui/models/models_window.py:600
+#: src/teikr/ui/models/models_window.py:600
 msgid "Trigger Information"
 msgstr "Informações sobre acionadores"
 
-#: src/ui/models/models_window.py:604
+#: src/teikr/ui/models/models_window.py:604
 msgid "Loading trigger information..."
 msgstr "A carregar informações do ativador..."
 
-#: src/ui/models/models_window.py:613
+#: src/teikr/ui/models/models_window.py:613
 msgid "Create .safetriggers File"
 msgstr "Criar ficheiro .safetriggers"
 
-#: src/ui/models/models_window.py:637
+#: src/teikr/ui/models/models_window.py:637
 msgid "Trigger extraction not available"
 msgstr "Extração de gatilho não disponível"
 
-#: src/ui/models/models_window.py:644
+#: src/teikr/ui/models/models_window.py:644
 msgid "LoRA file not found"
 msgstr "Arquivo LoRA não encontrado"
 
-#: src/ui/models/models_window.py:650
+#: src/teikr/ui/models/models_window.py:650
 msgid "No triggers found"
 msgstr "Não foram encontrados ativadores"
 
-#: src/ui/models/models_window.py:651
+#: src/teikr/ui/models/models_window.py:651
 msgid "No triggers found: {0}"
 msgstr "Não foram encontrados ativadores: {0}"
 
-#: src/ui/models/models_window.py:653
+#: src/teikr/ui/models/models_window.py:653
 msgid "Error loading triggers: {0}"
 msgstr "Erro ao carregar ativadores: {0}"
 
-#: src/ui/models/models_window.py:656
+#: src/teikr/ui/models/models_window.py:656
 msgid "Found {0} triggers"
 msgstr "Encontrados {0} ativadores"
 
-#: src/ui/models/models_window.py:672
+#: src/teikr/ui/models/models_window.py:672
 msgid "LoRA file not found: {0}"
 msgstr "Arquivo LoRA não encontrado: {0}"
 
-#: src/ui/models/models_window.py:677
+#: src/teikr/ui/models/models_window.py:677
 msgid "Success"
 msgstr "Sucesso"
 
-#: src/ui/models/models_window.py:677
+#: src/teikr/ui/models/models_window.py:677
 msgid ""
 "Created .safetriggers file:\n"
 "{0}"
@@ -2307,104 +2307,104 @@ msgstr ""
 "Ficheiro .safetriggers criado:\n"
 "{0}"
 
-#: src/ui/models/models_window.py:679
+#: src/teikr/ui/models/models_window.py:679
 msgid "Failed to create .safetriggers file"
 msgstr "Falha ao criar o ficheiro .safetriggers"
 
-#: src/ui/models/models_window.py:681
+#: src/teikr/ui/models/models_window.py:681
 msgid "Failed to create .safetriggers file: {0}"
 msgstr "Falha ao criar o ficheiro .safetriggers: {0}"
 
-#: src/ui/models/recent_adapters_window.py:87
+#: src/teikr/ui/models/recent_adapters_window.py:87
 msgid "Recent ControlNets"
 msgstr "ControlNets recentes"
 
-#: src/ui/models/recent_adapters_window.py:88
+#: src/teikr/ui/models/recent_adapters_window.py:88
 msgid "ControlNet File"
 msgstr "Arquivo ControlNet"
 
-#: src/ui/models/recent_adapters_window.py:96
+#: src/teikr/ui/models/recent_adapters_window.py:96
 msgid "Recent IP Adapters"
 msgstr "Adaptadores IP recentes"
 
-#: src/ui/models/recent_adapters_window.py:97
+#: src/teikr/ui/models/recent_adapters_window.py:97
 msgid "IP Adapter File"
 msgstr "Ficheiro do adaptador IP"
 
-#: src/ui/models/recent_adapters_window.py:105
+#: src/teikr/ui/models/recent_adapters_window.py:105
 msgid "Recent Source Prompts"
 msgstr "Promptes de Origem Recente"
 
-#: src/ui/models/recent_adapters_window.py:106
+#: src/teikr/ui/models/recent_adapters_window.py:106
 msgid "Source Prompt File"
 msgstr "Ficheiro utilizado como fonte de prompts"
 
-#: src/ui/models/recent_adapters_window.py:109
-#: src/ui/models/recent_adapters_window.py:284
+#: src/teikr/ui/models/recent_adapters_window.py:109
+#: src/teikr/ui/models/recent_adapters_window.py:284
 #: tests/ui/test_recent_adapters_window.py:73
 msgid "Source Prompt"
 msgstr "Extrair o prompt"
 
-#: src/ui/models/recent_adapters_window.py:133
+#: src/teikr/ui/models/recent_adapters_window.py:133
 msgid "Recent Adapters"
 msgstr "Adaptadores recentes"
 
-#: src/ui/models/recent_adapters_window.py:153
+#: src/teikr/ui/models/recent_adapters_window.py:153
 msgid "All Recent Adapters"
 msgstr "Todos os adaptadores recentes"
 
-#: src/ui/models/recent_adapters_window.py:154
+#: src/teikr/ui/models/recent_adapters_window.py:154
 msgid "Favorites"
 msgstr "Favoritos"
 
-#: src/ui/models/recent_adapters_window.py:155
+#: src/teikr/ui/models/recent_adapters_window.py:155
 msgid "Configuration"
 msgstr "Configuração"
 
-#: src/ui/models/recent_adapters_window.py:190
-#: src/ui/models/recent_adapters_window.py:230
+#: src/teikr/ui/models/recent_adapters_window.py:190
+#: src/teikr/ui/models/recent_adapters_window.py:230
 msgid "Type"
 msgstr "Tipo"
 
-#: src/ui/models/recent_adapters_window.py:200
-#: src/ui/models/recent_adapters_window.py:243
-#: src/ui/models/recent_adapters_window.py:309
-#: src/ui/prompts/expansions_window.py:257
+#: src/teikr/ui/models/recent_adapters_window.py:200
+#: src/teikr/ui/models/recent_adapters_window.py:243
+#: src/teikr/ui/models/recent_adapters_window.py:309
+#: src/teikr/ui/prompts/expansions_window.py:257
 msgid "Copy"
 msgstr "Cópia"
 
-#: src/ui/models/recent_adapters_window.py:203
-#: src/ui/models/recent_adapters_window.py:246
+#: src/teikr/ui/models/recent_adapters_window.py:203
+#: src/teikr/ui/models/recent_adapters_window.py:246
 msgid "Add to Favorites"
 msgstr "Adicionar aos Favoritos"
 
-#: src/ui/models/recent_adapters_window.py:219
+#: src/teikr/ui/models/recent_adapters_window.py:219
 msgid "Individual files, including from directory-split runs (no directories)"
 msgstr ""
 "Ficheiros individuais, incluindo os provenientes de execuções com divisão de"
 " diretórios (sem diretórios)"
 
-#: src/ui/models/recent_adapters_window.py:230
+#: src/teikr/ui/models/recent_adapters_window.py:230
 msgid "Adapter File"
 msgstr "Ficheiro adaptador"
 
-#: src/ui/models/recent_adapters_window.py:235
+#: src/teikr/ui/models/recent_adapters_window.py:235
 msgid "ControlNet (Replace)"
 msgstr "ControlNet (Substituir)"
 
-#: src/ui/models/recent_adapters_window.py:236
+#: src/teikr/ui/models/recent_adapters_window.py:236
 msgid "ControlNet (Add)"
 msgstr "ControlNet (Adicionar)"
 
-#: src/ui/models/recent_adapters_window.py:237
+#: src/teikr/ui/models/recent_adapters_window.py:237
 msgid "IP Adapter (Replace)"
 msgstr "Adaptador de IP (Substituir)"
 
-#: src/ui/models/recent_adapters_window.py:238
+#: src/teikr/ui/models/recent_adapters_window.py:238
 msgid "IP Adapter (Add)"
 msgstr "Adaptador de IP (Adicionar)"
 
-#: src/ui/models/recent_adapters_window.py:261
+#: src/teikr/ui/models/recent_adapters_window.py:261
 msgid ""
 "Preferred adapters regardless of type. Directories are auto-added when seen "
 "in recents."
@@ -2412,41 +2412,41 @@ msgstr ""
 "Adaptadores preferenciais, independentemente do tipo. As pastas são "
 "adicionadas automaticamente quando aparecem na lista de acessos recentes."
 
-#: src/ui/models/recent_adapters_window.py:276
+#: src/teikr/ui/models/recent_adapters_window.py:276
 msgid "Target Field"
 msgstr "Campo de entrada do destino"
 
-#: src/ui/models/recent_adapters_window.py:291
+#: src/teikr/ui/models/recent_adapters_window.py:291
 msgid "Append (unchecked = Replace)"
 msgstr "Anexar (não marcado = Substituir)"
 
-#: src/ui/models/recent_adapters_window.py:298
+#: src/teikr/ui/models/recent_adapters_window.py:298
 msgid "Favorite Adapter"
 msgstr "Adaptador Favorito"
 
-#: src/ui/models/recent_adapters_window.py:303
+#: src/teikr/ui/models/recent_adapters_window.py:303
 msgid "Use Favorite"
 msgstr "Usar Favorito"
 
-#: src/ui/models/recent_adapters_window.py:306
-#: src/ui/prompts/blacklist_window.py:464
-#: src/ui/prompts/blacklist_window.py:507
+#: src/teikr/ui/models/recent_adapters_window.py:306
+#: src/teikr/ui/prompts/blacklist_window.py:464
+#: src/teikr/ui/prompts/blacklist_window.py:507
 msgid "Remove"
 msgstr "Remover"
 
-#: src/ui/models/recent_adapters_window.py:327
+#: src/teikr/ui/models/recent_adapters_window.py:327
 msgid "Recent Adapters Configuration"
 msgstr "Configuração recente dos adaptadores"
 
-#: src/ui/models/recent_adapters_window.py:332
+#: src/teikr/ui/models/recent_adapters_window.py:332
 msgid "Max Recent Items:"
 msgstr "Máximo de itens recentes:"
 
-#: src/ui/models/recent_adapters_window.py:341
+#: src/teikr/ui/models/recent_adapters_window.py:341
 msgid "Max Recent Split Items:"
 msgstr "Itens divididos mais recentes:"
 
-#: src/ui/models/recent_adapters_window.py:350
+#: src/teikr/ui/models/recent_adapters_window.py:350
 msgid ""
 "These settings control how many recent adapters are kept in memory.\n"
 "Higher values use more memory but keep more history.\n"
@@ -2456,80 +2456,80 @@ msgstr ""
 "Valores mais altos usam mais memória, mas mantêm mais histórico.\n"
 "As alterações entram em vigor imediatamente e são guardadas automaticamente."
 
-#: src/ui/models/recent_adapters_window.py:395
-#: src/ui/models/recent_adapters_window.py:521
-#: src/ui/models/recent_adapters_window.py:534
-#: src/ui/models/recent_adapters_window.py:550
+#: src/teikr/ui/models/recent_adapters_window.py:395
+#: src/teikr/ui/models/recent_adapters_window.py:521
+#: src/teikr/ui/models/recent_adapters_window.py:534
+#: src/teikr/ui/models/recent_adapters_window.py:550
 msgid "Select a row first"
 msgstr "Selecione uma linha primeiro"
 
-#: src/ui/models/recent_adapters_window.py:401
+#: src/teikr/ui/models/recent_adapters_window.py:401
 msgid "Copied path to clipboard"
 msgstr "Caminho copiado para a área de transferência"
 
-#: src/ui/models/recent_adapters_window.py:538
+#: src/teikr/ui/models/recent_adapters_window.py:538
 msgid "Directories are auto-favorited and cannot be removed here"
 msgstr ""
 "Os directórios são favoritados automaticamente e não podem ser removidos "
 "aqui"
 
-#: src/ui/models/recent_adapters_window.py:543
+#: src/teikr/ui/models/recent_adapters_window.py:543
 msgid "Removed from favorites"
 msgstr "Removido dos favoritos"
 
-#: src/ui/models/recent_adapters_window.py:545
+#: src/teikr/ui/models/recent_adapters_window.py:545
 msgid "Item was not in favorites"
 msgstr "O item não estava nos favoritos"
 
-#: src/ui/models/recent_adapters_window.py:556
+#: src/teikr/ui/models/recent_adapters_window.py:556
 msgid "Added to favorites"
 msgstr "Adicionado aos favoritos"
 
-#: src/ui/models/recent_adapters_window.py:558
+#: src/teikr/ui/models/recent_adapters_window.py:558
 msgid "Already in favorites"
 msgstr "Já está nos favoritos"
 
-#: src/ui/presets/presets_window.py:77
+#: src/teikr/ui/presets/presets_window.py:77
 msgid "Presets and Stashed Configs"
 msgstr "Predefinições e configurações armazenadas"
 
-#: src/ui/presets/presets_window.py:92
+#: src/teikr/ui/presets/presets_window.py:92
 msgid "Stashed Configs"
 msgstr "Configurações armazenadas"
 
-#: src/ui/presets/presets_window.py:93
+#: src/teikr/ui/presets/presets_window.py:93
 msgid "Intermediate Pass"
 msgstr "Passe Intermediário"
 
-#: src/ui/presets/presets_window.py:119
+#: src/teikr/ui/presets/presets_window.py:119
 msgid "Set a new preset"
 msgstr "Definir uma nova predefinição"
 
-#: src/ui/presets/presets_window.py:120
+#: src/teikr/ui/presets/presets_window.py:120
 msgid "New Preset"
 msgstr "Nova predefinição"
 
-#: src/ui/presets/presets_window.py:126
+#: src/teikr/ui/presets/presets_window.py:126
 msgid "Clear presets"
 msgstr "Limpar as predefinições"
 
-#: src/ui/presets/presets_window.py:146
+#: src/teikr/ui/presets/presets_window.py:146
 msgid "Stash the current run config"
 msgstr "Armazenar a configuração de execução atual"
 
-#: src/ui/presets/presets_window.py:147
+#: src/teikr/ui/presets/presets_window.py:147
 msgid "New Stash"
 msgstr "Novo Stash"
 
-#: src/ui/presets/presets_window.py:150
+#: src/teikr/ui/presets/presets_window.py:150
 msgid "Stash config"
 msgstr "Configuração do Stash"
 
-#: src/ui/presets/presets_window.py:153
+#: src/teikr/ui/presets/presets_window.py:153
 msgid "Clear stashes"
 msgstr "Limpar stashes"
 
-#: src/ui/presets/presets_window.py:158
+#: src/teikr/ui/presets/presets_window.py:158
 msgid ""
 "Prompt mode, prompt tags and edit suffix are left untouched when a stash is "
 "applied -- those belong to presets."
@@ -2537,11 +2537,11 @@ msgstr ""
 "O modo de prompt, as tags de prompt e o sufixo de edição permanecem "
 "inalterados quando um stash é aplicado — eles pertencem a presets."
 
-#: src/ui/presets/presets_window.py:179
+#: src/teikr/ui/presets/presets_window.py:179
 msgid "Run an intermediate generation on the reference image"
 msgstr "Execute uma geração intermediária na imagem de referência"
 
-#: src/ui/presets/presets_window.py:185
+#: src/teikr/ui/presets/presets_window.py:185
 msgid ""
 "The intermediate pass transforms the reference image before your own run "
 "uses it, with your current workflow and settings and only the prompt below "
@@ -2553,15 +2553,15 @@ msgstr ""
 "atuais e alterando apenas o prompt abaixo. O modo de prompt e o sufixo de "
 "edição sempre vêm da configuração principal."
 
-#: src/ui/presets/presets_window.py:196
+#: src/teikr/ui/presets/presets_window.py:196
 msgid "Intermediate workflow"
 msgstr "Fluxo de trabalho intermediário"
 
-#: src/ui/presets/presets_window.py:211
+#: src/teikr/ui/presets/presets_window.py:211
 msgid "Generate at most"
 msgstr "Gerar no máximo"
 
-#: src/ui/presets/presets_window.py:220
+#: src/teikr/ui/presets/presets_window.py:220
 msgid ""
 "How many intermediates to make for one source image and prompt before "
 "reusing them. One means the transformation runs once and every later run "
@@ -2571,49 +2571,49 @@ msgstr ""
 "reutilizá‑los. Um significa que a transformação roda uma vez e todas as "
 "execuções posteriores usam essa imagem."
 
-#: src/ui/presets/presets_window.py:228
+#: src/teikr/ui/presets/presets_window.py:228
 msgid "Intermediate positive prompt"
 msgstr "Prompt positivo intermediário"
 
-#: src/ui/presets/presets_window.py:236
+#: src/teikr/ui/presets/presets_window.py:236
 msgid "Use the negative prompt below (otherwise inherit the main one)"
 msgstr "Use o prompt negativo abaixo (caso contrário, herde o principal)"
 
-#: src/ui/presets/presets_window.py:249
+#: src/teikr/ui/presets/presets_window.py:249
 msgid "Save this prompt as"
 msgstr "Salvar este prompt como"
 
-#: src/ui/presets/presets_window.py:250
+#: src/teikr/ui/presets/presets_window.py:250
 msgid "New Intermediate Prompt"
 msgstr "Novo Prompt Intermediário"
 
-#: src/ui/presets/presets_window.py:253
+#: src/teikr/ui/presets/presets_window.py:253
 msgid "Save prompt"
 msgstr "Salvar prompt"
 
-#: src/ui/presets/presets_window.py:256
+#: src/teikr/ui/presets/presets_window.py:256
 msgid "Clear saved"
 msgstr "Limpar salvo"
 
-#: src/ui/presets/presets_window.py:293 src/ui/presets/presets_window.py:322
-#: src/ui/presets/presets_window.py:351 src/ui/presets/schedules_window.py:256
-#: src/ui/prompts/frequent_prompt_tags_window.py:136
+#: src/teikr/ui/presets/presets_window.py:293 src/teikr/ui/presets/presets_window.py:322
+#: src/teikr/ui/presets/presets_window.py:351 src/teikr/ui/presets/schedules_window.py:256
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:136
 msgid "Set"
 msgstr "Definir"
 
-#: src/ui/presets/presets_window.py:399
+#: src/teikr/ui/presets/presets_window.py:399
 msgid "Enter a name for the intermediate prompt"
 msgstr "Insira um nome para a solicitação intermediária"
 
-#: src/ui/presets/presets_window.py:403
+#: src/teikr/ui/presets/presets_window.py:403
 msgid "Enter a positive prompt to save"
 msgstr "Insira um prompt positivo para salvar"
 
-#: src/ui/presets/presets_window.py:417
+#: src/teikr/ui/presets/presets_window.py:417
 msgid "Confirm Overwrite Prompt"
 msgstr "Confirmar substituição"
 
-#: src/ui/presets/presets_window.py:418
+#: src/teikr/ui/presets/presets_window.py:418
 msgid ""
 "An intermediate prompt named \"{0}\" already exists.\n"
 "\n"
@@ -2623,19 +2623,19 @@ msgstr ""
 "\n"
 "Substituir?"
 
-#: src/ui/presets/presets_window.py:438
+#: src/teikr/ui/presets/presets_window.py:438
 msgid "Saved intermediate prompt: {0}"
 msgstr "Prompt intermediário salvo: {0}"
 
-#: src/ui/presets/presets_window.py:456
+#: src/teikr/ui/presets/presets_window.py:456
 msgid "Applied intermediate prompt: {0}"
 msgstr "Prompt intermediário aplicado: {0}"
 
-#: src/ui/presets/presets_window.py:468
+#: src/teikr/ui/presets/presets_window.py:468
 msgid "Confirm Clear Intermediate Prompts"
 msgstr "Confirmar limpeza de prompts intermediários"
 
-#: src/ui/presets/presets_window.py:469
+#: src/teikr/ui/presets/presets_window.py:469
 msgid ""
 "Delete all saved intermediate prompts?\n"
 "\n"
@@ -2649,15 +2649,15 @@ msgstr ""
 "\n"
 "Deseja continuar?"
 
-#: src/ui/presets/presets_window.py:487
+#: src/teikr/ui/presets/presets_window.py:487
 msgid "Enter a name for the stash"
 msgstr "Insira um nome para o stash"
 
-#: src/ui/presets/presets_window.py:492
+#: src/teikr/ui/presets/presets_window.py:492
 msgid "Confirm Overwrite Stash"
 msgstr "Confirmar sobrescrita do stash"
 
-#: src/ui/presets/presets_window.py:493
+#: src/teikr/ui/presets/presets_window.py:493
 msgid ""
 "A stashed config named \"{0}\" already exists.\n"
 "\n"
@@ -2667,19 +2667,19 @@ msgstr ""
 "\n"
 "Substituí‑la pela configuração de execução atual?"
 
-#: src/ui/presets/presets_window.py:505
+#: src/teikr/ui/presets/presets_window.py:505
 msgid "Stashed run config: {0}"
 msgstr "Configuração de execução armazenada: {0}"
 
-#: src/ui/presets/presets_window.py:510
+#: src/teikr/ui/presets/presets_window.py:510
 msgid "Applied stashed config: {0}"
 msgstr "Configuração armazenada aplicada: {0}"
 
-#: src/ui/presets/presets_window.py:522
+#: src/teikr/ui/presets/presets_window.py:522
 msgid "Confirm Clear Stashes"
 msgstr "Confirmar limpar Stashes"
 
-#: src/ui/presets/presets_window.py:523
+#: src/teikr/ui/presets/presets_window.py:523
 msgid ""
 "Delete all stashed run configs?\n"
 "\n"
@@ -2693,167 +2693,167 @@ msgstr ""
 "\n"
 "Deseja continuar?"
 
-#: src/ui/presets/presets_window.py:543
+#: src/teikr/ui/presets/presets_window.py:543
 msgid "Invalid preset: {0}"
 msgstr "Predefinição inválida: {0}"
 
-#: src/ui/presets/scheduled_shutdown_dialog.py:38
-#: src/ui/presets/scheduled_shutdown_dialog.py:50
+#: src/teikr/ui/presets/scheduled_shutdown_dialog.py:38
+#: src/teikr/ui/presets/scheduled_shutdown_dialog.py:50
 msgid "Scheduled Shutdown"
 msgstr "Desligamento programado"
 
-#: src/ui/presets/scheduled_shutdown_dialog.py:55
+#: src/teikr/ui/presets/scheduled_shutdown_dialog.py:55
 msgid "Schedule: {0}"
 msgstr "Horário: {0}"
 
-#: src/ui/presets/scheduled_shutdown_dialog.py:60
-#: src/ui/presets/scheduled_shutdown_dialog.py:100
+#: src/teikr/ui/presets/scheduled_shutdown_dialog.py:60
+#: src/teikr/ui/presets/scheduled_shutdown_dialog.py:100
 msgid "Shutting down in {0} seconds..."
 msgstr "Desligando em {0} segundos..."
 
-#: src/ui/presets/scheduled_shutdown_dialog.py:70
+#: src/teikr/ui/presets/scheduled_shutdown_dialog.py:70
 msgid "Shutdown Now"
 msgstr "Desligar agora"
 
-#: src/ui/presets/schedules_window.py:49
+#: src/teikr/ui/presets/schedules_window.py:49
 msgid "Modify Preset Schedule: {0}"
 msgstr "Modificar programação predefinido: {0}"
 
-#: src/ui/presets/schedules_window.py:56
+#: src/teikr/ui/presets/schedules_window.py:56
 msgid "Modify Schedule"
 msgstr "Modificar o calendário"
 
-#: src/ui/presets/schedules_window.py:60
-#: src/ui/presets/timed_schedules_window.py:61
+#: src/teikr/ui/presets/schedules_window.py:60
+#: src/teikr/ui/presets/timed_schedules_window.py:61
 msgid "Save schedule"
 msgstr "Salvar agendamento"
 
-#: src/ui/presets/schedules_window.py:63
+#: src/teikr/ui/presets/schedules_window.py:63
 msgid "Add Preset Task"
 msgstr "Adicionar tarefa de predefinições"
 
-#: src/ui/presets/schedules_window.py:119
+#: src/teikr/ui/presets/schedules_window.py:119
 msgid "Move Down"
 msgstr "Mover para baixo"
 
-#: src/ui/presets/schedules_window.py:201
+#: src/teikr/ui/presets/schedules_window.py:201
 msgid "Preset Schedules"
 msgstr "Programações de predefinições"
 
-#: src/ui/presets/schedules_window.py:211
-#: src/ui/presets/timed_schedules_window.py:198
+#: src/teikr/ui/presets/schedules_window.py:211
+#: src/teikr/ui/presets/timed_schedules_window.py:198
 msgid "Add schedule"
 msgstr "Adicionar programação"
 
-#: src/ui/presets/schedules_window.py:214
-#: src/ui/presets/timed_schedules_window.py:201
+#: src/teikr/ui/presets/schedules_window.py:214
+#: src/teikr/ui/presets/timed_schedules_window.py:201
 msgid "Clear schedules"
 msgstr "Limpar as programações"
 
-#: src/ui/presets/schedules_window.py:238
+#: src/teikr/ui/presets/schedules_window.py:238
 msgid "Current schedule: {0}"
 msgstr "Programação atual: {0}"
 
-#: src/ui/presets/schedules_window.py:277
+#: src/teikr/ui/presets/schedules_window.py:277
 msgid "Set schedule: {0}"
 msgstr "Definir programação: {0}"
 
-#: src/ui/presets/schedules_window.py:309
+#: src/teikr/ui/presets/schedules_window.py:309
 msgid "Deleted schedule: {0}"
 msgstr "Programação eliminada: {0}"
 
-#: src/ui/presets/schedules_window.py:317
+#: src/teikr/ui/presets/schedules_window.py:317
 msgid "Cleared schedules"
 msgstr "Programações limpas"
 
-#: src/ui/presets/timed_schedules_window.py:47
+#: src/teikr/ui/presets/timed_schedules_window.py:47
 msgid "Modify Timed Schedule: {0}"
 msgstr "Modificar Horário Agendado: {0}"
 
-#: src/ui/presets/timed_schedules_window.py:57
+#: src/teikr/ui/presets/timed_schedules_window.py:57
 msgid "Schedule Name"
 msgstr "Nome da Tarefa Agendada"
 
-#: src/ui/presets/timed_schedules_window.py:91
+#: src/teikr/ui/presets/timed_schedules_window.py:91
 msgid "Start Time"
 msgstr "Hora de início"
 
-#: src/ui/presets/timed_schedules_window.py:103
+#: src/teikr/ui/presets/timed_schedules_window.py:103
 msgid "End Time"
 msgstr "Hora do fim"
 
-#: src/ui/presets/timed_schedules_window.py:115
+#: src/teikr/ui/presets/timed_schedules_window.py:115
 msgid "Shutdown Time"
 msgstr "Hora de encerramento"
 
-#: src/ui/presets/timed_schedules_window.py:143
-#: src/ui/presets/timed_schedules_window.py:146
+#: src/teikr/ui/presets/timed_schedules_window.py:143
+#: src/teikr/ui/presets/timed_schedules_window.py:146
 msgid "Validation Error"
 msgstr "Erro de validação"
 
-#: src/ui/presets/timed_schedules_window.py:143
-#: src/ui/presets/timed_schedules_window.py:146
+#: src/teikr/ui/presets/timed_schedules_window.py:143
+#: src/teikr/ui/presets/timed_schedules_window.py:146
 msgid "No days selected"
 msgstr "Nenhum dia foi selecionado."
 
-#: src/ui/presets/timed_schedules_window.py:197
+#: src/teikr/ui/presets/timed_schedules_window.py:197
 msgid "Create and modify timed schedules"
 msgstr "Criar e modificar horários agendados"
 
-#: src/ui/presets/timed_schedules_window.py:254
-#: src/ui/prompts/blacklist_modify_window.py:85
-#: src/ui/prompts/blacklist_window.py:445
-#: src/ui/prompts/blacklist_window.py:489
+#: src/teikr/ui/presets/timed_schedules_window.py:254
+#: src/teikr/ui/prompts/blacklist_modify_window.py:85
+#: src/teikr/ui/prompts/blacklist_window.py:445
+#: src/teikr/ui/prompts/blacklist_window.py:489
 msgid "Enabled"
 msgstr "Ativado"
 
-#: src/ui/prompts/blacklist_modify_window.py:56
+#: src/teikr/ui/prompts/blacklist_modify_window.py:56
 msgid "Modify Blacklist Item: {0}"
 msgstr "Modificar o Item da Lista Negra: {0}"
 
-#: src/ui/prompts/blacklist_modify_window.py:80
+#: src/teikr/ui/prompts/blacklist_modify_window.py:80
 msgid "Blacklist String"
 msgstr "Texto da lista negra"
 
-#: src/ui/prompts/blacklist_modify_window.py:89
+#: src/teikr/ui/prompts/blacklist_modify_window.py:89
 msgid "Use glob-based regex"
 msgstr "Utilizar regex baseado em glob"
 
-#: src/ui/prompts/blacklist_modify_window.py:93
+#: src/teikr/ui/prompts/blacklist_modify_window.py:93
 msgid "Use word boundary matching"
 msgstr "Utilizar a correspondência de limites de palavras"
 
-#: src/ui/prompts/blacklist_modify_window.py:97
+#: src/teikr/ui/prompts/blacklist_modify_window.py:97
 msgid "Convert spaces to optional non-word characters"
 msgstr "Converter espaços em caracteres não alfabéticos opcionais"
 
-#: src/ui/prompts/blacklist_modify_window.py:102
+#: src/teikr/ui/prompts/blacklist_modify_window.py:102
 msgid "Exception Pattern (optional regex to unfilter tags)"
 msgstr "Padrão de exceção (expressão regular opcional para desfiltrar tags)"
 
-#: src/ui/prompts/blacklist_modify_window.py:107
+#: src/teikr/ui/prompts/blacklist_modify_window.py:107
 msgid "Apply to whole prompt (match full text, not individual tags)"
 msgstr ""
 "Aplicar a toda a instrução (corresponder ao texto completo, não a etiquetas "
 "individuais)"
 
-#: src/ui/prompts/blacklist_modify_window.py:114
+#: src/teikr/ui/prompts/blacklist_modify_window.py:114
 msgid "Applies to"
 msgstr "Aplicável a"
 
-#: src/ui/prompts/blacklist_modify_window.py:117
+#: src/teikr/ui/prompts/blacklist_modify_window.py:117
 msgid "Everything"
 msgstr "Tudo"
 
-#: src/ui/prompts/blacklist_modify_window.py:117
+#: src/teikr/ui/prompts/blacklist_modify_window.py:117
 msgid "Generated content only"
 msgstr "Apenas conteúdo gerado"
 
-#: src/ui/prompts/blacklist_modify_window.py:117
+#: src/teikr/ui/prompts/blacklist_modify_window.py:117
 msgid "User prompts only"
 msgstr "Apenas prompts do usuário"
 
-#: src/ui/prompts/blacklist_modify_window.py:119
+#: src/teikr/ui/prompts/blacklist_modify_window.py:119
 msgid ""
 "Generated content only keeps this term out of concepts and random words while allowing it in prompts you write yourself.\n"
 "User prompts only checks what you write. Concept lines and dictionary words containing the term are not filtered, so it can still reach a prompt."
@@ -2861,18 +2861,18 @@ msgstr ""
 "O conteúdo gerado mantém este termo fora de conceitos e palavras aleatórias, mas permite que ele esteja nos prompts que você mesmo escreve.\n"
 "Os prompts do usuário verificam apenas o que você escreve. Linhas de conceito e palavras de dicionário que contêm o termo não são filtradas, portanto ele ainda pode chegar a um prompt."
 
-#: src/ui/prompts/blacklist_modify_window.py:134
+#: src/teikr/ui/prompts/blacklist_modify_window.py:134
 msgid "Language"
 msgstr "Idioma"
 
-#: src/ui/prompts/blacklist_modify_window.py:138
-#: src/ui/prompts/blacklist_modify_window.py:144
-#: src/ui/prompts/blacklist_modify_window.py:179
-#: src/ui/prompts/blacklist_window.py:789
+#: src/teikr/ui/prompts/blacklist_modify_window.py:138
+#: src/teikr/ui/prompts/blacklist_modify_window.py:144
+#: src/teikr/ui/prompts/blacklist_modify_window.py:179
+#: src/teikr/ui/prompts/blacklist_window.py:789
 msgid "No language"
 msgstr "Sem idioma"
 
-#: src/ui/prompts/blacklist_modify_window.py:141
+#: src/teikr/ui/prompts/blacklist_modify_window.py:141
 msgid ""
 "No language applies to all text. A language code such as de applies when "
 "that language is detected in a prompt, and to all concept lists."
@@ -2881,142 +2881,142 @@ msgstr ""
 "quando esse idioma é detectado em um prompt e para todas as listas de "
 "conceitos."
 
-#: src/ui/prompts/blacklist_modify_window.py:152
-#: src/ui/prompts/blacklist_window.py:466
+#: src/teikr/ui/prompts/blacklist_modify_window.py:152
+#: src/teikr/ui/prompts/blacklist_window.py:466
 msgid "Preview"
 msgstr "Prévia"
 
-#: src/ui/prompts/blacklist_modify_window.py:203
+#: src/teikr/ui/prompts/blacklist_modify_window.py:203
 msgid "Blacklist string cannot be empty."
 msgstr "O texto da lista negra não pode estar vazio."
 
-#: src/ui/prompts/blacklist_modify_window.py:211
+#: src/teikr/ui/prompts/blacklist_modify_window.py:211
 msgid "\"{0}\" is not a language code. Use a code such as de or fr."
 msgstr "\"{0}\" não é um código de idioma. Use um código como de ou fr."
 
-#: src/ui/prompts/blacklist_modify_window.py:246
+#: src/teikr/ui/prompts/blacklist_modify_window.py:246
 msgid "No changes were made"
 msgstr "Não foram efectuadas alterações"
 
-#: src/ui/prompts/blacklist_modify_window.py:258
-#: src/ui/prompts/blacklist_modify_window.py:279
+#: src/teikr/ui/prompts/blacklist_modify_window.py:258
+#: src/teikr/ui/prompts/blacklist_modify_window.py:279
 msgid "Unsaved Changes"
 msgstr "Alterações não guardadas"
 
-#: src/ui/prompts/blacklist_modify_window.py:259
-#: src/ui/prompts/blacklist_modify_window.py:280
+#: src/teikr/ui/prompts/blacklist_modify_window.py:259
+#: src/teikr/ui/prompts/blacklist_modify_window.py:280
 msgid "Do you want to save changes before closing?"
 msgstr "Pretende guardar as alterações antes de as fechar?"
 
-#: src/ui/prompts/blacklist_preview_window.py:62
+#: src/teikr/ui/prompts/blacklist_preview_window.py:62
 msgid "Blacklist Preview"
 msgstr "Prévia da lista negra"
 
-#: src/ui/prompts/blacklist_preview_window.py:74
+#: src/teikr/ui/prompts/blacklist_preview_window.py:74
 msgid "Test Text"
 msgstr "Teste de Texto"
 
-#: src/ui/prompts/blacklist_preview_window.py:75
+#: src/teikr/ui/prompts/blacklist_preview_window.py:75
 msgid "Concept Preview"
 msgstr "Pré-Visualização de Conceitos"
 
-#: src/ui/prompts/blacklist_preview_window.py:99
+#: src/teikr/ui/prompts/blacklist_preview_window.py:99
 msgid "Enter text to test (tags can be comma- or dot-separated):"
 msgstr ""
 "Insira texto para testar (as etiquetas podem ser separadas por vírgula ou "
 "ponto):"
 
-#: src/ui/prompts/blacklist_preview_window.py:104
+#: src/teikr/ui/prompts/blacklist_preview_window.py:104
 msgid "Type or paste text here, then click Test..."
 msgstr "Digite ou cole o texto aqui, em seguida clique em Testar..."
 
-#: src/ui/prompts/blacklist_preview_window.py:111
+#: src/teikr/ui/prompts/blacklist_preview_window.py:111
 msgid "Test against blacklist"
 msgstr "Testar contra lista negra"
 
-#: src/ui/prompts/blacklist_preview_window.py:115
+#: src/teikr/ui/prompts/blacklist_preview_window.py:115
 msgid "Result:"
 msgstr "Resultado:"
 
-#: src/ui/prompts/blacklist_preview_window.py:128
+#: src/teikr/ui/prompts/blacklist_preview_window.py:128
 msgid "Enter some text above, then click Test."
 msgstr "Digite algum texto acima, em seguida clique em Testar."
 
-#: src/ui/prompts/blacklist_preview_window.py:136
+#: src/teikr/ui/prompts/blacklist_preview_window.py:136
 msgid "No blacklist items matched."
 msgstr "Nenhum item da lista negra correspondeu."
 
-#: src/ui/prompts/blacklist_preview_window.py:139
+#: src/teikr/ui/prompts/blacklist_preview_window.py:139
 msgid "Matched {0} item(s):"
 msgstr "Foram encontrados {0} item(s):"
 
-#: src/ui/prompts/blacklist_preview_window.py:141
+#: src/teikr/ui/prompts/blacklist_preview_window.py:141
 msgid "  \"{0}\" -> rule \"{1}\""
 msgstr "  {0} -> regra {1}"
 
-#: src/ui/prompts/blacklist_preview_window.py:150
+#: src/teikr/ui/prompts/blacklist_preview_window.py:150
 msgid "Languages checked: {0}"
 msgstr "Idiomas verificados: {0}"
 
-#: src/ui/prompts/blacklist_preview_window.py:152
+#: src/teikr/ui/prompts/blacklist_preview_window.py:152
 msgid "Detector scores: {0}"
 msgstr "Pontuações do detector: {0}"
 
-#: src/ui/prompts/blacklist_preview_window.py:154
+#: src/teikr/ui/prompts/blacklist_preview_window.py:154
 msgid "Some text could not be placed, so more languages were checked."
 msgstr ""
 "Algum texto não pôde ser colocado, então mais idiomas foram verificados."
 
-#: src/ui/prompts/blacklist_preview_window.py:165
+#: src/teikr/ui/prompts/blacklist_preview_window.py:165
 msgid "Concepts filtered by: {0}"
 msgstr "Conceitos filtrados por: {0}"
 
-#: src/ui/prompts/blacklist_preview_window.py:169
+#: src/teikr/ui/prompts/blacklist_preview_window.py:169
 msgid "All filtered concepts"
 msgstr "Todos os conceitos filtrados"
 
-#: src/ui/prompts/blacklist_preview_window.py:214
+#: src/teikr/ui/prompts/blacklist_preview_window.py:214
 msgid "Found {0} filtered concepts"
 msgstr "Encontrou {0} conceitos filtrados"
 
-#: src/ui/prompts/blacklist_preview_window.py:220
+#: src/teikr/ui/prompts/blacklist_preview_window.py:220
 msgid "Error loading concepts: {0}"
 msgstr "Erro ao carregar conceitos: {0}"
 
-#: src/ui/prompts/blacklist_window.py:50
+#: src/teikr/ui/prompts/blacklist_window.py:50
 msgid "[regex]"
 msgstr "[regex]"
 
-#: src/ui/prompts/blacklist_window.py:52
+#: src/teikr/ui/prompts/blacklist_window.py:52
 msgid "[no boundary]"
 msgstr "[sem limite de palavra]"
 
-#: src/ui/prompts/blacklist_window.py:54
+#: src/teikr/ui/prompts/blacklist_window.py:54
 msgid "[no space conversion]"
 msgstr "[sem conversão de espaço]"
 
-#: src/ui/prompts/blacklist_window.py:56
+#: src/teikr/ui/prompts/blacklist_window.py:56
 msgid "[exception: {0}]"
 msgstr "[exceção: {0}]"
 
-#: src/ui/prompts/blacklist_window.py:58
+#: src/teikr/ui/prompts/blacklist_window.py:58
 msgid "[whole prompt]"
 msgstr "[texto completo]"
 
-#: src/ui/prompts/blacklist_window.py:62
+#: src/teikr/ui/prompts/blacklist_window.py:62
 msgid "[generated only]"
 msgstr "[apenas gerado]"
 
-#: src/ui/prompts/blacklist_window.py:64
+#: src/teikr/ui/prompts/blacklist_window.py:64
 msgid "[user prompts only]"
 msgstr "[Somente prompts do usuário]"
 
-#: src/ui/prompts/blacklist_window.py:81
-#: src/ui/prompts/concept_editor_window.py:631
+#: src/teikr/ui/prompts/blacklist_window.py:81
+#: src/teikr/ui/prompts/concept_editor_window.py:631
 msgid "...and {0} more"
 msgstr "...e mais {0}"
 
-#: src/ui/prompts/blacklist_window.py:87
+#: src/teikr/ui/prompts/blacklist_window.py:87
 msgid ""
 "These imported items ask for word boundary matching, but their script does not separate words, so each one matches anywhere in the text:\n"
 "\n"
@@ -3026,7 +3026,7 @@ msgstr ""
 "\n"
 "{0}"
 
-#: src/ui/prompts/blacklist_window.py:93
+#: src/teikr/ui/prompts/blacklist_window.py:93
 msgid ""
 "These imported items are not marked as regex, but their text looks like a regex. Each one only matches its text literally:\n"
 "\n"
@@ -3036,7 +3036,7 @@ msgstr ""
 "\n"
 "{0}"
 
-#: src/ui/prompts/blacklist_window.py:99
+#: src/teikr/ui/prompts/blacklist_window.py:99
 msgid ""
 "These imported items replaced items with no language, so they now apply only to their own language:\n"
 "\n"
@@ -3046,7 +3046,7 @@ msgstr ""
 "\n"
 "{0}"
 
-#: src/ui/prompts/blacklist_window.py:105
+#: src/teikr/ui/prompts/blacklist_window.py:105
 msgid ""
 "These language values could not be used, so their items apply to every language:\n"
 "\n"
@@ -3056,7 +3056,7 @@ msgstr ""
 "\n"
 "{0}"
 
-#: src/ui/prompts/blacklist_window.py:110
+#: src/teikr/ui/prompts/blacklist_window.py:110
 msgid ""
 "These imported items were set to apply to no text, so they now apply to everything:\n"
 "\n"
@@ -3066,7 +3066,7 @@ msgstr ""
 "\n"
 "{0}"
 
-#: src/ui/prompts/blacklist_window.py:153
+#: src/teikr/ui/prompts/blacklist_window.py:153
 msgid ""
 "WARNING: Are you sure you want to reveal the blacklist concepts? These concepts are damaging or offensive and WILL cause you severe psychological harm. Do not, under any circumstances, reveal these concepts to minors.\n"
 "\n"
@@ -3076,50 +3076,50 @@ msgstr ""
 "\n"
 "Se és jovem, não tens a certeza, ou mesmo se és adulto, clica no botão fechar desta janela agora e faz algo divertido."
 
-#: src/ui/prompts/blacklist_window.py:164
+#: src/teikr/ui/prompts/blacklist_window.py:164
 msgid "Tags/Models Blacklist"
 msgstr "Lista negra de tags e modelos"
 
-#: src/ui/prompts/blacklist_window.py:183
+#: src/teikr/ui/prompts/blacklist_window.py:183
 msgid "Model Blacklist"
 msgstr "Lista negra para modelos"
 
-#: src/ui/prompts/blacklist_window.py:206
-#: src/ui/prompts/blacklist_window.py:302
+#: src/teikr/ui/prompts/blacklist_window.py:206
+#: src/teikr/ui/prompts/blacklist_window.py:302
 msgid "Global Settings:"
 msgstr "Definições globais"
 
-#: src/ui/prompts/blacklist_window.py:207
-#: src/ui/prompts/blacklist_window.py:303
+#: src/teikr/ui/prompts/blacklist_window.py:207
+#: src/teikr/ui/prompts/blacklist_window.py:303
 msgid "These settings affect how the blacklist is applied globally."
 msgstr ""
 "Estas definições afectam a forma como a lista negra é aplicada globalmente."
 
-#: src/ui/prompts/blacklist_window.py:214
-#: src/ui/prompts/blacklist_window.py:310
+#: src/teikr/ui/prompts/blacklist_window.py:214
+#: src/teikr/ui/prompts/blacklist_window.py:310
 msgid "Choose how the blacklist is enforced: block, warn, or allow."
 msgstr "Escolha como a lista negra é aplicada: bloquear, avisar ou permitir."
 
-#: src/ui/prompts/blacklist_window.py:217
-#: src/ui/prompts/blacklist_window.py:313
+#: src/teikr/ui/prompts/blacklist_window.py:217
+#: src/teikr/ui/prompts/blacklist_window.py:313
 msgid "Silent Removal"
 msgstr "Remoção silenciosa"
 
-#: src/ui/prompts/blacklist_window.py:220
-#: src/ui/prompts/blacklist_window.py:316
+#: src/teikr/ui/prompts/blacklist_window.py:220
+#: src/teikr/ui/prompts/blacklist_window.py:316
 msgid ""
 "If enabled, blacklisted words are removed silently without notification."
 msgstr ""
 "Se activada, as palavras colocadas na lista negra são removidas "
 "silenciosamente sem notificação."
 
-#: src/ui/prompts/blacklist_window.py:223
-#: src/ui/prompts/blacklist_window.py:319
+#: src/teikr/ui/prompts/blacklist_window.py:223
+#: src/teikr/ui/prompts/blacklist_window.py:319
 msgid "Name matched item"
 msgstr "Nome do item correspondente"
 
-#: src/ui/prompts/blacklist_window.py:228
-#: src/ui/prompts/blacklist_window.py:324
+#: src/teikr/ui/prompts/blacklist_window.py:228
+#: src/teikr/ui/prompts/blacklist_window.py:324
 msgid ""
 "When a positive-tag removal notice is shown, include the blacklist item that"
 " matched. The removed tag is not listed."
@@ -3127,60 +3127,60 @@ msgstr ""
 "Quando um aviso de remoção de tag positiva é exibido, inclua o item da lista"
 " negra que corresponde. A tag removida não é listada."
 
-#: src/ui/prompts/blacklist_window.py:237
-#: src/ui/prompts/blacklist_window.py:333
-#: src/ui/prompts/concept_editor_window.py:249
+#: src/teikr/ui/prompts/blacklist_window.py:237
+#: src/teikr/ui/prompts/blacklist_window.py:333
+#: src/teikr/ui/prompts/concept_editor_window.py:249
 msgid "Import"
 msgstr "Importar"
 
-#: src/ui/prompts/blacklist_window.py:238
-#: src/ui/prompts/blacklist_window.py:334
+#: src/teikr/ui/prompts/blacklist_window.py:238
+#: src/teikr/ui/prompts/blacklist_window.py:334
 msgid "Export"
 msgstr "Exportar"
 
-#: src/ui/prompts/blacklist_window.py:239
-#: src/ui/prompts/blacklist_window.py:335
+#: src/teikr/ui/prompts/blacklist_window.py:239
+#: src/teikr/ui/prompts/blacklist_window.py:335
 msgid "Preview All"
 msgstr "Pré-visualizar tudo"
 
-#: src/ui/prompts/blacklist_window.py:240
+#: src/teikr/ui/prompts/blacklist_window.py:240
 msgid "Load Default"
 msgstr "Carregar por defeito"
 
-#: src/ui/prompts/blacklist_window.py:254
+#: src/teikr/ui/prompts/blacklist_window.py:254
 msgid "Choose how the blacklist is enforced: disallow or allow in NSFW."
 msgstr ""
 "Escolha como a lista negra será aplicada: proibir ou permitir em NSFW."
 
-#: src/ui/prompts/blacklist_window.py:256
+#: src/teikr/ui/prompts/blacklist_window.py:256
 msgid "Add to tag blacklist"
 msgstr "Adicionar à lista negra de etiquetas"
 
-#: src/ui/prompts/blacklist_window.py:259
-#: src/ui/prompts/blacklist_window.py:354
+#: src/teikr/ui/prompts/blacklist_window.py:259
+#: src/teikr/ui/prompts/blacklist_window.py:354
 msgid "Clear items"
 msgstr "Limpar itens"
 
-#: src/ui/prompts/blacklist_window.py:275
+#: src/teikr/ui/prompts/blacklist_window.py:275
 msgid "Language:"
 msgstr "Idioma:"
 
-#: src/ui/prompts/blacklist_window.py:279
-#: src/ui/prompts/blacklist_window.py:788
+#: src/teikr/ui/prompts/blacklist_window.py:279
+#: src/teikr/ui/prompts/blacklist_window.py:788
 msgid "All"
 msgstr "Todos"
 
-#: src/ui/prompts/blacklist_window.py:349
+#: src/teikr/ui/prompts/blacklist_window.py:349
 msgid "Choose how the model blacklist is enforced: disallow or allow in NSFW."
 msgstr ""
 "Escolha como a lista negra do modelo é aplicada: proibir ou permitir em "
 "NSFW."
 
-#: src/ui/prompts/blacklist_window.py:351
+#: src/teikr/ui/prompts/blacklist_window.py:351
 msgid "Add to model blacklist"
 msgstr "Adicionar à lista negra de modelos"
 
-#: src/ui/prompts/blacklist_window.py:394
+#: src/teikr/ui/prompts/blacklist_window.py:394
 msgid ""
 "No blacklist items found. You can add items by clicking the 'Add to tag "
 "blacklist' button above, or load the default blacklist."
@@ -3189,11 +3189,11 @@ msgstr ""
 " botão «Adicionar à lista negra de tags» acima ou carregar a lista negra "
 "padrão."
 
-#: src/ui/prompts/blacklist_window.py:397
+#: src/teikr/ui/prompts/blacklist_window.py:397
 msgid "Click below to reveal blacklist concepts."
 msgstr "Clique abaixo para revelar os conceitos da lista negra."
 
-#: src/ui/prompts/blacklist_window.py:400
+#: src/teikr/ui/prompts/blacklist_window.py:400
 msgid ""
 "Default blacklist is loaded. You can load your own blacklist by editing the "
 "existing concepts, clearing the blacklist and adding your own, or importing "
@@ -3204,48 +3204,48 @@ msgstr ""
 " e adicionando os seus próprios conceitos ou importando conceitos de um "
 "ficheiro."
 
-#: src/ui/prompts/blacklist_window.py:408
+#: src/teikr/ui/prompts/blacklist_window.py:408
 msgid "Reveal Concepts"
 msgstr "Revelar os conceitos"
 
-#: src/ui/prompts/blacklist_window.py:420
+#: src/teikr/ui/prompts/blacklist_window.py:420
 msgid "Filter: \"{0}\"  ({1} of {2} items)"
 msgstr "Filtro: \"{0}\"  ({1} de {2} itens)"
 
-#: src/ui/prompts/blacklist_window.py:424
+#: src/teikr/ui/prompts/blacklist_window.py:424
 msgid "{0} of {1} items"
 msgstr "{0} de {1} itens"
 
-#: src/ui/prompts/blacklist_window.py:426
+#: src/teikr/ui/prompts/blacklist_window.py:426
 msgid "{0} items"
 msgstr "{0} ítens"
 
-#: src/ui/prompts/blacklist_window.py:433
+#: src/teikr/ui/prompts/blacklist_window.py:433
 msgid "No items match the current filter."
 msgstr "Nenhum item corresponde ao filtro atual."
 
-#: src/ui/prompts/blacklist_window.py:435
+#: src/teikr/ui/prompts/blacklist_window.py:435
 msgid "The blacklist is empty."
 msgstr "A lista negra está vazia."
 
-#: src/ui/prompts/blacklist_window.py:445
-#: src/ui/prompts/blacklist_window.py:489
+#: src/teikr/ui/prompts/blacklist_window.py:445
+#: src/teikr/ui/prompts/blacklist_window.py:489
 msgid "Item"
 msgstr "Item"
 
-#: src/ui/prompts/blacklist_window.py:455
-#: src/ui/prompts/blacklist_window.py:499
-#: src/ui/prompts/blacklist_window.py:868
-#: src/ui/prompts/blacklist_window.py:969
+#: src/teikr/ui/prompts/blacklist_window.py:455
+#: src/teikr/ui/prompts/blacklist_window.py:499
+#: src/teikr/ui/prompts/blacklist_window.py:868
+#: src/teikr/ui/prompts/blacklist_window.py:969
 msgid "Disabled"
 msgstr "Não ativado"
 
-#: src/ui/prompts/blacklist_window.py:465
-#: src/ui/prompts/blacklist_window.py:508
+#: src/teikr/ui/prompts/blacklist_window.py:465
+#: src/teikr/ui/prompts/blacklist_window.py:508
 msgid "Toggle"
 msgstr "Alternar"
 
-#: src/ui/prompts/blacklist_window.py:480
+#: src/teikr/ui/prompts/blacklist_window.py:480
 msgid ""
 "No model blacklist items found. You can add items by clicking the 'Add to "
 "model blacklist' button above."
@@ -3253,21 +3253,21 @@ msgstr ""
 "Não foram encontrados itens na lista negra do modelo. Pode adicionar itens "
 "clicando no botão «Adicionar à lista negra do modelo» acima."
 
-#: src/ui/prompts/blacklist_window.py:549
-#: src/ui/prompts/blacklist_window.py:556
-#: src/ui/prompts/blacklist_window.py:563
-#: src/ui/prompts/blacklist_window.py:570
-#: src/ui/prompts/blacklist_window.py:577
-#: src/ui/prompts/blacklist_window.py:584
-#: src/ui/prompts/blacklist_window.py:591
+#: src/teikr/ui/prompts/blacklist_window.py:549
+#: src/teikr/ui/prompts/blacklist_window.py:556
+#: src/teikr/ui/prompts/blacklist_window.py:563
+#: src/teikr/ui/prompts/blacklist_window.py:570
+#: src/teikr/ui/prompts/blacklist_window.py:577
+#: src/teikr/ui/prompts/blacklist_window.py:584
+#: src/teikr/ui/prompts/blacklist_window.py:591
 msgid "Select an item first"
 msgstr "Escolha um item primeiro"
 
-#: src/ui/prompts/blacklist_window.py:603
+#: src/teikr/ui/prompts/blacklist_window.py:603
 msgid "Enable similarity check"
 msgstr "Ativar verificação de semelhança"
 
-#: src/ui/prompts/blacklist_window.py:607
+#: src/teikr/ui/prompts/blacklist_window.py:607
 msgid ""
 "When enabled, prompts are rejected if cosine similarity to any blocked "
 "phrase exceeds the threshold."
@@ -3275,11 +3275,11 @@ msgstr ""
 "Quando esta opção está ativada, as sugestões são rejeitadas se a "
 "similaridade cosseno com qualquer frase bloqueada exceder o limiar."
 
-#: src/ui/prompts/blacklist_window.py:613
+#: src/teikr/ui/prompts/blacklist_window.py:613
 msgid "Threshold:"
 msgstr "Limiar:"
 
-#: src/ui/prompts/blacklist_window.py:621
+#: src/teikr/ui/prompts/blacklist_window.py:621
 msgid ""
 "Cosine similarity score at which a prompt is blocked (0.50–1.00). Lower = "
 "more sensitive."
@@ -3287,19 +3287,19 @@ msgstr ""
 "Índice de similaridade cosseno a partir do qual um prompt é bloqueado "
 "(0,50–1,00). Quanto mais baixo, maior a sensibilidade."
 
-#: src/ui/prompts/blacklist_window.py:628
+#: src/teikr/ui/prompts/blacklist_window.py:628
 msgid "Blocked concepts (check to enable):"
 msgstr "Conceitos bloqueados (assinalar para ativar):"
 
-#: src/ui/prompts/blacklist_window.py:641
+#: src/teikr/ui/prompts/blacklist_window.py:641
 msgid "Add phrase..."
 msgstr "Adicionar frase..."
 
-#: src/ui/prompts/blacklist_window.py:644
+#: src/teikr/ui/prompts/blacklist_window.py:644
 msgid "Remove selected"
 msgstr "Remover os selecionados"
 
-#: src/ui/prompts/blacklist_window.py:652
+#: src/teikr/ui/prompts/blacklist_window.py:652
 msgid ""
 "Backend: ONNX CLIP if an .onnx model path is set in Config → Torch CLIP if "
 "the clip package is available → n-gram cosine (always available, character-"
@@ -3309,53 +3309,53 @@ msgstr ""
 "Config → Torch CLIP, se o pacote clip estiver disponível → coseno de "
 "n-gramas (sempre disponível, apenas ao nível do carácter)."
 
-#: src/ui/prompts/blacklist_window.py:661
+#: src/teikr/ui/prompts/blacklist_window.py:661
 msgid "Apply && Save"
 msgstr "Aplicar && Guardar"
 
-#: src/ui/prompts/blacklist_window.py:663
+#: src/teikr/ui/prompts/blacklist_window.py:663
 msgid "Apply settings and rebuild the similarity engine."
 msgstr "Aplicar as definições e reconstruir o motor de similaridade."
 
-#: src/ui/prompts/blacklist_window.py:670
+#: src/teikr/ui/prompts/blacklist_window.py:670
 msgid "Add Phrase"
 msgstr "Adicionar frase"
 
-#: src/ui/prompts/blacklist_window.py:670
+#: src/teikr/ui/prompts/blacklist_window.py:670
 msgid "Enter blocked concept:"
 msgstr "Introduzir o conceito bloqueado:"
 
-#: src/ui/prompts/blacklist_window.py:696
+#: src/teikr/ui/prompts/blacklist_window.py:696
 msgid "Similarity settings saved ({0} phrases, threshold {1:.0%})"
 msgstr "Definições de similaridade guardadas ({0} frases, limiar {1:.0%})"
 
-#: src/ui/prompts/blacklist_window.py:855
+#: src/teikr/ui/prompts/blacklist_window.py:855
 msgid "Removed item: {0}"
 msgstr "Item removido: {0}"
 
-#: src/ui/prompts/blacklist_window.py:871
+#: src/teikr/ui/prompts/blacklist_window.py:871
 msgid "Item \"{0}\" is now {1}"
 msgstr "O item “{0}” é agora {1}"
 
-#: src/ui/prompts/blacklist_window.py:873
-#: src/ui/prompts/blacklist_window.py:973
+#: src/teikr/ui/prompts/blacklist_window.py:873
+#: src/teikr/ui/prompts/blacklist_window.py:973
 msgid "enabled"
 msgstr "ativado"
 
-#: src/ui/prompts/blacklist_window.py:873
-#: src/ui/prompts/blacklist_window.py:973
+#: src/teikr/ui/prompts/blacklist_window.py:873
+#: src/teikr/ui/prompts/blacklist_window.py:973
 msgid "disabled"
 msgstr "desativado"
 
-#: src/ui/prompts/blacklist_window.py:886
+#: src/teikr/ui/prompts/blacklist_window.py:886
 msgid "Concepts revealed"
 msgstr "Conceitos revelados"
 
-#: src/ui/prompts/blacklist_window.py:901
+#: src/teikr/ui/prompts/blacklist_window.py:901
 msgid "Confirm Clear Blacklist"
 msgstr "Confirmar a eliminação da lista negra"
 
-#: src/ui/prompts/blacklist_window.py:902
+#: src/teikr/ui/prompts/blacklist_window.py:902
 msgid ""
 "Are you sure you want to clear all blacklist items?\n"
 "\n"
@@ -3369,15 +3369,15 @@ msgstr ""
 "\n"
 "Deseja continuar?"
 
-#: src/ui/prompts/blacklist_window.py:914
+#: src/teikr/ui/prompts/blacklist_window.py:914
 msgid "Cleared item blacklist"
 msgstr "Lista negra de itens limpa"
 
-#: src/ui/prompts/blacklist_window.py:922
+#: src/teikr/ui/prompts/blacklist_window.py:922
 msgid "Confirm Load Default Blacklist"
 msgstr "Confirmar a carga da lista negra predefinida"
 
-#: src/ui/prompts/blacklist_window.py:923
+#: src/teikr/ui/prompts/blacklist_window.py:923
 msgid ""
 "Are you sure you want to load the default blacklist?\n"
 "\n"
@@ -3391,31 +3391,31 @@ msgstr ""
 "\n"
 "Deseja continuar?"
 
-#: src/ui/prompts/blacklist_window.py:931
+#: src/teikr/ui/prompts/blacklist_window.py:931
 msgid "Loaded default blacklist"
 msgstr "Lista negra padrão carregada"
 
-#: src/ui/prompts/blacklist_window.py:935
+#: src/teikr/ui/prompts/blacklist_window.py:935
 msgid "Error loading default blacklist"
 msgstr "Erro ao carregar a lista negra predefinida"
 
-#: src/ui/prompts/blacklist_window.py:936
+#: src/teikr/ui/prompts/blacklist_window.py:936
 msgid "Could not decrypt or load the default blacklist."
 msgstr "Não foi possível descodificar ou carregar a lista negra predefinida."
 
-#: src/ui/prompts/blacklist_window.py:957
+#: src/teikr/ui/prompts/blacklist_window.py:957
 msgid "Removed model blacklist item: {0}"
 msgstr "Item removido da lista negra do modelo: {0}"
 
-#: src/ui/prompts/blacklist_window.py:971
+#: src/teikr/ui/prompts/blacklist_window.py:971
 msgid "Model item '{0}' is now {1}"
 msgstr "O item modelo ‘{0}’ agora é {1}"
 
-#: src/ui/prompts/blacklist_window.py:981
+#: src/teikr/ui/prompts/blacklist_window.py:981
 msgid "Confirm Clear Model Blacklist"
 msgstr "Confirmar limpar lista negra de modelos"
 
-#: src/ui/prompts/blacklist_window.py:982
+#: src/teikr/ui/prompts/blacklist_window.py:982
 msgid ""
 "Are you sure you want to clear all model blacklist items?\n"
 "\n"
@@ -3429,34 +3429,34 @@ msgstr ""
 "\n"
 "Deseja continuar?"
 
-#: src/ui/prompts/blacklist_window.py:994
+#: src/teikr/ui/prompts/blacklist_window.py:994
 msgid "Cleared model blacklist items"
 msgstr "Itens da lista negra do modelo eliminados"
 
-#: src/ui/prompts/blacklist_window.py:1005
+#: src/teikr/ui/prompts/blacklist_window.py:1005
 msgid "A backup is kept for {0} days and can be restored from this window."
 msgstr ""
 "Um backup é mantido por {0} dias e pode ser restaurado a partir desta "
 "janela."
 
-#: src/ui/prompts/blacklist_window.py:1007
+#: src/teikr/ui/prompts/blacklist_window.py:1007
 msgid "A backup is kept until you restore or discard it from this window."
 msgstr ""
 "Um backup é mantido até que você o restaure ou o descarte desta janela."
 
-#: src/ui/prompts/blacklist_window.py:1019
+#: src/teikr/ui/prompts/blacklist_window.py:1019
 msgid "Restored {0} tag blacklist items"
 msgstr "Restaurados {0} itens da lista negra de tags"
 
-#: src/ui/prompts/blacklist_window.py:1032
+#: src/teikr/ui/prompts/blacklist_window.py:1032
 msgid "Restored {0} model blacklist items"
 msgstr "Restaurados {0} itens da lista negra do modelo"
 
-#: src/ui/prompts/blacklist_window.py:1047
+#: src/teikr/ui/prompts/blacklist_window.py:1047
 msgid "Confirm Discard Backup"
 msgstr "Confirmar descarte do backup"
 
-#: src/ui/prompts/blacklist_window.py:1048
+#: src/teikr/ui/prompts/blacklist_window.py:1048
 msgid ""
 "Permanently delete the backup of the cleared items?\n"
 "\n"
@@ -3470,207 +3470,207 @@ msgstr ""
 "\n"
 "Deseja continuar?"
 
-#: src/ui/prompts/blacklist_window.py:1056
+#: src/teikr/ui/prompts/blacklist_window.py:1056
 msgid "Discarded blacklist backup"
 msgstr "Backup de lista negra descartado"
 
-#: src/ui/prompts/blacklist_window.py:1069
+#: src/teikr/ui/prompts/blacklist_window.py:1069
 msgid "Discard backup"
 msgstr "Descartar backup"
 
-#: src/ui/prompts/blacklist_window.py:1091
+#: src/teikr/ui/prompts/blacklist_window.py:1091
 msgid "{0} cleared items can be restored"
 msgstr "{0} itens apagados podem ser restaurados"
 
-#: src/ui/prompts/blacklist_window.py:1098
+#: src/teikr/ui/prompts/blacklist_window.py:1098
 msgid "Not Implemented"
 msgstr "Não Implementado"
 
-#: src/ui/prompts/blacklist_window.py:1099
+#: src/teikr/ui/prompts/blacklist_window.py:1099
 msgid "Preview all models not implemented yet."
 msgstr "Visualizar todos os modelos que não foram ainda implementados."
 
-#: src/ui/prompts/blacklist_window.py:1140
+#: src/teikr/ui/prompts/blacklist_window.py:1140
 msgid "Added item to blacklist: {0}"
 msgstr "Item adicionado à lista negra: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1140
+#: src/teikr/ui/prompts/blacklist_window.py:1140
 msgid "Modified blacklist item: {0}"
 msgstr "Item da lista negra modificado: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1158
+#: src/teikr/ui/prompts/blacklist_window.py:1158
 msgid "Model blacklist updated: {0}"
 msgstr "Lista negra de modelos atualizada: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1176
+#: src/teikr/ui/prompts/blacklist_window.py:1176
 msgid "Blacklist mode set to: {0}"
 msgstr "Modo de lista negra definido para: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1185
+#: src/teikr/ui/prompts/blacklist_window.py:1185
 msgid "Blacklist prompt mode set to: {0}"
 msgstr "Modo de aviso da lista negra definido como: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1194
+#: src/teikr/ui/prompts/blacklist_window.py:1194
 msgid "Model blacklist mode set to: {0}"
 msgstr "Modo de lista negra do modelo definido como: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1205
+#: src/teikr/ui/prompts/blacklist_window.py:1205
 msgid "Silent removal set to: {0}"
 msgstr "Remoção silenciosa definida para: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1216
+#: src/teikr/ui/prompts/blacklist_window.py:1216
 msgid "Name matched blacklist item set to: {0}"
 msgstr "Nome do item da lista negra correspondente definido como: {0}"
 
-#: src/ui/prompts/blacklist_window.py:1224
+#: src/teikr/ui/prompts/blacklist_window.py:1224
 msgid "Import Blacklist"
 msgstr "Importar lista negra"
 
-#: src/ui/prompts/blacklist_window.py:1225
-#: src/ui/prompts/blacklist_window.py:1274
+#: src/teikr/ui/prompts/blacklist_window.py:1225
+#: src/teikr/ui/prompts/blacklist_window.py:1274
 msgid ""
 "All supported (*.csv *.json *.txt);;CSV (*.csv);;JSON (*.json);;Text (*.txt)"
 msgstr ""
 "Todos os suportados (*.csv *.json *.txt);;CSV (*.csv);;JSON (*.json);;Texto "
 "(*.txt)"
 
-#: src/ui/prompts/blacklist_window.py:1237
+#: src/teikr/ui/prompts/blacklist_window.py:1237
 msgid "Successfully imported blacklist"
 msgstr "Lista negra importada com êxito"
 
-#: src/ui/prompts/blacklist_window.py:1240
-#: src/ui/prompts/blacklist_window.py:1289
+#: src/teikr/ui/prompts/blacklist_window.py:1240
+#: src/teikr/ui/prompts/blacklist_window.py:1289
 msgid "Import Error"
 msgstr "Erro de importação"
 
-#: src/ui/prompts/blacklist_window.py:1245
+#: src/teikr/ui/prompts/blacklist_window.py:1245
 msgid "Import Warnings"
 msgstr "Avisos de importação"
 
-#: src/ui/prompts/blacklist_window.py:1254
+#: src/teikr/ui/prompts/blacklist_window.py:1254
 msgid "Export Blacklist"
 msgstr "Exportar a lista negra"
 
-#: src/ui/prompts/blacklist_window.py:1255
+#: src/teikr/ui/prompts/blacklist_window.py:1255
 msgid "CSV (*.csv);;JSON (*.json);;Text (*.txt)"
 msgstr "CSV (*.csv);;JSON (*.json);;Texto (*.txt)"
 
-#: src/ui/prompts/blacklist_window.py:1266
+#: src/teikr/ui/prompts/blacklist_window.py:1266
 msgid "Successfully exported blacklist"
 msgstr "Lista negra exportada com êxito"
 
-#: src/ui/prompts/blacklist_window.py:1268
-#: src/ui/prompts/blacklist_window.py:1303
+#: src/teikr/ui/prompts/blacklist_window.py:1268
+#: src/teikr/ui/prompts/blacklist_window.py:1303
 msgid "Export Error"
 msgstr "Erro de exportação"
 
-#: src/ui/prompts/blacklist_window.py:1273
+#: src/teikr/ui/prompts/blacklist_window.py:1273
 msgid "Import Model Blacklist"
 msgstr "Importar Modelo Lista Negra"
 
-#: src/ui/prompts/blacklist_window.py:1286
+#: src/teikr/ui/prompts/blacklist_window.py:1286
 msgid "Successfully imported model blacklist"
 msgstr "Lista negra de modelos importada com sucesso"
 
-#: src/ui/prompts/blacklist_window.py:1294
+#: src/teikr/ui/prompts/blacklist_window.py:1294
 msgid "Export Model Blacklist"
 msgstr "Exportar a lista negra de modelos"
 
-#: src/ui/prompts/blacklist_window.py:1295
+#: src/teikr/ui/prompts/blacklist_window.py:1295
 msgid "JSON (*.json)"
 msgstr "JSON (*.json)"
 
-#: src/ui/prompts/blacklist_window.py:1301
+#: src/teikr/ui/prompts/blacklist_window.py:1301
 msgid "Successfully exported model blacklist"
 msgstr "Lista negra de modelos exportada com sucesso"
 
-#: src/ui/prompts/concept_editor_window.py:128
+#: src/teikr/ui/prompts/concept_editor_window.py:128
 msgid "Concept Editor"
 msgstr "Editor de Conceito"
 
-#: src/ui/prompts/concept_editor_window.py:162
+#: src/teikr/ui/prompts/concept_editor_window.py:162
 msgid "Concepts dir:"
 msgstr "Diretório de conceitos:"
 
-#: src/ui/prompts/concept_editor_window.py:179
+#: src/teikr/ui/prompts/concept_editor_window.py:179
 msgid "Search/Add Concept:"
 msgstr "Conceito de pesquisa/adição:"
 
-#: src/ui/prompts/concept_editor_window.py:181
+#: src/teikr/ui/prompts/concept_editor_window.py:181
 msgid "Type to search concepts..."
 msgstr "Digite para pesquisar conceitos..."
 
-#: src/ui/prompts/concept_editor_window.py:219
+#: src/teikr/ui/prompts/concept_editor_window.py:219
 msgid "File:"
 msgstr "Ficheiro:"
 
-#: src/ui/prompts/concept_editor_window.py:228
+#: src/teikr/ui/prompts/concept_editor_window.py:228
 msgid "(Target file for saving new concepts and importing)"
 msgstr "(Ficheiro de destino para guardar novos conceitos e importar)"
 
-#: src/ui/prompts/concept_editor_window.py:235
+#: src/teikr/ui/prompts/concept_editor_window.py:235
 msgid "Save"
 msgstr "Guardar"
 
-#: src/ui/prompts/concept_editor_window.py:238
+#: src/teikr/ui/prompts/concept_editor_window.py:238
 msgid "Add the search text as a new concept to the selected file"
 msgstr ""
 "Adicionar o texto de pesquisa como um novo conceito ao arquivo selecionado"
 
-#: src/ui/prompts/concept_editor_window.py:245
+#: src/teikr/ui/prompts/concept_editor_window.py:245
 msgid "Delete the selected concept from the file it belongs to"
 msgstr "Excluir o conceito selecionado do arquivo ao qual pertence"
 
-#: src/ui/prompts/concept_editor_window.py:252
+#: src/teikr/ui/prompts/concept_editor_window.py:252
 msgid "Import concepts from an external text file into the selected file"
 msgstr ""
 "Importar conceitos de um arquivo de texto externo para o arquivo selecionado"
 
-#: src/ui/prompts/concept_editor_window.py:300
+#: src/teikr/ui/prompts/concept_editor_window.py:300
 msgid "Selected concept: —"
 msgstr "Conceito selecionado: —"
 
-#: src/ui/prompts/concept_editor_window.py:305
+#: src/teikr/ui/prompts/concept_editor_window.py:305
 msgid "Selected concept: \"{0}\" — {1} ({2})"
 msgstr "Conceito selecionado: '{0}' — {1} ({2})"
 
-#: src/ui/prompts/concept_editor_window.py:311
+#: src/teikr/ui/prompts/concept_editor_window.py:311
 msgid "Selected concept: \"{0}\" — {1}"
 msgstr "Conceito selecionado: \"{0}\" — {1}"
 
-#: src/ui/prompts/concept_editor_window.py:332
+#: src/teikr/ui/prompts/concept_editor_window.py:332
 msgid "Language: {0}"
 msgstr "Idioma: {0}"
 
-#: src/ui/prompts/concept_editor_window.py:343
+#: src/teikr/ui/prompts/concept_editor_window.py:343
 msgid "Invalid Directory"
 msgstr "Diretório inválido"
 
-#: src/ui/prompts/concept_editor_window.py:376
+#: src/teikr/ui/prompts/concept_editor_window.py:376
 msgid "Enter search text to see concepts..."
 msgstr "Introduzir texto de pesquisa para ver conceitos..."
 
-#: src/ui/prompts/concept_editor_window.py:410
+#: src/teikr/ui/prompts/concept_editor_window.py:410
 msgid "{0} concepts found"
 msgstr "{0} conceitos encontrados"
 
-#: src/ui/prompts/concept_editor_window.py:475
+#: src/teikr/ui/prompts/concept_editor_window.py:475
 msgid "Enter a concept name first"
 msgstr "Insira o nome do conceito primeiro"
 
-#: src/ui/prompts/concept_editor_window.py:482
+#: src/teikr/ui/prompts/concept_editor_window.py:482
 msgid "Please select a file to save to"
 msgstr "Selecione um ficheiro para guardar"
 
-#: src/ui/prompts/concept_editor_window.py:494
+#: src/teikr/ui/prompts/concept_editor_window.py:494
 msgid "Concept \"{0}\" already exists in {1}"
 msgstr "O conceito '{0}' já existe em {1}"
 
-#: src/ui/prompts/concept_editor_window.py:509
+#: src/teikr/ui/prompts/concept_editor_window.py:509
 msgid "Blacklisted Concept"
 msgstr "Conceito na lista negra"
 
-#: src/ui/prompts/concept_editor_window.py:510
+#: src/teikr/ui/prompts/concept_editor_window.py:510
 msgid ""
 "\"{0}\" matches the blacklist and would be filtered out of generated "
 "prompts. Save it anyway?"
@@ -3678,48 +3678,48 @@ msgstr ""
 "\"{0}\" corresponde à lista negra e seria filtrado dos prompts gerados. "
 "Salvar assim mesmo?"
 
-#: src/ui/prompts/concept_editor_window.py:530
+#: src/teikr/ui/prompts/concept_editor_window.py:530
 msgid "Saved concept: {0} → {1}"
 msgstr "Conceito salvo: {0} → {1}"
 
-#: src/ui/prompts/concept_editor_window.py:550
+#: src/teikr/ui/prompts/concept_editor_window.py:550
 msgid "Select a concept first"
 msgstr "Escolha um conceito primeiro"
 
-#: src/ui/prompts/concept_editor_window.py:557
+#: src/teikr/ui/prompts/concept_editor_window.py:557
 msgid "Confirm"
 msgstr "Confirmar"
 
-#: src/ui/prompts/concept_editor_window.py:558
+#: src/teikr/ui/prompts/concept_editor_window.py:558
 msgid "Delete concept \"{0}\" from {1}?"
 msgstr "Excluir o conceito \"{0}\" de {1}?"
 
-#: src/ui/prompts/concept_editor_window.py:570
+#: src/teikr/ui/prompts/concept_editor_window.py:570
 msgid "Concept \"{0}\" was not found in {1} -- it may have already been removed."
 msgstr ""
 "O conceito \"{0}\" não foi encontrado em {1} -- pode ter sido removido já."
 
-#: src/ui/prompts/concept_editor_window.py:586
+#: src/teikr/ui/prompts/concept_editor_window.py:586
 msgid "Deleted concept: {0} from {1}"
 msgstr "Conceito excluído: {0} de {1}"
 
-#: src/ui/prompts/concept_editor_window.py:611
+#: src/teikr/ui/prompts/concept_editor_window.py:611
 msgid "Please select a target file first"
 msgstr "Selecione primeiro um ficheiro de destino"
 
-#: src/ui/prompts/concept_editor_window.py:619
+#: src/teikr/ui/prompts/concept_editor_window.py:619
 msgid "Select concepts file to import"
 msgstr "Selecionar o ficheiro de conceitos a importar"
 
-#: src/ui/prompts/concept_editor_window.py:621
+#: src/teikr/ui/prompts/concept_editor_window.py:621
 msgid "Text files (*.txt);;All files (*.*)"
 msgstr "Arquivos de texto (*.txt);;Todos os arquivos (*.*)"
 
-#: src/ui/prompts/concept_editor_window.py:633
+#: src/teikr/ui/prompts/concept_editor_window.py:633
 msgid "Blacklisted Concepts"
 msgstr "Conceitos na lista negra"
 
-#: src/ui/prompts/concept_editor_window.py:634
+#: src/teikr/ui/prompts/concept_editor_window.py:634
 msgid ""
 "{0} concepts match the blacklist and would be filtered out of generated prompts:\n"
 "\n"
@@ -3733,17 +3733,17 @@ msgstr ""
 "\n"
 "Importá‑los mesmo assim?"
 
-#: src/ui/prompts/concept_editor_window.py:664
+#: src/teikr/ui/prompts/concept_editor_window.py:664
 msgid "Successfully imported {0} concepts into {1}"
 msgstr "Importados com sucesso {0} conceitos para {1}"
 
-#: src/ui/prompts/concept_editor_window.py:670
+#: src/teikr/ui/prompts/concept_editor_window.py:670
 msgid "{0} concepts were not imported (see {1}_failed_import.txt for details)"
 msgstr ""
 "{0} conceitos não foram importados (ver {1}_failed_import.txt para mais "
 "pormenores)"
 
-#: src/ui/prompts/concept_editor_window.py:676
+#: src/teikr/ui/prompts/concept_editor_window.py:676
 msgid ""
 "Tip: You can prepend '!' to any concept line to force importation, or simply"
 " use the concept name as a search term to force import."
@@ -3752,35 +3752,35 @@ msgstr ""
 "forçar a importação ou simplesmente usar o nome do conceito como um termo de"
 " pesquisa para força a importação."
 
-#: src/ui/prompts/concept_editor_window.py:681
+#: src/teikr/ui/prompts/concept_editor_window.py:681
 msgid "Import Results"
 msgstr "Resultados da importação"
 
-#: src/ui/prompts/concept_editor_window.py:690
+#: src/teikr/ui/prompts/concept_editor_window.py:690
 msgid "No new concepts to import from {0}"
 msgstr "Nenhum novo conceito para importar de {0}"
 
-#: src/ui/prompts/expansions_window.py:63
+#: src/teikr/ui/prompts/expansions_window.py:63
 msgid "New Expansion"
 msgstr "Nova expansão"
 
-#: src/ui/prompts/expansions_window.py:63
+#: src/teikr/ui/prompts/expansions_window.py:63
 msgid "Modify Expansion: {0}"
 msgstr "Modificar a expansão: {0}"
 
-#: src/ui/prompts/expansions_window.py:81
+#: src/teikr/ui/prompts/expansions_window.py:81
 msgid "Expansion ID"
 msgstr "ID de expansão"
 
-#: src/ui/prompts/expansions_window.py:89
+#: src/teikr/ui/prompts/expansions_window.py:89
 msgid "Expansion Text"
 msgstr "Texto de expansão"
 
-#: src/ui/prompts/expansions_window.py:91
+#: src/teikr/ui/prompts/expansions_window.py:91
 msgid "New Expansion Text"
 msgstr "Novo texto de expansão"
 
-#: src/ui/prompts/expansions_window.py:122
+#: src/teikr/ui/prompts/expansions_window.py:122
 msgid ""
 "Warning: This expansion ID matches a wildcard in config.json. Changes will "
 "not take effect until the wildcard is removed or renamed."
@@ -3788,19 +3788,19 @@ msgstr ""
 "Aviso: Este ID de expansão corresponde a um curinga em config.json. As "
 "alterações não terão efeito até que o curinga seja removido ou renomeado."
 
-#: src/ui/prompts/expansions_window.py:136
+#: src/teikr/ui/prompts/expansions_window.py:136
 msgid "Invalid Expansion"
 msgstr "Expansão inválida"
 
-#: src/ui/prompts/expansions_window.py:137
+#: src/teikr/ui/prompts/expansions_window.py:137
 msgid "Both the expansion ID and text must be non-empty."
 msgstr "Tanto o ID de expansão quanto o texto não podem estar vazios."
 
-#: src/ui/prompts/expansions_window.py:145
+#: src/teikr/ui/prompts/expansions_window.py:145
 msgid "Warning"
 msgstr "Aviso"
 
-#: src/ui/prompts/expansions_window.py:146
+#: src/teikr/ui/prompts/expansions_window.py:146
 msgid ""
 "This expansion ID matches a wildcard in config.json. Changes will not take effect until the wildcard is removed or renamed.\n"
 "\n"
@@ -3810,123 +3810,123 @@ msgstr ""
 "\n"
 "Deseja salvar mesmo assim?"
 
-#: src/ui/prompts/expansions_window.py:202
+#: src/teikr/ui/prompts/expansions_window.py:202
 msgid "Expansions Window"
 msgstr "Janela Expansões"
 
-#: src/ui/prompts/expansions_window.py:227
+#: src/teikr/ui/prompts/expansions_window.py:227
 msgid "Add or update expansions"
 msgstr "Adicionar ou atualizar expansões"
 
-#: src/ui/prompts/expansions_window.py:229
+#: src/teikr/ui/prompts/expansions_window.py:229
 msgid "Add expansion"
 msgstr "Adicionar expansão"
 
-#: src/ui/prompts/expansions_window.py:232
+#: src/teikr/ui/prompts/expansions_window.py:232
 msgid "Clear expansions"
 msgstr "Limpar expansões"
 
-#: src/ui/prompts/expansions_window.py:239
+#: src/teikr/ui/prompts/expansions_window.py:239
 msgid "Filter by ID or text…"
 msgstr "Filtrar por ID ou texto…"
 
-#: src/ui/prompts/expansions_window.py:289
+#: src/teikr/ui/prompts/expansions_window.py:289
 msgid "Filter: \"{0}\"  ({1} of {2} expansions)"
 msgstr "Filtro: \"{0}\"  ({1} de {2} expansões)"
 
-#: src/ui/prompts/expansions_window.py:295
+#: src/teikr/ui/prompts/expansions_window.py:295
 msgid "{0} expansions"
 msgstr "{0} expansões"
 
-#: src/ui/prompts/expansions_window.py:300
+#: src/teikr/ui/prompts/expansions_window.py:300
 msgid "No expansions match the current filter."
 msgstr "Nenhuma expansão corresponde ao filtro atual."
 
-#: src/ui/prompts/expansions_window.py:302
+#: src/teikr/ui/prompts/expansions_window.py:302
 msgid "No expansions defined. Click 'Add expansion' to create one."
 msgstr ""
 "Nenhuma expansão definida. Clique em 'Adicionar expansão' para criar uma."
 
-#: src/ui/prompts/expansions_window.py:311
+#: src/teikr/ui/prompts/expansions_window.py:311
 msgid "ID"
 msgstr "ID"
 
-#: src/ui/prompts/expansions_window.py:311
+#: src/teikr/ui/prompts/expansions_window.py:311
 msgid "Text"
 msgstr "Texto"
 
-#: src/ui/prompts/expansions_window.py:354
-#: src/ui/prompts/expansions_window.py:386
-#: src/ui/prompts/expansions_window.py:412
+#: src/teikr/ui/prompts/expansions_window.py:354
+#: src/teikr/ui/prompts/expansions_window.py:386
+#: src/teikr/ui/prompts/expansions_window.py:412
 msgid "Select an expansion first"
 msgstr "Selecione uma expansão primeiro"
 
-#: src/ui/prompts/expansions_window.py:396
+#: src/teikr/ui/prompts/expansions_window.py:396
 msgid "Clear all expansions?"
 msgstr "Limpar todas as expansões?"
 
-#: src/ui/prompts/expansions_window.py:397
+#: src/teikr/ui/prompts/expansions_window.py:397
 msgid "This will permanently delete all {0} expansions. Are you sure?"
 msgstr "Isso excluirá permanentemente todas as {0} expansões. Tem certeza?"
 
-#: src/ui/prompts/expansions_window.py:418
+#: src/teikr/ui/prompts/expansions_window.py:418
 msgid "Copied expansion text to clipboard"
 msgstr "Texto de expansão copiado para a área de transferência"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:88
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:88
 msgid "Frequent Prompt Tags"
 msgstr "Etiquetas de prompts frequentes"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:115
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:115
 msgid "Select or add prompt tags"
 msgstr "Selecione ou adicione tags de prompt"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:117
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:117
 msgid "Add tag"
 msgstr "Adicionar tag"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:120
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:120
 msgid "Clear tags"
 msgstr "Limpar marcadores"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:160
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:160
 msgid "Filter: \"{0}\"  ({1} of {2} tags)"
 msgstr "Filtro: \"{0}\"  ({1} de {2} etiquetas)"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:166
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:166
 msgid "{0} tags"
 msgstr "{0} etiquetas"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:171
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:171
 msgid "No tags match the current filter."
 msgstr "Nenhuma tag corresponde ao filtro atual."
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:173
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:173
 msgid "No frequent tags yet. Click 'Add tag' to create one."
 msgstr ""
 "Ainda não há tags frequentes. Clique em 'Adicionar tag' para criar uma."
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:182
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:182
 msgid "Tag"
 msgstr "Marcação"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:219
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:219
 msgid "Select a tag first"
 msgstr "Selecione uma etiqueta primeiro"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:234
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:234
 msgid "add_tags callback not wired yet. Tag: {0}"
 msgstr "add_tags retorno de chamada ainda não conectado. Tag: {0}"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:241
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:241
 msgid "Add Tag"
 msgstr "Adicionar Marca"
 
-#: src/ui/prompts/frequent_prompt_tags_window.py:241
+#: src/teikr/ui/prompts/frequent_prompt_tags_window.py:241
 msgid "Enter tag text:"
 msgstr "Digite o texto da tag:"
 
-#: src/ui/prompts/image_to_prompt_window.py:81
+#: src/teikr/ui/prompts/image_to_prompt_window.py:81
 msgid ""
 "Generate prompt text from an image using selectable backends. This does not "
 "start image generation."
@@ -3934,88 +3934,88 @@ msgstr ""
 "Gere um texto de prompt a partir de uma imagem utilizando backends "
 "selecionáveis. Isto não inicia a geração da imagem."
 
-#: src/ui/prompts/image_to_prompt_window.py:90
+#: src/teikr/ui/prompts/image_to_prompt_window.py:90
 msgid "Image"
 msgstr "Imagem"
 
-#: src/ui/prompts/image_to_prompt_window.py:93
+#: src/teikr/ui/prompts/image_to_prompt_window.py:93
 msgid "Browse"
 msgstr "Navegar"
 
-#: src/ui/prompts/image_to_prompt_window.py:100
+#: src/teikr/ui/prompts/image_to_prompt_window.py:100
 msgid "Backend"
 msgstr "Backend"
 
-#: src/ui/prompts/image_to_prompt_window.py:102
+#: src/teikr/ui/prompts/image_to_prompt_window.py:102
 msgid "Captioner (BLIP)"
 msgstr "Legendador (BLIP)"
 
-#: src/ui/prompts/image_to_prompt_window.py:103
+#: src/teikr/ui/prompts/image_to_prompt_window.py:103
 msgid "Fast Tagger"
 msgstr "Rápido Marcador"
 
-#: src/ui/prompts/image_to_prompt_window.py:104
+#: src/teikr/ui/prompts/image_to_prompt_window.py:104
 msgid "VLM"
 msgstr "VLM"
 
-#: src/ui/prompts/image_to_prompt_window.py:109
+#: src/teikr/ui/prompts/image_to_prompt_window.py:109
 msgid "Include Negative Prompt"
 msgstr "Incluir mensagem negativa"
 
-#: src/ui/prompts/image_to_prompt_window.py:121
+#: src/teikr/ui/prompts/image_to_prompt_window.py:121
 msgid "VLM Model"
 msgstr "Modelo VLM"
 
-#: src/ui/prompts/image_to_prompt_window.py:126
+#: src/teikr/ui/prompts/image_to_prompt_window.py:126
 msgid "Unload Model"
 msgstr "Descarregar modelo"
 
-#: src/ui/prompts/image_to_prompt_window.py:128
+#: src/teikr/ui/prompts/image_to_prompt_window.py:128
 msgid ""
 "Free the VLM's video memory for image generation. It reloads on next use."
 msgstr ""
 "Libere a memória de vídeo do VLM para geração de imagens. Ela será "
 "recarregada no próximo uso."
 
-#: src/ui/prompts/image_to_prompt_window.py:136
+#: src/teikr/ui/prompts/image_to_prompt_window.py:136
 msgid "Prompt Hint (optional)"
 msgstr "Dica do mensagem (opcional)"
 
-#: src/ui/prompts/image_to_prompt_window.py:143
+#: src/teikr/ui/prompts/image_to_prompt_window.py:143
 msgid "Generate Prompt from Image"
 msgstr "Gerar Prompt da Imagem"
 
-#: src/ui/prompts/image_to_prompt_window.py:147
-#: src/ui/prompts/prompt_generator_window.py:90
+#: src/teikr/ui/prompts/image_to_prompt_window.py:147
+#: src/teikr/ui/prompts/prompt_generator_window.py:90
 msgid "Copy Positive"
 msgstr "Copie o Positivo"
 
-#: src/ui/prompts/image_to_prompt_window.py:151
-#: src/ui/prompts/prompt_generator_window.py:94
+#: src/teikr/ui/prompts/image_to_prompt_window.py:151
+#: src/teikr/ui/prompts/prompt_generator_window.py:94
 msgid "Copy Negative"
 msgstr "Cópia Negativa"
 
-#: src/ui/prompts/image_to_prompt_window.py:155
+#: src/teikr/ui/prompts/image_to_prompt_window.py:155
 msgid "Apply Positive to Main UI"
 msgstr "Aplicar Positivo para a Interface de Usuário Principal"
 
-#: src/ui/prompts/image_to_prompt_window.py:163
+#: src/teikr/ui/prompts/image_to_prompt_window.py:163
 msgid "Positive Prompt"
 msgstr "Sugestão positiva"
 
-#: src/ui/prompts/image_to_prompt_window.py:168
+#: src/teikr/ui/prompts/image_to_prompt_window.py:168
 msgid "Negative Prompt"
 msgstr "Sugestão negativa"
 
-#: src/ui/prompts/image_to_prompt_window.py:173
+#: src/teikr/ui/prompts/image_to_prompt_window.py:173
 msgid "No output yet."
 msgstr "Ainda sem saída."
 
-#: src/ui/prompts/image_to_prompt_window.py:195
+#: src/teikr/ui/prompts/image_to_prompt_window.py:195
 msgid "Select Image"
 msgstr "Selecione Imagem"
 
-#: src/ui/prompts/image_to_prompt_window.py:197
+#: src/teikr/ui/prompts/image_to_prompt_window.py:197
 msgid ""
 "Images (*.png *.jpg *.jpeg *.webp *.bmp *.avif *.heic *.heif *.jxl);;All "
 "files (*.*)"
@@ -4023,223 +4023,223 @@ msgstr ""
 "Imagens (*.png *.jpg *.jpeg *.webp *.bmp *.avif *.heic *.heif *.jxl);;Todos "
 "os arquivos (*.*)"
 
-#: src/ui/prompts/image_to_prompt_window.py:228
+#: src/teikr/ui/prompts/image_to_prompt_window.py:228
 msgid "VLM model unloaded."
 msgstr "Modelo VLM descarregado."
 
-#: src/ui/prompts/image_to_prompt_window.py:310
+#: src/teikr/ui/prompts/image_to_prompt_window.py:310
 msgid "Select an image first."
 msgstr "Selecione uma imagem primeiro."
 
-#: src/ui/prompts/image_to_prompt_window.py:329
+#: src/teikr/ui/prompts/image_to_prompt_window.py:329
 msgid "updated"
 msgstr "atualizado"
 
-#: src/ui/prompts/image_to_prompt_window.py:329
+#: src/teikr/ui/prompts/image_to_prompt_window.py:329
 msgid "unchanged"
 msgstr "sem alterações"
 
-#: src/ui/prompts/image_to_prompt_window.py:333
+#: src/teikr/ui/prompts/image_to_prompt_window.py:333
 msgid "Generated ({0}: {1}) using backend: {2} [{3}]"
 msgstr "Gerado ({0}: {1}) utilizando o backend: {2} [{3}]"
 
-#: src/ui/prompts/image_to_prompt_window.py:348
+#: src/teikr/ui/prompts/image_to_prompt_window.py:348
 msgid "Fast tagger returned no tags; try a lower threshold."
 msgstr ""
 "O identificador rápido não encontrou nenhuma etiqueta; tente um limiar mais "
 "baixo."
 
-#: src/ui/prompts/image_to_prompt_window.py:352
+#: src/teikr/ui/prompts/image_to_prompt_window.py:352
 msgid "Backend Not Configured"
 msgstr "Backend não configurado"
 
-#: src/ui/prompts/image_to_prompt_window.py:360
+#: src/teikr/ui/prompts/image_to_prompt_window.py:360
 msgid "Image to Prompt Error"
 msgstr "Erro no conversão de imagem em prompt"
 
-#: src/ui/prompts/image_to_prompt_window.py:374
+#: src/teikr/ui/prompts/image_to_prompt_window.py:374
 msgid "Failed using backend: {0} [{1}]"
 msgstr "Falha ao usar o backend: {0} [{1}]"
 
-#: src/ui/prompts/image_to_prompt_window.py:394
+#: src/teikr/ui/prompts/image_to_prompt_window.py:394
 msgid "Generating with backend: {0}…"
 msgstr "Gerando com backend: {0}…"
 
-#: src/ui/prompts/image_to_prompt_window.py:416
+#: src/teikr/ui/prompts/image_to_prompt_window.py:416
 msgid "Image to prompt generation did not complete."
 msgstr "A geração de imagem para prompt não foi concluída."
 
-#: src/ui/prompts/image_to_prompt_window.py:424
+#: src/teikr/ui/prompts/image_to_prompt_window.py:424
 msgid "Nothing to copy."
 msgstr "Nada para copiar."
 
-#: src/ui/prompts/image_to_prompt_window.py:429
-#: src/ui/prompts/prompt_generator_window.py:178
+#: src/teikr/ui/prompts/image_to_prompt_window.py:429
+#: src/teikr/ui/prompts/prompt_generator_window.py:178
 #: tests/ui/test_prompt_generator_window.py:92
 msgid "Copied to clipboard"
 msgstr "Copiado para a área de transferência"
 
-#: src/ui/prompts/image_to_prompt_window.py:434
+#: src/teikr/ui/prompts/image_to_prompt_window.py:434
 msgid "No positive prompt to apply."
 msgstr "Não há qualquer incentivo para se candidatar."
 
-#: src/ui/prompts/image_to_prompt_window.py:437
+#: src/teikr/ui/prompts/image_to_prompt_window.py:437
 msgid "Applied positive prompt to main UI"
 msgstr "Apliquei prompt positivo à interface de utilizador principal"
 
-#: src/ui/prompts/prompt_config_window.py:66
+#: src/teikr/ui/prompts/prompt_config_window.py:66
 msgid "Sayings"
 msgstr "Ditados"
 
-#: src/ui/prompts/prompt_config_window.py:67
+#: src/teikr/ui/prompts/prompt_config_window.py:67
 msgid "Puns"
 msgstr "trocadilhos"
 
-#: src/ui/prompts/prompt_config_window.py:68
+#: src/teikr/ui/prompts/prompt_config_window.py:68
 msgid "Quotations"
 msgstr "Citações"
 
-#: src/ui/prompts/prompt_config_window.py:81
+#: src/teikr/ui/prompts/prompt_config_window.py:81
 msgid "Media Features"
 msgstr "Recursos de mídia"
 
-#: src/ui/prompts/prompt_config_window.py:82
+#: src/teikr/ui/prompts/prompt_config_window.py:82
 msgid "Objects"
 msgstr "Objetos"
 
-#: src/ui/prompts/prompt_config_window.py:83
+#: src/teikr/ui/prompts/prompt_config_window.py:83
 msgid "Positions"
 msgstr "Posições"
 
-#: src/ui/prompts/prompt_config_window.py:84
+#: src/teikr/ui/prompts/prompt_config_window.py:84
 msgid "Locations"
 msgstr "Locais"
 
-#: src/ui/prompts/prompt_config_window.py:85
+#: src/teikr/ui/prompts/prompt_config_window.py:85
 msgid "Animals"
 msgstr "Animais"
 
-#: src/ui/prompts/prompt_config_window.py:86
+#: src/teikr/ui/prompts/prompt_config_window.py:86
 msgid "Plants"
 msgstr "Plantas"
 
-#: src/ui/prompts/prompt_config_window.py:87
+#: src/teikr/ui/prompts/prompt_config_window.py:87
 msgid "Colors"
 msgstr "Cores"
 
-#: src/ui/prompts/prompt_config_window.py:88
+#: src/teikr/ui/prompts/prompt_config_window.py:88
 msgid "Lighting"
 msgstr "Iluminação"
 
-#: src/ui/prompts/prompt_config_window.py:89
+#: src/teikr/ui/prompts/prompt_config_window.py:89
 msgid "Times"
 msgstr "Horários"
 
-#: src/ui/prompts/prompt_config_window.py:90
+#: src/teikr/ui/prompts/prompt_config_window.py:90
 msgid "Units"
 msgstr "Unidades"
 
-#: src/ui/prompts/prompt_config_window.py:91
+#: src/teikr/ui/prompts/prompt_config_window.py:91
 msgid "Dress"
 msgstr "Vestuário"
 
-#: src/ui/prompts/prompt_config_window.py:92
+#: src/teikr/ui/prompts/prompt_config_window.py:92
 msgid "Expressions"
 msgstr "Expressões"
 
-#: src/ui/prompts/prompt_config_window.py:93
+#: src/teikr/ui/prompts/prompt_config_window.py:93
 msgid "Actions"
 msgstr "Ações"
 
-#: src/ui/prompts/prompt_config_window.py:94
+#: src/teikr/ui/prompts/prompt_config_window.py:94
 msgid "Descriptions"
 msgstr "Descrições"
 
-#: src/ui/prompts/prompt_config_window.py:95
+#: src/teikr/ui/prompts/prompt_config_window.py:95
 msgid "Characters"
 msgstr "Personagens"
 
-#: src/ui/prompts/prompt_config_window.py:96
+#: src/teikr/ui/prompts/prompt_config_window.py:96
 msgid "Random Words"
 msgstr "Palavras aleatórias"
 
-#: src/ui/prompts/prompt_config_window.py:98
+#: src/teikr/ui/prompts/prompt_config_window.py:98
 msgid "Jargon"
 msgstr "Jargão"
 
-#: src/ui/prompts/prompt_config_window.py:99
+#: src/teikr/ui/prompts/prompt_config_window.py:99
 msgid "Witticisms"
 msgstr "Agudezas"
 
-#: src/ui/prompts/prompt_config_window.py:100
+#: src/teikr/ui/prompts/prompt_config_window.py:100
 msgid "Prefixes"
 msgstr "Prefixos"
 
-#: src/ui/prompts/prompt_config_window.py:101
+#: src/teikr/ui/prompts/prompt_config_window.py:101
 msgid "Suffixes"
 msgstr "Sufixos"
 
-#: src/ui/prompts/prompt_config_window.py:184
+#: src/teikr/ui/prompts/prompt_config_window.py:184
 msgid "Prompt Configuration"
 msgstr "Configuração das instruções"
 
-#: src/ui/prompts/prompt_config_window.py:217
+#: src/teikr/ui/prompts/prompt_config_window.py:217
 msgid "Detailed Prompt Configuration"
 msgstr "Configuração detalhada das instruções"
 
-#: src/ui/prompts/prompt_config_window.py:265
+#: src/teikr/ui/prompts/prompt_config_window.py:265
 msgid "Basic Generation Settings"
 msgstr "Configurações básicas de geração"
 
-#: src/ui/prompts/prompt_config_window.py:274
+#: src/teikr/ui/prompts/prompt_config_window.py:274
 msgid "Sampler"
 msgstr "Amostra"
 
-#: src/ui/prompts/prompt_config_window.py:285
+#: src/teikr/ui/prompts/prompt_config_window.py:285
 msgid "Scheduler"
 msgstr "Programador"
 
-#: src/ui/prompts/prompt_config_window.py:297
+#: src/teikr/ui/prompts/prompt_config_window.py:297
 msgid "Seed"
 msgstr "Semente"
 
-#: src/ui/prompts/prompt_config_window.py:298
+#: src/teikr/ui/prompts/prompt_config_window.py:298
 msgid "Steps"
 msgstr "Etapas"
 
-#: src/ui/prompts/prompt_config_window.py:299
+#: src/teikr/ui/prompts/prompt_config_window.py:299
 msgid "CFG"
 msgstr "CFG"
 
-#: src/ui/prompts/prompt_config_window.py:300
+#: src/teikr/ui/prompts/prompt_config_window.py:300
 msgid "Denoise"
 msgstr "Redução de ruído"
 
-#: src/ui/prompts/prompt_config_window.py:301
+#: src/teikr/ui/prompts/prompt_config_window.py:301
 msgid "Random Skip Chance"
 msgstr "Aleatório Saltar o acaso"
 
-#: src/ui/prompts/prompt_config_window.py:312
+#: src/teikr/ui/prompts/prompt_config_window.py:312
 msgid "Multiplier"
 msgstr "Multiplicador"
 
-#: src/ui/prompts/prompt_config_window.py:323
+#: src/teikr/ui/prompts/prompt_config_window.py:323
 msgid "Options"
 msgstr "Opções"
 
-#: src/ui/prompts/prompt_config_window.py:329
+#: src/teikr/ui/prompts/prompt_config_window.py:329
 msgid "Tags Applied to Prompt Start"
 msgstr "As etiquetas aplicadas no início do prompt"
 
-#: src/ui/prompts/prompt_config_window.py:334
+#: src/teikr/ui/prompts/prompt_config_window.py:334
 msgid "Sparse Mixed Tags"
 msgstr "Etiquetas mistas esparsas"
 
-#: src/ui/prompts/prompt_config_window.py:355
+#: src/teikr/ui/prompts/prompt_config_window.py:355
 msgid "Witticisms Weights"
 msgstr "Piadas Pesos"
 
-#: src/ui/prompts/prompt_config_window.py:360
+#: src/teikr/ui/prompts/prompt_config_window.py:360
 msgid ""
 "Relative weight of this source. The percentage is its share of witticisms; "
 "all at 0 turns witticisms off."
@@ -4247,65 +4247,65 @@ msgstr ""
 "Peso relativo desta fonte. A percentagem é a sua parte de espirituosidades; "
 "tudo a 0 desativa as espirituosidades."
 
-#: src/ui/prompts/prompt_config_window.py:379
+#: src/teikr/ui/prompts/prompt_config_window.py:379
 msgid "Chance Sliders"
 msgstr "Controles deslizantes de chance"
 
-#: src/ui/prompts/prompt_config_window.py:381
+#: src/teikr/ui/prompts/prompt_config_window.py:381
 msgid "Specific Locations Chance"
 msgstr "Probabilidade de especificar localizações"
 
-#: src/ui/prompts/prompt_config_window.py:383
+#: src/teikr/ui/prompts/prompt_config_window.py:383
 msgid "Specific Times Chance"
 msgstr "Probabilidade em momentos específicos"
 
-#: src/ui/prompts/prompt_config_window.py:385
+#: src/teikr/ui/prompts/prompt_config_window.py:385
 msgid "Specify Humans Chance"
 msgstr "Possibilidade de especificar humanos"
 
-#: src/ui/prompts/prompt_config_window.py:387
+#: src/teikr/ui/prompts/prompt_config_window.py:387
 msgid "Art Styles Chance"
 msgstr "Probabilidade de estilos artísticos"
 
-#: src/ui/prompts/prompt_config_window.py:389
+#: src/teikr/ui/prompts/prompt_config_window.py:389
 msgid "Emphasis Chance"
 msgstr "Probabilidade de ênfase"
 
-#: src/ui/prompts/prompt_config_window.py:391
+#: src/teikr/ui/prompts/prompt_config_window.py:391
 msgid "Stop Insertion Chance"
 msgstr "Probabilidade de inserção de parada"
 
-#: src/ui/prompts/prompt_config_window.py:393
+#: src/teikr/ui/prompts/prompt_config_window.py:393
 msgid "Return Insertion Chance"
 msgstr "Probabilidade de inserção de retorno"
 
-#: src/ui/prompts/prompt_config_window.py:395
+#: src/teikr/ui/prompts/prompt_config_window.py:395
 msgid "Animals Inclusion Chance"
 msgstr "Probabilidade de inclusão de animais"
 
-#: src/ui/prompts/prompt_config_window.py:397
+#: src/teikr/ui/prompts/prompt_config_window.py:397
 msgid "Dress Inclusion Chance"
 msgstr "Probabilidade de inclusão de roupa"
 
-#: src/ui/prompts/prompt_config_window.py:423
+#: src/teikr/ui/prompts/prompt_config_window.py:423
 msgid "Category"
 msgstr "Categoria"
 
-#: src/ui/prompts/prompt_config_window.py:424
+#: src/teikr/ui/prompts/prompt_config_window.py:424
 msgid "Low"
 msgstr "Baixo"
 
-#: src/ui/prompts/prompt_config_window.py:425
+#: src/teikr/ui/prompts/prompt_config_window.py:425
 msgid "High"
 msgstr "Alto"
 
-#: src/ui/prompts/prompt_config_window.py:478
+#: src/teikr/ui/prompts/prompt_config_window.py:478
 #: tests/ui/test_prompt_config_window.py:185
 #: tests/ui/test_prompt_config_window.py:186
 msgid "{percent}%"
 msgstr "{percent}%"
 
-#: src/ui/prompts/prompt_generator_window.py:77
+#: src/teikr/ui/prompts/prompt_generator_window.py:77
 msgid ""
 "Generate one prompt at a time using current UI settings. This does not run "
 "image generation and does not modify prompt history unless you click \"Save "
@@ -4315,200 +4315,200 @@ msgstr ""
 "utilizador. Isto não executa a geração de imagens e não altera o histórico "
 "de prompts, a menos que clique em «Guardar no histórico de prompts»."
 
-#: src/ui/prompts/prompt_generator_window.py:86
+#: src/teikr/ui/prompts/prompt_generator_window.py:86
 msgid "Generate One Prompt"
 msgstr "Gerar um prompt"
 
-#: src/ui/prompts/prompt_generator_window.py:98
+#: src/teikr/ui/prompts/prompt_generator_window.py:98
 msgid "Save to Prompt History"
 msgstr "Guardar no histórico de prompts"
 
-#: src/ui/prompts/prompt_generator_window.py:105
+#: src/teikr/ui/prompts/prompt_generator_window.py:105
 msgid "Generated Positive Prompt"
 msgstr "Prompt positivo gerado"
 
-#: src/ui/prompts/prompt_generator_window.py:110
+#: src/teikr/ui/prompts/prompt_generator_window.py:110
 msgid "Generated Negative Prompt"
 msgstr "Prompt negativo gerado"
 
-#: src/ui/prompts/prompt_generator_window.py:115
+#: src/teikr/ui/prompts/prompt_generator_window.py:115
 msgid "No prompt generated yet."
 msgstr "Nenhum prompt gerado ainda."
 
-#: src/ui/prompts/prompt_generator_window.py:167
+#: src/teikr/ui/prompts/prompt_generator_window.py:167
 msgid "Generated a new prompt."
 msgstr "Gerou um novo prompt."
 
-#: src/ui/prompts/prompt_generator_window.py:169
+#: src/teikr/ui/prompts/prompt_generator_window.py:169
 msgid "Prompt Generation Error"
 msgstr "Erro de Geração de Prompt"
 
-#: src/ui/prompts/prompt_generator_window.py:173
+#: src/teikr/ui/prompts/prompt_generator_window.py:173
 msgid "Nothing to copy. Generate a prompt first."
 msgstr "Nada para copiar. Gere um prompt primeiro."
 
-#: src/ui/prompts/prompt_generator_window.py:182
+#: src/teikr/ui/prompts/prompt_generator_window.py:182
 msgid "Generate a prompt first."
 msgstr "Gere um prompt primeiro."
 
-#: src/ui/prompts/prompt_generator_window.py:190
+#: src/teikr/ui/prompts/prompt_generator_window.py:190
 msgid "Nothing to save."
 msgstr "Nada para salvar."
 
-#: src/ui/prompts/prompt_generator_window.py:193
+#: src/teikr/ui/prompts/prompt_generator_window.py:193
 msgid "Saved generated prompt to prompt history"
 msgstr "Salvo o prompt gerado na história de prompts"
 
-#: src/ui/runs/runs_window.py:122
+#: src/teikr/ui/runs/runs_window.py:122
 msgid "Queue"
 msgstr "Fila"
 
-#: src/ui/runs/runs_window.py:123
+#: src/teikr/ui/runs/runs_window.py:123
 msgid "History"
 msgstr "História"
 
-#: src/ui/runs/runs_window.py:124
+#: src/teikr/ui/runs/runs_window.py:124
 msgid "Saved Runs"
 msgstr "Execuções salvas"
 
-#: src/ui/runs/runs_window.py:152 src/ui/runs/runs_window.py:272
+#: src/teikr/ui/runs/runs_window.py:152 src/teikr/ui/runs/runs_window.py:272
 msgid "Status: Idle"
 msgstr "Estado: Inativo"
 
-#: src/ui/runs/runs_window.py:157 src/ui/runs/runs_window.py:166
-#: src/ui/runs/runs_window.py:442
+#: src/teikr/ui/runs/runs_window.py:157 src/teikr/ui/runs/runs_window.py:166
+#: src/teikr/ui/runs/runs_window.py:442
 msgid "Model"
 msgstr "Modelo"
 
-#: src/ui/runs/runs_window.py:157 src/ui/runs/runs_window.py:166
-#: src/ui/runs/runs_window.py:442
+#: src/teikr/ui/runs/runs_window.py:157 src/teikr/ui/runs/runs_window.py:166
+#: src/teikr/ui/runs/runs_window.py:442
 msgid "N"
 msgstr "N"
 
-#: src/ui/runs/runs_window.py:157 src/ui/runs/runs_window.py:166
-#: src/ui/runs/runs_window.py:442
+#: src/teikr/ui/runs/runs_window.py:157 src/teikr/ui/runs/runs_window.py:166
+#: src/teikr/ui/runs/runs_window.py:442
 msgid "Total"
 msgstr "Total"
 
-#: src/ui/runs/runs_window.py:157 src/ui/runs/runs_window.py:167
-#: src/ui/runs/runs_window.py:180 src/ui/runs/runs_window.py:193
+#: src/teikr/ui/runs/runs_window.py:157 src/teikr/ui/runs/runs_window.py:167
+#: src/teikr/ui/runs/runs_window.py:180 src/teikr/ui/runs/runs_window.py:193
 #: tests/ui/test_runs_window.py:197 tests/ui/test_runs_window.py:198
 msgid "Origin"
 msgstr "Origem"
 
-#: src/ui/runs/runs_window.py:157
+#: src/teikr/ui/runs/runs_window.py:157
 msgid "Status"
 msgstr "Estado"
 
-#: src/ui/runs/runs_window.py:161
+#: src/teikr/ui/runs/runs_window.py:161
 msgid "Currently Running"
 msgstr "Em execução"
 
-#: src/ui/runs/runs_window.py:164
+#: src/teikr/ui/runs/runs_window.py:164
 msgid "Pending Jobs"
 msgstr "Trabalhos pendentes"
 
-#: src/ui/runs/runs_window.py:166 src/ui/runs/runs_window.py:180
+#: src/teikr/ui/runs/runs_window.py:166 src/teikr/ui/runs/runs_window.py:180
 msgid "#"
 msgstr "#"
 
-#: src/ui/runs/runs_window.py:166
+#: src/teikr/ui/runs/runs_window.py:166
 msgid "Batch"
 msgstr "Lote"
 
-#: src/ui/runs/runs_window.py:176
+#: src/teikr/ui/runs/runs_window.py:176
 msgid "Server Staging Queue"
 msgstr "Fila de preparação do servidor"
 
-#: src/ui/runs/runs_window.py:180
+#: src/teikr/ui/runs/runs_window.py:180
 msgid "Command"
 msgstr "Comando"
 
-#: src/ui/runs/runs_window.py:180
+#: src/teikr/ui/runs/runs_window.py:180
 msgid "Args"
 msgstr "Argumentos"
 
-#: src/ui/runs/runs_window.py:220
+#: src/teikr/ui/runs/runs_window.py:220
 msgid "Start processing pending jobs"
 msgstr "Iniciar o processamento dos trabalhos pendentes"
 
-#: src/ui/runs/runs_window.py:223
+#: src/teikr/ui/runs/runs_window.py:223
 msgid "Edit Pending"
 msgstr "Editar os pendentes"
 
-#: src/ui/runs/runs_window.py:224
+#: src/teikr/ui/runs/runs_window.py:224
 msgid "Edit N and Total counts for the selected pending job"
 msgstr "Editar as contagens N e Total para o trabalho pendente selecionado"
 
-#: src/ui/runs/runs_window.py:227
+#: src/teikr/ui/runs/runs_window.py:227
 msgid "Cancel Current Run"
 msgstr "Cancelar execução atual"
 
-#: src/ui/runs/runs_window.py:230
+#: src/teikr/ui/runs/runs_window.py:230
 msgid "Cancel All"
 msgstr "Cancelar tudo"
 
-#: src/ui/runs/runs_window.py:233
+#: src/teikr/ui/runs/runs_window.py:233
 msgid "Cancel Staging"
 msgstr "Cancelar preparação"
 
-#: src/ui/runs/runs_window.py:234
+#: src/teikr/ui/runs/runs_window.py:234
 msgid "Clear the server staging queue"
 msgstr "Limpar a fila de preparação do servidor"
 
-#: src/ui/runs/runs_window.py:253
+#: src/teikr/ui/runs/runs_window.py:253
 msgid "Running"
 msgstr "Em execução"
 
-#: src/ui/runs/runs_window.py:255
+#: src/teikr/ui/runs/runs_window.py:255
 msgid "Cancelled"
 msgstr "Cancelado"
 
-#: src/ui/runs/runs_window.py:264
+#: src/teikr/ui/runs/runs_window.py:264
 msgid "Status: Running"
 msgstr "Estado: Em execução"
 
-#: src/ui/runs/runs_window.py:267
+#: src/teikr/ui/runs/runs_window.py:267
 msgid "Status: Paused — {0} restored job(s) from previous session"
 msgstr "Estado: Em pausa — {0} tarefa(s) restaurada(s) da sessão anterior"
 
-#: src/ui/runs/runs_window.py:349
+#: src/teikr/ui/runs/runs_window.py:349
 msgid "Select a pending job first"
 msgstr "Selecione primeiro um trabalho pendente"
 
-#: src/ui/runs/runs_window.py:359
+#: src/teikr/ui/runs/runs_window.py:359
 msgid "Edit Pending Job"
 msgstr "Editar trabalho pendente"
 
-#: src/ui/runs/runs_window.py:367
+#: src/teikr/ui/runs/runs_window.py:367
 msgid "N (images per run):"
 msgstr "N (imagens por execução):"
 
-#: src/ui/runs/runs_window.py:372
+#: src/teikr/ui/runs/runs_window.py:372
 msgid "Total (runs):"
 msgstr "Total (execuções):"
 
-#: src/ui/runs/runs_window.py:436
+#: src/teikr/ui/runs/runs_window.py:436
 msgid "workflow, model, or tags…"
 msgstr "fluxo de trabalho, modelo ou etiquetas…"
 
-#: src/ui/runs/runs_window.py:442
+#: src/teikr/ui/runs/runs_window.py:442
 msgid "Time"
 msgstr "Hora"
 
-#: src/ui/runs/runs_window.py:449
+#: src/teikr/ui/runs/runs_window.py:449
 msgid "Restore to Sidebar"
 msgstr "Restaurar na barra lateral"
 
-#: src/ui/runs/runs_window.py:492
+#: src/teikr/ui/runs/runs_window.py:492
 msgid "Select a history entry first"
 msgstr "Selecione primeiro um registo do histórico"
 
-#: src/ui/runs/runs_window.py:502
+#: src/teikr/ui/runs/runs_window.py:502
 msgid "Config restored to sidebar"
 msgstr "Configuração restaurada na barra lateral"
 
-#: src/ui/runs/runs_window.py:505
+#: src/teikr/ui/runs/runs_window.py:505
 msgid "Failed to restore config"
 msgstr "Falha na restauração da configuração"
 
@@ -4516,67 +4516,67 @@ msgstr "Falha na restauração da configuração"
 msgid "Not loaded"
 msgstr "Não carregado"
 
-#: src/globals.py:74
+#: src/teikr/globals.py:74
 msgid "Replace word/phrase (with a random allowed word)"
 msgstr "Substituir palavra/frase (por uma palavra aleatória permitida)"
 
-#: src/generators/base.py:349
+#: src/teikr/generators/base.py:349
 msgid "[[~...]] choice sets are resolved at random for this run: {0}"
 msgstr ""
 "[[~...]] os conjuntos de opções são determinados aleatoriamente para esta "
 "execução: {0}"
 
-#: src/generators/base.py:817
+#: src/teikr/generators/base.py:817
 msgid ""
 "Skipped redo of {0}: no prompt text found to check against the blacklist"
 msgstr ""
 "Ignorou a repetição de {0}: não foi encontrado nenhum texto de prompt para "
 "comparar com a lista negra"
 
-#: src/persistence/cache_controller.py:259
+#: src/teikr/persistence/cache_controller.py:259
 msgid "Failed to serialize the running run: {0}"
 msgstr "Não foi possível serializar a execução em curso: {0}"
 
-#: src/prompts/blacklist.py:751 tests/unit/test_blacklist_replace_mode.py:138
+#: src/teikr/prompts/blacklist.py:751 tests/unit/test_blacklist_replace_mode.py:138
 msgid "Blacklisted words in one or more tags were replaced with random words."
 msgstr ""
 "As palavras da lista negra presentes numa ou mais etiquetas foram "
 "substituídas por palavras aleatórias."
 
-#: src/prompts/blacklist.py:1111
+#: src/teikr/prompts/blacklist.py:1111
 msgid "Could not load the dictionary for blacklist replacement: {0}"
 msgstr ""
 "Não foi possível carregar o dicionário para a substituição da lista negra: "
 "{0}"
 
-#: src/prompts/prompter.py:565
+#: src/teikr/prompts/prompter.py:565
 msgid "Replaced blacklisted words in extracted prompt: {0}"
 msgstr "Substituí as palavras da lista negra no prompt extraído: {0}"
 
-#: src/prompts/prompter.py:567
+#: src/teikr/prompts/prompter.py:567
 msgid "Removed blacklisted tags from extracted prompt: {0}"
 msgstr "Removi as etiquetas da lista negra do prompt extraído: {0}"
 
-#: src/prompts/reference_similarity.py:161
+#: src/teikr/prompts/reference_similarity.py:161
 msgid "Reference similarity: using the {0} backend"
 msgstr "Semelhança de referência: utilizando o backend {0}"
 
-#: src/prompts/reference_similarity.py:165
+#: src/teikr/prompts/reference_similarity.py:165
 msgid ""
 "Reference similarity is unavailable, so [[~...]] choice sets are resolved at"
 " random: {0}"
 msgstr "Semelhança de referência: utilizando o backend {0}"
 
-#: src/prompts/reference_similarity.py:180
+#: src/teikr/prompts/reference_similarity.py:180
 msgid "reference_similarity_model is not set"
 msgstr "O `reference_similarity_model` não está definido"
 
-#: src/prompts/reference_similarity.py:203
-#: src/prompts/reference_similarity.py:221
+#: src/teikr/prompts/reference_similarity.py:203
+#: src/teikr/prompts/reference_similarity.py:221
 msgid "Reference similarity: cannot read image {0}: {1}"
 msgstr "Semelhança de referência: não é possível ler a imagem {0}: {1}"
 
-#: src/prompts/similarity_choices.py:107
+#: src/teikr/prompts/similarity_choices.py:107
 msgid ""
 "A range cannot be chosen by image similarity, so it is resolved at random: "
 "{0}"
@@ -4584,19 +4584,19 @@ msgstr ""
 "Não é possível escolher um intervalo com base na semelhança das imagens, "
 "pelo que é determinado aleatoriamente: {0}"
 
-#: src/prompts/similarity_choices.py:167
+#: src/teikr/prompts/similarity_choices.py:167
 msgid "the reference image could not be scored"
 msgstr "não foi possível atribuir uma pontuação à imagem de referência"
 
-#: src/prompts/similarity_choices.py:169
+#: src/teikr/prompts/similarity_choices.py:169
 msgid "no similarity model is available"
 msgstr "não está disponível nenhum modelo de semelhança"
 
-#: src/prompts/similarity_choices.py:171
+#: src/teikr/prompts/similarity_choices.py:171
 msgid "there is no reference image"
 msgstr "não existe nenhuma imagem de referência"
 
-#: src/runs/run_controller.py:402
+#: src/teikr/runs/run_controller.py:402
 msgid ""
 "{0} generations failed in a row, so the queue was paused with {1} runs still waiting. Resume it once the backend works again.\n"
 "\n"
@@ -4606,27 +4606,27 @@ msgstr ""
 "\n"
 "Último erro: {2}"
 
-#: src/runs/run_controller.py:412 tests/unit/test_failure_streak.py:137
+#: src/teikr/runs/run_controller.py:412 tests/unit/test_failure_streak.py:137
 msgid "Queue Paused"
 msgstr "Fila em pausa"
 
-#: src/ui/config_window.py:239
+#: src/teikr/ui/config_window.py:239
 msgid "Reference Image Similarity"
 msgstr "Semelhança entre imagens de referência"
 
-#: src/ui/config_window.py:241
+#: src/teikr/ui/config_window.py:241
 msgid "Image-Text Model (Hugging Face ID, Folder or .pt File)"
 msgstr "Modelo de imagem-texto (Hugging Face ID, pasta ou ficheiro .pt)"
 
-#: src/ui/config_window.py:245
+#: src/teikr/ui/config_window.py:245
 msgid "Option Template ({0} is the Option)"
 msgstr "Modelo de opção ({0} é a opção)"
 
-#: src/ui/config_window.py:249
+#: src/teikr/ui/config_window.py:249
 msgid "Device (cpu, cuda or auto)"
 msgstr "Dispositivo (CPU, CUDA ou automático)"
 
-#: src/ui/runs/runs_window.py:195
+#: src/teikr/ui/runs/runs_window.py:195
 msgid ""
 "Edit Suffix is the suffix stored on the job or staged request. Origin is the"
 " client id shown in the Origin column."
@@ -4634,27 +4634,27 @@ msgstr ""
 "Editar Sufixo é o sufixo armazenado na tarefa ou no pedido em fase de "
 "preparação. Origem é o ID do cliente apresentado na coluna Origem."
 
-#: src/ui/runs/runs_window.py:200
+#: src/teikr/ui/runs/runs_window.py:200
 msgid "exact value"
 msgstr "valor exato"
 
-#: src/ui/runs/runs_window.py:203
+#: src/teikr/ui/runs/runs_window.py:203
 msgid "Remove Matching"
 msgstr "Remover correspondências"
 
-#: src/ui/runs/runs_window.py:205
+#: src/teikr/ui/runs/runs_window.py:205
 msgid "Remove pending jobs and staged requests that match exactly"
 msgstr "correspondam exatamente"
 
-#: src/ui/runs/runs_window.py:316
+#: src/teikr/ui/runs/runs_window.py:316
 msgid "Enter a filter value first"
 msgstr "Introduza primeiro um valor de filtro"
 
-#: src/ui/runs/runs_window.py:334
+#: src/teikr/ui/runs/runs_window.py:334
 msgid "No matching queue entries"
 msgstr "Não existem entradas correspondentes na fila"
 
-#: src/ui/runs/runs_window.py:337
+#: src/teikr/ui/runs/runs_window.py:337
 msgid "Removed {0} pending job(s) and {1} staged request(s)"
 msgstr ""
 "Foram removidos {0} trabalhos pendentes e {1} pedidos em fase de preparação"

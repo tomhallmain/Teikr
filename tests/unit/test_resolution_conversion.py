@@ -10,8 +10,8 @@ silently wrong-size image on every cloud backend.
 
 import pytest
 
-from src.models.resolution import Resolution
-from src.globals import ArchitectureType, Globals, ResolutionGroup
+from teikr.models.resolution import Resolution
+from teikr.globals import ArchitectureType, Globals, ResolutionGroup
 
 
 # Ratios accepted by the Stability AI API, used here as a representative set.

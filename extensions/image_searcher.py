@@ -1,8 +1,8 @@
 import glob
 import re
 
-from src.config import config
-from src.workflow_prompts.base import WorkflowPrompt
+from teikr.config import config
+from teikr.workflow_prompts.base import WorkflowPrompt
 
 
 class ImageSearcher:

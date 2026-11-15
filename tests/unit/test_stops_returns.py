@@ -1,8 +1,8 @@
 import random
 import unittest
 
-from src.prompts.prompter import Prompter
-from src.prompts.prompter_configuration import PrompterConfiguration
+from teikr.prompts.prompter import Prompter
+from teikr.prompts.prompter_configuration import PrompterConfiguration
 
 
 def _prompter(

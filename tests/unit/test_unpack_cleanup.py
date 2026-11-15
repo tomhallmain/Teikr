@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-import src.runtime.unpack_cleanup as cleanup
+import teikr.runtime.unpack_cleanup as cleanup
 
 
 @pytest.fixture

@@ -12,10 +12,10 @@ network.
 
 import pytest
 
-from src.generators.base import BaseImageGenerator, logger as base_logger
-from src.models.model_adapters import ControlNet, IPAdapter
+from teikr.generators.base import BaseImageGenerator, logger as base_logger
+from teikr.models.model_adapters import ControlNet, IPAdapter
 from tests.utils import captured_logs, make_gen_config
-from src.globals import (
+from teikr.globals import (
     CONTROL_NET_IMAGE_WORKFLOWS,
     IP_ADAPTER_IMAGE_WORKFLOWS,
     WorkflowType,

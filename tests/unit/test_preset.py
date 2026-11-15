@@ -1,6 +1,6 @@
 import pytest
-from src.presets.preset import Preset
-from src.globals import PromptMode
+from teikr.presets.preset import Preset
+from teikr.globals import PromptMode
 
 
 def make_preset(**kwargs):
@@ -95,7 +95,7 @@ class TestPresetEquality:
 
 class TestPresetFromRunnerAppConfig:
     def test_from_runner_app_config_maps_fields(self):
-        from src.runs.runner_app_config import RunnerAppConfig
+        from teikr.runs.runner_app_config import RunnerAppConfig
         rac = RunnerAppConfig()
         rac.positive_tags = "ocean, waves"
         rac.negative_tags = "blur"

@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from src.prompts.concept_sets import (
+from teikr.prompts.concept_sets import (
     MANIFEST_FILENAME, SourceAnchors, concept_set_info, read_concept_lines,
 )
 

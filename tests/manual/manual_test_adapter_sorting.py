@@ -3,9 +3,9 @@ import os
 import tempfile
 import shutil
 from unittest.mock import Mock, patch, MagicMock
-from src.models.control_nets import get_control_nets
-from src.models.ip_adapters import get_ip_adapters
-from src.ui.app_actions import AppActions
+from teikr.models.control_nets import get_control_nets
+from teikr.models.ip_adapters import get_ip_adapters
+from teikr.ui.app_actions import AppActions
 
 
 class TestAdapterSorting(unittest.TestCase):

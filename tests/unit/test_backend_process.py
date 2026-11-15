@@ -21,8 +21,8 @@ from extensions.backend_process import (
     LOC_FIELDS,
     configured_backends,
 )
-from src.config import Config
-from src.globals import SoftwareType
+from teikr.config import Config
+from teikr.globals import SoftwareType
 
 
 class _AliveProc:

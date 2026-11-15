@@ -5,9 +5,9 @@ from the main configuration. These cover the saved list, the live state that a
 run reads, and the single seam the run path will call.
 """
 
-from src.presets.intermediate_prompt import IntermediatePrompt
-from src.presets.presets_state import PresetsState
-from src.globals import WorkflowType
+from teikr.presets.intermediate_prompt import IntermediatePrompt
+from teikr.presets.presets_state import PresetsState
+from teikr.globals import WorkflowType
 
 
 def _prompt(name="bw", positive="black and white", **kwargs):

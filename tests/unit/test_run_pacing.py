@@ -12,11 +12,11 @@ these assert on seconds *waited*, not seconds elapsed.
 
 import pytest
 
-from src.config import config
-from src.runs import run as run_module
-from src.runs.run import Run
+from teikr.config import config
+from teikr.runs import run as run_module
+from teikr.runs.run import Run
 from tests.utils import make_run_config
-from src.globals import Globals
+from teikr.globals import Globals
 
 
 @pytest.fixture

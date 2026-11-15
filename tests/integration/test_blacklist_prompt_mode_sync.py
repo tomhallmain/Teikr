@@ -7,8 +7,8 @@ a switch to an NSFW mode is still validated as the previous mode.
 
 import pytest
 
-from src.globals import BlacklistPromptMode, PromptMode
-from src.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.globals import BlacklistPromptMode, PromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
 
 
 @pytest.fixture

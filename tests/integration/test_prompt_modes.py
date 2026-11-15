@@ -14,9 +14,9 @@ Modes excluded and why:
 
 import pytest
 
-from src.prompts.concepts import ConceptConfiguration, Concepts
+from teikr.prompts.concepts import ConceptConfiguration, Concepts
 from tests.utils import make_prompter
-from src.globals import PromptMode
+from teikr.globals import PromptMode
 
 
 GENERATIVE_MODES = [

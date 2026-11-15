@@ -9,7 +9,7 @@ attaching rule and not about what happens to be in prefixes.txt.
 
 import pytest
 
-from src.prompts.prompter import Prompter
+from teikr.prompts.prompter import Prompter
 from tests.utils import make_prompter
 
 

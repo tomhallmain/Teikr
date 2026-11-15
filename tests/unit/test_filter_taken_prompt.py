@@ -12,9 +12,9 @@ safety terms that exist to suppress the very content the blacklist targets.
 
 import pytest
 
-from src.prompts.blacklist import Blacklist, BlacklistException, BlacklistItem
-from src.prompts.prompter import Prompter
-from src.globals import BlacklistMode, BlacklistPromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistException, BlacklistItem
+from teikr.prompts.prompter import Prompter
+from teikr.globals import BlacklistMode, BlacklistPromptMode
 
 
 TAKEN_POSITIVE = "a calm lake, forbidden, golden hour"
@@ -356,15 +356,15 @@ class TestTakeModeGateDecision:
         deliberate, while taking a prompt from a file is content of unknown
         character -- so a user can gate one without the other.
         """
-        from src.globals import ProtectedActions
+        from teikr.globals import ProtectedActions
 
         assert ProtectedActions.TAKE_PROMPT != ProtectedActions.NSFW_PROMPTS
         assert ProtectedActions.TAKE_PROMPT.get_description()
 
     def test_new_actions_default_to_protected(self):
         """A newly added action must not silently start unprotected."""
-        from src.ui.auth.password_core import get_security_config
-        from src.globals import ProtectedActions
+        from teikr.ui.auth.password_core import get_security_config
+        from teikr.globals import ProtectedActions
 
         config = get_security_config()
         assert config.is_action_protected(ProtectedActions.TAKE_PROMPT.value) is True

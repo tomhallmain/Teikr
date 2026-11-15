@@ -67,12 +67,12 @@ def run_stubs(monkeypatch, executed):
     import time as time_module
 
     from lib.utils import Utils
-    from src.models.model import Model
-    from src.models.resolution import Resolution
-    from src.presets.timed_schedules_manager import timed_schedules_manager
-    from src.runs.run import Run
-    from src.runs.run_config import RunConfig
-    from src.runs.time_estimator import TimeEstimator
+    from teikr.models.model import Model
+    from teikr.models.resolution import Resolution
+    from teikr.presets.timed_schedules_manager import timed_schedules_manager
+    from teikr.runs.run import Run
+    from teikr.runs.run_config import RunConfig
+    from teikr.runs.time_estimator import TimeEstimator
 
     def fake_execute(self):
         executed.append(self)
@@ -106,8 +106,8 @@ def run_stubs(monkeypatch, executed):
 def app_window(qapp):
     from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QApplication
-    from src.ui.app_window.app_window import AppWindow
-    from src.runs.ui_responsiveness import NullResponsiveness
+    from teikr.ui.app_window.app_window import AppWindow
+    from teikr.runs.ui_responsiveness import NullResponsiveness
     win = AppWindow()
     # Run the work inline. There is no one watching this window, so keeping it
     # painting buys nothing, and a worker thread under a nested event loop

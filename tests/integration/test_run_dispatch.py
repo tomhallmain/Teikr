@@ -37,19 +37,19 @@ import time as time_module
 import pytest
 from unittest.mock import MagicMock
 
-from src.runs.run import Run
-from src.models.model import Model
-from src.models.resolution import Resolution
-from src.runs.run_config import RunConfig
-from src.presets.timed_schedules_manager import timed_schedules_manager, ScheduledShutdownException
+from teikr.runs.run import Run
+from teikr.models.model import Model
+from teikr.models.resolution import Resolution
+from teikr.runs.run_config import RunConfig
+from teikr.presets.timed_schedules_manager import timed_schedules_manager, ScheduledShutdownException
 from tests.utils import make_schedule
-from src.presets.schedule import Schedule
-from src.presets.schedules_state import SchedulesState
-from src.ui.presets.schedules_window import SchedulesWindow
-from src.presets.presets_state import PresetsState
+from teikr.presets.schedule import Schedule
+from teikr.presets.schedules_state import SchedulesState
+from teikr.ui.presets.schedules_window import SchedulesWindow
+from teikr.presets.presets_state import PresetsState
 from lib.translations import _
 from lib.utils import Utils
-from src.runs.time_estimator import TimeEstimator
+from teikr.runs.time_estimator import TimeEstimator
 
 
 # ---------------------------------------------------------------------------
@@ -187,7 +187,7 @@ class TestBackendLazyStart:
     """The run path is what asks for a managed backend, when a run needs it."""
 
     def test_run_asks_to_start_the_selected_backend(self, app_window, run_stubs, monkeypatch):
-        from src.globals import SoftwareType
+        from teikr.globals import SoftwareType
 
         started = []
         monkeypatch.setattr(

@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
-import src.config as _cfg_module
-from src.config import Config
+import teikr.config as _cfg_module
+from teikr.config import Config
 
 
 # ---------------------------------------------------------------------------

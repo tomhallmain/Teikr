@@ -11,7 +11,7 @@ import json
 
 import pytest
 
-from src.generators.sdwebui import SDWebuiGen
+from teikr.generators.sdwebui import SDWebuiGen
 from tests.utils import make_gen_config
 
 

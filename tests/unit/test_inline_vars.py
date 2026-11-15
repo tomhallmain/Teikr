@@ -1,6 +1,6 @@
 import unittest
 
-from src.prompts.prompter import Prompter
+from teikr.prompts.prompter import Prompter
 
 
 class TestExtractInlineVars(unittest.TestCase):

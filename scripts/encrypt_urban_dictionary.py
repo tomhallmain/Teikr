@@ -1,6 +1,6 @@
 """Encrypt the trimmed Urban Dictionary corpus for the runtime.
 
-Reads the trimmed plain list (src/data/urban_dictionary.txt by default,
+Reads the trimmed plain list (src/teikr/data/urban_dictionary.txt by default,
 git-ignored, written by the trim pipeline's ship step) and writes
 Concepts.URBAN_DICTIONARY_CORPUS_PATH in the default blacklist's obfuscated
 format, then decrypts it again to confirm the round trip.
@@ -17,11 +17,12 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "src"))
 
-from src.prompts.concepts import Concepts  # noqa: E402
+from teikr.prompts.concepts import Concepts  # noqa: E402
 
 # Plain source of the .enc beside it; git-ignored.
-DEFAULT_INPUT = os.path.join(PROJECT_ROOT, "src", "data", "urban_dictionary.txt")
+DEFAULT_INPUT = os.path.join(PROJECT_ROOT, "src", "teikr", "data", "urban_dictionary.txt")
 SAMPLE = 20
 
 

@@ -7,7 +7,7 @@ process.
 """
 
 from extensions.backend_process import BackendProcess, BackendStartError
-from src.globals import SoftwareType
+from teikr.globals import SoftwareType
 
 
 class TestEnsureBackendStarted:

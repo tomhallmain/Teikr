@@ -20,14 +20,19 @@ import threading
 import time
 import traceback
 
-from src.runtime.oqs_path import point_oqs_at_bundled_library
+# The application package is src/teikr. A checkout imports it from there; a
+# build has it compiled in and needs no search path for it.
+if "__compiled__" not in globals():
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
+
+from teikr.runtime.oqs_path import point_oqs_at_bundled_library
 
 point_oqs_at_bundled_library()
 
-from src.config import config
-from src.runtime.crash_log import enable_fault_log
-from src.runtime.unpack_cleanup import remove_stale_unpack_dirs
-from src.runtime.version import APP_NAME, describe as describe_version, source_drift
+from teikr.config import config
+from teikr.runtime.crash_log import enable_fault_log
+from teikr.runtime.unpack_cleanup import remove_stale_unpack_dirs
+from teikr.runtime.version import APP_NAME, describe as describe_version, source_drift
 from lib.logging_setup import get_logger
 from lib.translations import I18N
 from lib.utils import Utils
@@ -49,7 +54,7 @@ def _report_source_drift():
 
 def _smoke_test(expect_oqs: bool = False) -> int:
     """Check that a build can serve, without binding a port. Returns an exit code."""
-    from src.runtime.smoke_test import SmokeTest
+    from teikr.runtime.smoke_test import SmokeTest
 
     smoke = SmokeTest()
     smoke.run_common(expect_oqs=expect_oqs)
@@ -57,7 +62,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
     def servers():
         from extensions.mcp_server import MCPServerExtension
         from extensions.sd_runner_server import SDRunnerServer
-        from src.runs.headless_app import HeadlessApp
+        from teikr.runs.headless_app import HeadlessApp
 
         app = HeadlessApp()
         run_ctrl = app.run_ctrl
@@ -96,8 +101,8 @@ def main():
 
     I18N.install_locale(config.locale, verbose=config.print_settings)
 
-    from src.generators.base import BaseImageGenerator
-    from src.runs.headless_app import HeadlessApp
+    from teikr.generators.base import BaseImageGenerator
+    from teikr.runs.headless_app import HeadlessApp
 
     BaseImageGenerator.cleanup_image_converter()
 

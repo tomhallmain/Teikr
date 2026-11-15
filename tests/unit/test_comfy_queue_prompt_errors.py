@@ -14,8 +14,8 @@ from urllib import error
 
 import pytest
 
-from src.generators import comfy as comfy_module
-from src.generators.comfy import ComfyGen
+from teikr.generators import comfy as comfy_module
+from teikr.generators.comfy import ComfyGen
 from tests.utils import make_gen_config
 
 

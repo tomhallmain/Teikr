@@ -9,9 +9,9 @@ filter at generation time.
 
 import pytest
 
-from src.globals import BlacklistPromptMode
-from src.prompts.blacklist import Blacklist, BlacklistItem
-from src.prompts.concepts import Concepts, NSFW
+from teikr.globals import BlacklistPromptMode
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.prompts.concepts import Concepts, NSFW
 
 COLORS_FILE = "colors.txt"
 

@@ -1,5 +1,5 @@
 import pytest
-from src.runs.job_queue import JobQueue, SDRunsQueue, ServerStagingQueue
+from teikr.runs.job_queue import JobQueue, SDRunsQueue, ServerStagingQueue
 
 
 class TestJobQueueBasics:
@@ -107,7 +107,7 @@ class TestJobQueuePendingText:
         assert "1" in text
 
     def test_preset_schedules_queue_shows_pending_count(self):
-        from src.runs.job_queue import PresetSchedulesQueue
+        from teikr.runs.job_queue import PresetSchedulesQueue
         q = PresetSchedulesQueue()
         q.add("sched1")
         text = q.pending_text()

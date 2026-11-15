@@ -4,7 +4,7 @@ import csv
 
 import pytest
 
-from src.prompts.blacklist import Blacklist, BlacklistItem
+from teikr.prompts.blacklist import Blacklist, BlacklistItem
 
 
 class TestTransliteration:

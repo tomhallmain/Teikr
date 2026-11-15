@@ -12,7 +12,7 @@ import os
 
 import pytest
 
-from src.prompts import pending_translation as pt
+from teikr.prompts import pending_translation as pt
 
 
 @pytest.fixture(autouse=True)

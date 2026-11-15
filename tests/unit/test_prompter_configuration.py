@@ -1,7 +1,7 @@
 import pytest
-from src.prompts.concepts import ConceptConfiguration
-from src.prompts.prompter_configuration import LegacyPrompterConfiguration, PrompterConfiguration
-from src.globals import PromptMode
+from teikr.prompts.concepts import ConceptConfiguration
+from teikr.prompts.prompter_configuration import LegacyPrompterConfiguration, PrompterConfiguration
+from teikr.globals import PromptMode
 
 
 def make_config(**kwargs) -> PrompterConfiguration:

@@ -41,7 +41,7 @@ DEFAULT_EXCLUDE_FILES = frozenset({
 
 
 def load_concepts_file(filepath: str) -> list[str]:
-    """Load concept lines from a file. Same logic as src.prompts.concepts.Concepts.load:
+    """Load concept lines from a file. Same logic as teikr.prompts.concepts.Concepts.load:
     strip content after #, skip empty lines."""
     result = []
     try:

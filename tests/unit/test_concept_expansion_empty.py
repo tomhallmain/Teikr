@@ -10,9 +10,9 @@ color and then drop it if it happened to be "rainbow".
 
 import pytest
 
-from src.prompts.concepts import Concepts, ConceptConfiguration
-from src.prompts.prompter import Prompter
-from src.globals import PromptMode
+from teikr.prompts.concepts import Concepts, ConceptConfiguration
+from teikr.prompts.prompter import Prompter
+from teikr.globals import PromptMode
 
 
 @pytest.fixture

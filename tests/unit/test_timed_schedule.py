@@ -1,6 +1,6 @@
 import datetime
 import pytest
-from src.presets.timed_schedule import TimedSchedule
+from teikr.presets.timed_schedule import TimedSchedule
 
 
 def make_schedule(**kwargs):

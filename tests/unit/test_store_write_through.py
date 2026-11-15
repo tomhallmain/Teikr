@@ -12,7 +12,7 @@ widget -- every method under test is a staticmethod over class-level state.
 
 import pytest
 
-from src.persistence.app_info_cache import app_info_cache
+from teikr.persistence.app_info_cache import app_info_cache
 
 
 @pytest.fixture
@@ -41,13 +41,13 @@ def store_calls(monkeypatch, clean_cache):
 # ---------------------------------------------------------------------------
 
 SUBSYSTEMS = [
-    ("src.prompts.blacklist_state", None, "store_blacklist"),
-    ("src.presets.presets_state", "PresetsState", "store_recent_presets"),
-    ("src.presets.presets_state", "PresetsState", "store_stashed_configs"),
-    ("src.presets.presets_state", "PresetsState", "store_intermediate_prompts"),
-    ("src.presets.schedules_state", "SchedulesState", "store_schedules"),
-    ("src.prompts.expansions_state", None, "store_expansions"),
-    ("src.models.recent_adapters_state", "RecentAdaptersState", "save_recent_adapters"),
+    ("teikr.prompts.blacklist_state", None, "store_blacklist"),
+    ("teikr.presets.presets_state", "PresetsState", "store_recent_presets"),
+    ("teikr.presets.presets_state", "PresetsState", "store_stashed_configs"),
+    ("teikr.presets.presets_state", "PresetsState", "store_intermediate_prompts"),
+    ("teikr.presets.schedules_state", "SchedulesState", "store_schedules"),
+    ("teikr.prompts.expansions_state", None, "store_expansions"),
+    ("teikr.models.recent_adapters_state", "RecentAdaptersState", "save_recent_adapters"),
 ]
 
 
@@ -96,8 +96,8 @@ class TestWriteThrough:
 
 class TestBlacklistEditPersists:
     def test_added_item_is_written_to_the_cache(self, clean_cache):
-        from src.prompts.blacklist import Blacklist, BlacklistItem
-        from src.prompts import blacklist_state
+        from teikr.prompts.blacklist import Blacklist, BlacklistItem
+        from teikr.prompts import blacklist_state
 
         Blacklist.add_item(BlacklistItem("wolf"))
         blacklist_state.store_blacklist()
@@ -106,9 +106,9 @@ class TestBlacklistEditPersists:
         assert any(entry.get("string") == "wolf" for entry in stored)
 
     def test_the_write_reaches_disk(self, clean_cache):
-        from src.prompts.blacklist import Blacklist, BlacklistItem
-        from src.prompts import blacklist_state
-        from src.persistence.app_info_cache import AppInfoCache
+        from teikr.prompts.blacklist import Blacklist, BlacklistItem
+        from teikr.prompts import blacklist_state
+        from teikr.persistence.app_info_cache import AppInfoCache
 
         Blacklist.add_item(BlacklistItem("wolf"))
         blacklist_state.store_blacklist()
@@ -118,8 +118,8 @@ class TestBlacklistEditPersists:
         assert any(entry.get("string") == "wolf" for entry in stored)
 
     def test_cache_is_clean_after_the_edit(self, clean_cache):
-        from src.prompts.blacklist import Blacklist, BlacklistItem
-        from src.prompts import blacklist_state
+        from teikr.prompts.blacklist import Blacklist, BlacklistItem
+        from teikr.prompts import blacklist_state
 
         Blacklist.add_item(BlacklistItem("wolf"))
         blacklist_state.store_blacklist()
@@ -128,9 +128,9 @@ class TestBlacklistEditPersists:
 
 class TestExpansionEditPersists:
     def test_expansion_reaches_disk(self, clean_cache):
-        from src.prompts import expansions_state
-        from src.prompts.expansion import Expansion
-        from src.persistence.app_info_cache import AppInfoCache
+        from teikr.prompts import expansions_state
+        from teikr.prompts.expansion import Expansion
+        from teikr.persistence.app_info_cache import AppInfoCache
 
         Expansion.expansions = [Expansion("greeting", "hello there")]
         expansions_state.store_expansions()
@@ -142,8 +142,8 @@ class TestExpansionEditPersists:
 
 class TestPresetEditPersists:
     def test_recent_presets_reach_disk(self, clean_cache):
-        from src.presets.presets_state import PresetsState
-        from src.persistence.app_info_cache import AppInfoCache
+        from teikr.presets.presets_state import PresetsState
+        from teikr.persistence.app_info_cache import AppInfoCache
 
         PresetsState.store_recent_presets()
         reloaded = AppInfoCache()
@@ -153,8 +153,8 @@ class TestPresetEditPersists:
 class TestScheduleEditPersists:
     def test_recent_schedules_reach_disk(self, clean_cache):
         from tests.utils import make_schedule
-        from src.presets.schedules_state import SchedulesState
-        from src.persistence.app_info_cache import AppInfoCache
+        from teikr.presets.schedules_state import SchedulesState
+        from teikr.persistence.app_info_cache import AppInfoCache
 
         SchedulesState.recent_schedules = [make_schedule("Evening")]
         SchedulesState.store_schedules()

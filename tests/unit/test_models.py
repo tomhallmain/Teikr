@@ -3,9 +3,9 @@ import os
 import struct
 
 import pytest
-from src.models.model import Model
+from teikr.models.model import Model
 from tests.utils import make_model
-from src.globals import ArchitectureType, ResolutionGroup
+from teikr.globals import ArchitectureType, ResolutionGroup
 
 
 # ---------------------------------------------------------------------------
@@ -427,8 +427,8 @@ class TestModelPaths:
 
 class TestSimpleGenWorkflowSelection:
     def _setup(self, model_id, workflow_type):
-        from src.generators.comfy import ComfyGen
-        from src.globals import WorkflowType
+        from teikr.generators.comfy import ComfyGen
+        from teikr.globals import WorkflowType
 
         gen = ComfyGen()
         model = make_model(model_id)
@@ -437,7 +437,7 @@ class TestSimpleGenWorkflowSelection:
         return prompt, returned
 
     def test_simple_gen_uses_the_template_for_each_family(self):
-        from src.globals import WorkflowType
+        from teikr.globals import WorkflowType
 
         cases = {
             "krea2_turbo.safetensors": ("30:19", "value"),
@@ -466,7 +466,7 @@ class TestSimpleGenWorkflowSelection:
             assert unets and all("\\" in name for name in unets)
 
     def test_krea_simple_gen_encodes_the_typed_prompts(self):
-        from src.globals import WorkflowType
+        from teikr.globals import WorkflowType
 
         prompt, _model = self._setup("krea2_turbo.safetensors", WorkflowType.SIMPLE_IMAGE_GEN)
         classes = {node["class_type"] for node in prompt.json.values()}
@@ -481,7 +481,7 @@ class TestSimpleGenWorkflowSelection:
         assert prompt.json["30:23"]["inputs"]["value"] is False
 
     def test_bypass_nodes_follows_linked_inputs_of_any_class(self):
-        from src.workflow_prompts.comfy import WorkflowPromptComfy
+        from teikr.workflow_prompts.comfy import WorkflowPromptComfy
 
         prompt = WorkflowPromptComfy.__new__(WorkflowPromptComfy)
         prompt.json = {
@@ -515,7 +515,7 @@ class TestSimpleGenWorkflowSelection:
         assert prompt.json["second"]["inputs"]["model"] == ["first", 0]
 
     def test_flux2_klein_lora_keeps_its_existing_workflow(self):
-        from src.globals import WorkflowType
+        from teikr.globals import WorkflowType
 
         prompt, model = self._setup("flux-2-klein-4b.safetensors", WorkflowType.SIMPLE_IMAGE_GEN_LORA)
         assert model.is_flux2_klein_4b()
@@ -524,14 +524,14 @@ class TestSimpleGenWorkflowSelection:
         assert prompt.json[guider["inputs"]["model"][0]]["class_type"] == "LoraLoader"
 
     def test_flux3_image_edit_is_not_offered(self):
-        from src.globals import WorkflowType
+        from teikr.globals import WorkflowType
 
         with pytest.raises(Exception):
             self._setup("flux-3-dev.safetensors", WorkflowType.IMAGE_EDIT)
 
     def test_a_source_image_keeps_its_output_size(self):
-        from src.models.resolution import Resolution
-        from src.workflow_prompts.comfy import WorkflowPromptComfy
+        from teikr.models.resolution import Resolution
+        from teikr.workflow_prompts.comfy import WorkflowPromptComfy
 
         prompt = WorkflowPromptComfy.__new__(WorkflowPromptComfy)
         prompt.json = {
@@ -547,8 +547,8 @@ class TestSimpleGenWorkflowSelection:
         assert prompt.json["3"]["inputs"]["height"] == ["2", 1]
 
     def test_a_resolution_selector_can_be_overwritten(self):
-        from src.models.resolution import Resolution
-        from src.workflow_prompts.comfy import WorkflowPromptComfy
+        from teikr.models.resolution import Resolution
+        from teikr.workflow_prompts.comfy import WorkflowPromptComfy
 
         prompt = WorkflowPromptComfy("image_krea2_turbo_t2i.json")
         prompt.set_latent_dimensions(Resolution(width=1328, height=1328))

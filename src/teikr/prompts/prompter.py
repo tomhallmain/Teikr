@@ -1,0 +1,1453 @@
+import json
+import os
+import random
+import re
+import subprocess
+
+from teikr.prompts.blacklist import Blacklist, BlacklistException, normalize_user_tag
+from teikr.prompts.concepts import ConceptConfiguration, Concepts
+from teikr.prompts.prompter_configuration import PrompterConfiguration
+from teikr.prompts.expansion import Expansion
+from teikr.prompts.similarity_choices import SET_MARKER, SimilarityChoice, extract_similarity_sets
+from teikr.config import config
+from teikr.globals import BlacklistMode, BlacklistTextOrigin, PromptMode
+from lib.logging_setup import get_logger
+from lib.translations import _
+from lib.utils import NO_CONSOLE_WINDOW
+from extensions.image_data_extractor import ImageDataExtractor
+
+logger = get_logger("prompts.prompter")
+
+
+
+class Prompter:
+    # Set these to include constant detail in all prompts
+    POSITIVE_TAGS = config.dict["default_positive_tags"]
+    NEGATIVE_TAGS = config.dict["default_negative_tags"]
+    EXCLUSION_TAGS: str = ""
+    TAGS_APPLY_TO_START = True
+    INLINE_VAR_PATTERN = re.compile(r'^\|\|\|\s*([A-Za-z_][A-Za-z0-9_]*)\s*->\s*(.+)$')
+    INLINE_VAR_PATTERN2 = re.compile(r'^::\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$')
+    DOUBLE_DOLLAR_VAR_PATTERN = re.compile(r'\$\$([A-Za-z_][A-Za-z0-9_]*)')
+    EXPANSION_VAR_PATTERN_UI = r"(?<!\$)(\$)[A-Za-z_][A-Za-z0-9_]*|(\$)?\{[A-Za-z_][A-Za-z0-9_]*\}"
+    EXPANSION_VAR_PATTERN = r"(\$)(\$)?[A-Za-z_][A-Za-z0-9_]*|(\$)?\{[A-Za-z_][A-Za-z0-9_]*\}"
+    AFFIX_HOST_PATTERN = re.compile(r'^[A-Za-z]+$')
+    POSITIVE_TAGS_INLINE_VARS: dict = {}
+    IMAGE_DATA_EXTRACTOR = None
+    IMAGE_TO_PROMPT_CAPTIONER = None
+    IMAGE_TO_PROMPT_TAGGER = None
+
+    """
+    Has various functions for generating stable diffusion image generation prompts.
+    """
+    def __init__(
+        self,
+        reference_image_path: str = "",
+        llava_path: str = "",
+        prompter_config: PrompterConfiguration = PrompterConfiguration(),
+        get_specific_locations: bool = False,
+        get_specific_times: bool = False,
+        prompt_list: list[str] = []
+    ):
+        self.reference_image_path = reference_image_path
+        self.llava_path = llava_path
+        self.prompter_config = prompter_config
+        self.prompt_mode = prompter_config.prompt_mode
+        self.concepts = Concepts(prompter_config.prompt_mode, get_specific_locations=get_specific_locations, get_specific_times=get_specific_times, concepts_dir=prompter_config.concepts_dir)
+        self.count = 0
+        self.prompt_list = prompt_list
+        self.last_prompt = ""
+        self.last_user_tags: frozenset[str] = frozenset()
+        # The [[~...]] sets of the last prompt, indexed by its placeholders.
+        self.last_similarity_choices: list[SimilarityChoice] = []
+
+        if prompter_config == PromptMode.LIST and len(prompt_list) == 0:
+            raise Exception("No list items to iterate for prompting.")
+
+    def set_prompt_mode(self, prompt_mode: PromptMode) -> None:
+        self.prompt_mode = prompt_mode
+        self.concepts.prompt_mode = prompt_mode
+
+    @classmethod
+    def set_positive_tags(cls, tags: str) -> None:
+        inline_vars, stripped = cls.extract_inline_vars(tags)
+        cls.POSITIVE_TAGS_INLINE_VARS = inline_vars
+        cls.POSITIVE_TAGS = stripped
+
+    @classmethod
+    def set_negative_tags(cls, tags: str) -> None:
+        cls.NEGATIVE_TAGS = tags
+
+    @classmethod
+    def set_exclusion_tags(cls, tags: str) -> None:
+        cls.EXCLUSION_TAGS = tags
+
+    @classmethod
+    def set_tags_apply_to_start(cls, apply: bool) -> None:
+        cls.TAGS_APPLY_TO_START = apply
+
+    def generate_prompt(
+        self,
+        positive: str = "",
+        negative: str = "",
+        related_image_path: str = ""
+    ) -> tuple[str, str]:
+        # Extract inline variable definitions.  The user's full prompt lives in
+        # Prompter.POSITIVE_TAGS (already stripped of its header by set_positive_tags).
+        # Any header in the `positive` arg itself is handled here as a fallback.
+        inline_vars, positive = Prompter.extract_inline_vars(positive)
+        self.last_user_tags = self._user_tags(positive)
+        # Merge: POSITIVE_TAGS vars are the base; vars from the `positive` arg override.
+        if Prompter.POSITIVE_TAGS_INLINE_VARS:
+            merged = dict(Prompter.POSITIVE_TAGS_INLINE_VARS)
+            merged.update(inline_vars)
+            inline_vars = merged
+        # Re-resolve @@filepath tokens in inline var values on every generate_prompt
+        # call so that each prompt in a multi-total run draws a fresh line from the
+        # file.  The resolution must happen here — before apply_expansions — so that
+        # all $VarName references within a single prompt share the same resolved value.
+        if inline_vars:
+            for _k in list(inline_vars.keys()):
+                if '@@' in inline_vars[_k]:
+                    inline_vars[_k] = Prompter.apply_file_choices(inline_vars[_k])
+
+        if self.prompt_mode in (PromptMode.SFW, PromptMode.NSFW, PromptMode.NSFL):
+            positive = self.mix_concepts()
+        elif PromptMode.RANDOM == self.prompt_mode:
+            positive = self.random()
+            negative += ", boring, dull"
+        elif PromptMode.NONSENSE == self.prompt_mode:
+            positive = self.nonsense()
+            negative += ", boring, dull"
+        elif self.concepts.is_art_style_prompt_mode():
+            # print(positive)
+            # print(len(positive))
+            positive += self.get_artistic_prompt(len(positive) == 0)
+        elif PromptMode.TAKE == self.prompt_mode:
+            if related_image_path == "":
+                raise Exception("No related image path provided to take prompt from")
+            positive, negative = Prompter.take_prompt_from_image(related_image_path)
+            positive, negative = Prompter.filter_taken_prompt(positive, negative)
+        elif PromptMode.LIST == self.prompt_mode:
+            positive = self.prompt_list[self.count % len(self.prompt_list)]
+        elif PromptMode.IMPROVE == self.prompt_mode:
+            data = self.gather_data()
+            positive = self.transform_result(data)
+        self.count += 1
+        # [[~...]] sets become placeholders before anything splits the prompt
+        # on commas, and again after expansions, which can introduce them.
+        similarity_choices: list[SimilarityChoice] = []
+        positive = extract_similarity_sets(positive, similarity_choices)
+        negative = extract_similarity_sets(negative, similarity_choices)
+        positive_tags = extract_similarity_sets(Prompter.POSITIVE_TAGS, similarity_choices)
+        negative_tags = extract_similarity_sets(Prompter.NEGATIVE_TAGS, similarity_choices)
+        if positive_tags and positive_tags.strip() != "":
+            if self.prompter_config.sparse_mixed_tags:
+                positive = self._mix_sparse_tags(positive, positive_tags)
+            elif Prompter.TAGS_APPLY_TO_START:
+                if not positive.startswith(positive_tags):
+                    positive = positive_tags + positive
+            elif not positive.endswith(positive_tags):
+                positive += ", " + positive_tags
+        # Concepts fill only the positive prompt, so there is nothing to mix the
+        # negative tags among: sparse mixing would only drop some of them.
+        if negative_tags and negative_tags != "":
+            if Prompter.TAGS_APPLY_TO_START:
+                if not negative.startswith(negative_tags):
+                    negative = negative_tags + negative
+            elif not negative.endswith(negative_tags):
+                negative += ", " + negative_tags
+        if Prompter.contains_expansion_var(positive):
+            positive = self.apply_expansions(positive, concepts=self.concepts, specific_locations_chance=self.prompter_config.get_specific_locations_chance(), inline_vars=inline_vars if inline_vars else None)
+        if Prompter.contains_expansion_var(negative):
+            negative = self.apply_expansions(negative, concepts=self.concepts, specific_locations_chance=self.prompter_config.get_specific_locations_chance())
+        positive = extract_similarity_sets(positive, similarity_choices)
+        negative = extract_similarity_sets(negative, similarity_choices)
+        if Prompter.contains_choice_set(positive):
+            positive = self.apply_choices(positive)
+        if Prompter.contains_choice_set(negative):
+            negative = self.apply_choices(negative)
+        if '@@' in positive:
+            positive = Prompter.apply_file_choices(positive)
+        if '@@' in negative:
+            negative = Prompter.apply_file_choices(negative)
+        
+        # Validate final prompts against blacklist
+        positive_concepts = [c.strip() for c in positive.split(',')]
+        positive_whitelist, positive_filtered = Blacklist.filter_concepts(
+            positive_concepts, prompt_mode=self.prompt_mode, user_tags=self.last_user_tags, detect_languages=True
+        )
+        
+        # Reconstruct the prompts with only whitelisted concepts if needed
+        if len(positive_filtered) > 0:
+            positive = ', '.join(positive_whitelist)
+            if config.debug:
+                logger.debug(f"Filtered concepts from blacklist tags: {positive_filtered}")
+
+        if Prompter.EXCLUSION_TAGS:
+            try:
+                excl_pattern = re.compile(Prompter.EXCLUSION_TAGS, re.IGNORECASE)
+                excl_concepts = [c.strip() for c in positive.split(',') if c.strip()]
+                kept = [c for c in excl_concepts if not excl_pattern.search(c)]
+                if len(kept) < len(excl_concepts):
+                    positive = ', '.join(kept)
+                    if config.debug:
+                        dropped = [c for c in excl_concepts if excl_pattern.search(c)]
+                        logger.debug(f"Filtered concepts from exclusion tags: {dropped}")
+            except re.error:
+                logger.warning(f"Invalid exclusion tags regex: {Prompter.EXCLUSION_TAGS!r}")
+
+        positive = self._apply_random_stops_returns(positive)
+        negative = self._apply_random_stops_returns(negative)
+
+        self._filter_similarity_options(similarity_choices)
+        self.last_similarity_choices = similarity_choices
+        self.last_prompt = positive
+        return (positive, negative)
+
+    def _filter_similarity_options(self, choices: list[SimilarityChoice]) -> None:
+        """Drop blacklisted options, each checked on its own.
+
+        The resolved prompt is checked again before generation; this keeps a
+        blocked option from winning the comparison and taking its set with it.
+        """
+        for choice in choices:
+            if not choice.options:
+                continue
+            whitelist, filtered = Blacklist.filter_concepts(
+                list(choice.options), prompt_mode=self.prompt_mode,
+                user_tags=self.last_user_tags, detect_languages=True,
+            )
+            if filtered:
+                if config.debug:
+                    logger.debug(f"Filtered options of {choice.source} from blacklist tags: {filtered}")
+                choice.options = [o for o in choice.options if o in whitelist]
+
+    def _apply_random_stops_returns(self, text: str) -> str:
+        """Randomly replace some comma/period separators with stops or paragraph breaks.
+
+        Return rolls use ``.\\n\\n``; stop rolls use ``.`` plus the original whitespace.
+        Only splits on punctuation followed by whitespace (space, tab, or newline).
+        Boundaries inside emphasis ``(...)`` are left unchanged.
+        """
+        stop_chance = self.prompter_config.stop_insertion_chance
+        return_chance = self.prompter_config.return_insertion_chance
+        if not text or (stop_chance <= 0 and return_chance <= 0):
+            return text
+
+        text = self._apply_random_stops_returns_delimiter_pass(
+            text, ".", stop_chance, return_chance
+        )
+        text = self._apply_random_stops_returns_delimiter_pass(
+            text, ",", stop_chance, return_chance
+        )
+        return text
+
+    @staticmethod
+    def _paren_depth_before(text: str, index: int) -> int:
+        """Nesting depth of unclosed ``(`` immediately before *index*."""
+        depth = 0
+        for ch in text[:index]:
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth = max(0, depth - 1)
+        return depth
+
+    @staticmethod
+    def _apply_random_stops_returns_delimiter_pass(
+        text: str,
+        delimiter: str,
+        stop_chance: float,
+        return_chance: float,
+    ) -> str:
+        """Apply stop/return rolls at ``delimiter`` boundaries that are followed by whitespace.
+
+        Boundaries inside balanced emphasis ``(... )`` are left unchanged.
+        """
+        pattern = re.compile(rf"({re.escape(delimiter)})([ \t\n])")
+        matches = list(pattern.finditer(text))
+        if not matches:
+            return text
+
+        pieces: list[str] = []
+        last_end = 0
+        for i, match in enumerate(matches):
+            pieces.append(text[last_end:match.start()])
+            delim_char = match.group(1)
+            delim_ws = match.group(2)
+            segment_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            segment = text[match.end():segment_end]
+
+            if Prompter._paren_depth_before(text, match.start()) > 0:
+                pieces.append(delim_char + delim_ws + segment)
+            else:
+                roll = random.random()
+                if roll < return_chance:
+                    pieces.append(".\n\n" + segment)
+                elif roll < return_chance + stop_chance:
+                    if delimiter == ",":
+                        pieces.append("." + delim_ws + segment)
+                    else:
+                        pieces.append(delim_char + delim_ws + segment)
+                else:
+                    pieces.append(delim_char + delim_ws + segment)
+            last_end = segment_end
+        pieces.append(text[last_end:])
+        return "".join(pieces)
+
+    def gather_data(self) -> dict:
+        # Use subprocess to call local LLaVA installation and gather data about the image
+        # Assuming LLaVA outputs JSON data about the image
+        result = subprocess.run([self.llava_path, self.reference_image_path], stdin=subprocess.DEVNULL,
+                                capture_output=True, creationflags=NO_CONSOLE_WINDOW)
+        return json.loads(result.stdout)
+
+    def transform_result(self, data: dict) -> str:
+        logger.info(self.last_prompt)
+        # Transform the result into a new prompt based on the original
+        # This is a placeholder as the transformation will depend on the specific requirements
+        return "New prompt based on original image: " + str(data)
+
+    def random(self) -> str:
+        random_words = self.concepts.get_random_words(self.prompter_config.get_category_config("random_words"), multiplier=self.prompter_config.multiplier)
+        Prompter.emphasize(random_words, emphasis_chance=self.prompter_config.emphasis_chance)
+        return ', '.join(random_words)
+
+    def nonsense(self) -> str:
+        nonsense = self.concepts.get_nonsense(self.prompter_config.get_category_config("nonsense"), multiplier=self.prompter_config.multiplier)
+        Prompter.emphasize(nonsense, emphasis_chance=self.prompter_config.emphasis_chance)
+        return ', '.join(nonsense)
+
+    def _user_tags(self, positive: str) -> frozenset[str]:
+        """The tags of this prompt the user wrote, in normalize_user_tag form.
+
+        Tags in the assembled prompt that are not in this set are generated. A
+        user tag an expansion or choice set rewrites no longer matches, so it
+        counts as generated; its unexpanded text was checked as the user's.
+        """
+        texts = [positive, Prompter.POSITIVE_TAGS]
+        if self.prompt_mode == PromptMode.LIST and self.prompt_list:
+            texts.append(self.prompt_list[self.count % len(self.prompt_list)])
+        tags = (normalize_user_tag(tag) for text in texts if text for tag in text.split(","))
+        return frozenset(tag for tag in tags if tag)
+
+    def _mix_sparse_tags(self, text: str, tags: str) -> str:
+        """Mix a random share of *tags* into *text*."""
+        if not tags or tags.strip() == '' or text is None or text.strip() == "":
+            return str(text)
+        positive_tags = Prompter._get_discretely_emphasized_prompt(tags)
+        # print(positive_tags)
+        if len(positive_tags) > 1:
+            random.shuffle(positive_tags)
+            min_chance = 0.5
+            max_chance = 1
+            proportion_to_keep = random.random() * (max_chance - min_chance) + min_chance
+            positive_tags = positive_tags[:int(len(positive_tags) * proportion_to_keep)]
+        full_prompt = [w.strip() for w in text.split(',')]
+        full_prompt.extend(positive_tags)
+        random.shuffle(full_prompt)
+        return ', '.join(full_prompt)
+
+    @staticmethod
+    def _get_discretely_emphasized_prompt(text: str) -> list[str]:
+        assert isinstance(text, str) and len(text) > 0, "Text must be a non-empty string."
+        prompt_part = ""
+        just_closed = 0
+        emphasis_level = 0
+        positive_tags = []
+        for i in range(len(text)):
+            c = text[i]
+            if c == "(":
+                emphasis_level += 1
+            elif c == ")":
+                emphasis_level -= 1
+                if emphasis_level == 0:
+                    just_closed += 1
+            elif c == ",":
+                emphasis_left = "(" * (emphasis_level + just_closed)
+                emphasis_right = ")" * (emphasis_level + just_closed)
+                positive_tags.append(emphasis_left + prompt_part.strip() + emphasis_right)
+                prompt_part = ""
+                just_closed = 0
+            else:
+                prompt_part += c
+        return positive_tags
+
+    def _mix_concepts(self, humans_chance: float = 0.25) -> list[str]:
+        mix = []
+        # Access categories directly from the categories dict
+        mix.extend(self.concepts.get_media_features(self.prompter_config.get_category_config("media_features"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_objects(self.prompter_config.get_category_config("objects"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_positions(self.prompter_config.get_category_config("positions"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_locations(self.prompter_config.get_category_config("locations"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_animals(self.prompter_config.get_category_config("animals"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_plants(self.prompter_config.get_category_config("plants"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_colors(self.prompter_config.get_category_config("colors"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_lighting(self.prompter_config.get_category_config("lighting"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_times(self.prompter_config.get_category_config("times"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_units(self.prompter_config.get_category_config("units"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_dress(self.prompter_config.get_category_config("dress"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_expressions(self.prompter_config.get_category_config("expressions"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_actions(self.prompter_config.get_category_config("actions"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_descriptions(self.prompter_config.get_category_config("descriptions"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_characters(self.prompter_config.get_category_config("characters"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_random_words(self.prompter_config.get_category_config("random_words"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_nonsense(self.prompter_config.get_category_config("nonsense"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_jargon(self.prompter_config.get_category_config("jargon"), multiplier=self.prompter_config.multiplier))
+        mix.extend(self.concepts.get_witticisms(self.prompter_config.get_category_config("witticisms"), multiplier=self.prompter_config.multiplier))
+        # Humans might not always be desirable so only add some randomly
+        if self.prompt_mode == PromptMode.SFW:
+            if random.random() < humans_chance:
+                humans_config = self.prompter_config.get_category_config("humans")
+                mix.extend(self.concepts.get_humans(humans_config, multiplier=self.prompter_config.multiplier))
+        # Small chance to add artist style
+        if not self.concepts.is_art_style_prompt_mode() and random.random() < self.prompter_config.art_styles_chance:
+            if config.debug:
+                logger.debug("Adding art styles")
+            mix.extend(self.concepts.get_art_styles(max_styles=2, multiplier=self.prompter_config.multiplier))
+        # Must run before emphasize() adds brackets and before add_presets()
+        # introduces strings the user wrote and would not want altered.
+        self._attach_affixes(mix)
+        random.shuffle(mix)
+        Prompter.emphasize(mix, emphasis_chance=self.prompter_config.emphasis_chance)
+        # Extra concepts for NSFW
+        self.add_presets(mix)
+        return mix
+
+    @staticmethod
+    def _can_take_affix(entry: str) -> bool:
+        """A host has to be a bare single word.
+
+        Affixes join with a hyphen, so on a phrase they would attach at one end
+        and read as modifying only the word sitting there -- "ancient stone
+        bridge-clad". An entry that is already hyphenated, or carries emphasis
+        brackets or an unexpanded variable, is skipped for the same reason.
+        """
+        return bool(Prompter.AFFIX_HOST_PATTERN.match(entry))
+
+    def _attach_affixes(self, mix: list[str]) -> None:
+        """Attach sampled prefixes and suffixes onto concepts already in the mix.
+
+        Affixes are the one category that modifies the mix in place rather than
+        adding to it: "-punk" alone is not a concept. Each affix takes its own
+        host and no host takes both a prefix and a suffix, since stacking them
+        turns the concept into noise. The number applied is therefore capped by
+        the eligible hosts present, however many were sampled.
+        """
+        multiplier = self.prompter_config.multiplier
+        prefixes = self.concepts.get_prefixes(
+            self.prompter_config.get_category_config("prefixes"), multiplier=multiplier)
+        suffixes = self.concepts.get_suffixes(
+            self.prompter_config.get_category_config("suffixes"), multiplier=multiplier)
+        if len(prefixes) == 0 and len(suffixes) == 0:
+            return
+        hosts = [i for i, entry in enumerate(mix) if Prompter._can_take_affix(entry)]
+        random.shuffle(hosts)
+        # Drop from whichever list is longer, so a lopsided request does not
+        # consume every host before the smaller list gets one.
+        while len(prefixes) + len(suffixes) > len(hosts):
+            (prefixes if len(prefixes) >= len(suffixes) else suffixes).pop()
+        for prefix in prefixes:
+            index = hosts.pop()
+            mix[index] = prefix + mix[index]
+        for suffix in suffixes:
+            index = hosts.pop()
+            mix[index] = mix[index] + suffix
+
+    def mix_concepts(self, emphasis_threshold: float = 0.9) -> str:
+        return ', '.join(self._mix_concepts(humans_chance=self.prompter_config.specify_humans_chance))
+
+    def mix_colors(self) -> str:
+        return ', '.join(self.concepts.get_colors(ConceptConfiguration(2, 5)))
+
+    def add_presets(self, mix: list[str] = []) -> None:
+        for preset in config.prompt_presets:
+            for prompt_mode_name in preset["prompt_modes"]:
+                if prompt_mode_name in PromptMode.__members__.keys():
+                    preset_prompt_mode = PromptMode[prompt_mode_name]
+                    if self.prompt_mode == preset_prompt_mode:
+                        if "chance" not in preset or random.random() < preset["chance"]:
+                            if "prepend_prompt" in preset:
+                                mix.insert(0, preset["prepend_prompt"])
+                            if "append_prompt" in preset:
+                                mix.append(preset["append_prompt"])
+                else:
+                    raise Exception(f"Invalid prompt mode: {prompt_mode_name}")
+
+    def get_artistic_prompt(self, add_concepts: bool, emphasis_threshold: float = 0.9) -> str:
+        mix = []
+        mix.extend(self.concepts.get_art_styles())
+        if add_concepts:
+            mix.extend(self._mix_concepts(humans_chance=0))
+        # Humans might not always be desirable so only add some randomly
+        if self.prompt_mode == PromptMode.SFW:
+            if random.random() < (self.prompter_config.specify_humans_chance * 0.5):
+                humans_config = ConceptConfiguration(1, 1)  # Default humans config
+                mix.extend(self.concepts.get_humans(humans_config))
+        random.shuffle(mix)
+        Prompter.emphasize(mix)
+        return ', '.join(mix)
+
+    @staticmethod
+    def _notify_taken_prompt_filtering(message: str) -> None:
+        """Surface a filtering notice from the run thread, if a UI is attached.
+
+        Prompter has no UI reference of its own, but Blacklist is given the app's
+        actions at startup and those are thread-bridged, so this is safe from the
+        background thread. Absent (CLI, tests) it degrades to the log.
+
+        Uses ``warn`` rather than ``alert``: the severity is right, but an alert
+        is modal -- ``qt_alert`` calls ``exec()`` -- which over a batch of taken
+        prompts would stop the run on every affected image waiting to be
+        dismissed. ``AppActions.warn`` is a toast in the warning colour, so it
+        keeps the severity without blocking the run thread.
+        """
+        callbacks = getattr(Blacklist, "_ui_callbacks", None)
+        if callbacks is None:
+            return
+        try:
+            callbacks.warn(message)
+        except Exception as e:
+            logger.warning(f"Could not surface taken-prompt filtering notice: {e}")
+
+    @staticmethod
+    def filter_taken_prompt(positive: str, negative: str) -> tuple[str, str]:
+        """Apply blacklist filtering to a prompt extracted from a source image.
+
+        PromptMode.TAKE is the one mode whose prompt is not user-authored: it is
+        read out of an image's metadata during the run, after
+        RunController.validate_blacklist has already passed on the (empty)
+        sidebar text. This is the runtime equivalent of that check, and honours
+        the same BlacklistMode / blacklist_prevent_execution /
+        blacklist_silent_removal settings.
+
+        - REMOVE_WORD_OR_PHRASE / REMOVE_ENTIRE_TAG / REPLACE_WORD_OR_PHRASE:
+          strip (or, replacing, swap a random word into) matching tags, notify,
+          and let the run continue with what is left. The notice is the same
+          one used for tags the user typed: it does not name the removed tag
+          unless "Name matched item" is on, and silent removal suppresses it.
+        - FAIL_PROMPT: raise BlacklistException, which aborts the run.
+        - LOG_ONLY: log and return unchanged.
+
+        The negative prompt is returned untouched. Extracted negatives routinely
+        carry safety terms (``nsfw``, ``explicit``) that exist precisely to
+        suppress that content, and filtering them would strip the protection.
+        """
+        if not config.blacklist_prevent_execution:
+            return positive, negative
+        if Blacklist.is_allowed_prompt_mode(PromptMode.TAKE):
+            return positive, negative
+        if not positive or positive.strip() == "":
+            return positive, negative
+
+        mode = Blacklist.get_blacklist_mode()
+        silent = Blacklist.get_blacklist_silent_removal()
+
+        tags = [tag.strip() for tag in positive.split(",")]
+        whitelist, filtered = Blacklist.filter_concepts(
+            tags, prompt_mode=PromptMode.TAKE, origin=BlacklistTextOrigin.EXTERNAL, detect_languages=True
+        )
+
+        if filtered:
+            if mode == BlacklistMode.FAIL_PROMPT:
+                # Aborts the run regardless of silent_removal, matching
+                # validate_blacklist: a failed prompt is never silently skipped.
+                raise BlacklistException(
+                    _("Blacklist validation failed on extracted image prompt"),
+                    whitelist,
+                    filtered,
+                )
+            if mode == BlacklistMode.LOG_ONLY:
+                logger.warning(f"Blacklisted tags in extracted prompt (log only): {filtered}")
+            else:
+                if mode == BlacklistMode.REPLACE_WORD_OR_PHRASE:
+                    logger.info(_("Replaced blacklisted words in extracted prompt: {0}").format(filtered))
+                else:
+                    logger.info(_("Removed blacklisted tags from extracted prompt: {0}").format(filtered))
+                positive = ", ".join(whitelist)
+                if not silent:
+                    Prompter._notify_taken_prompt_filtering(Blacklist.filtering_notice(filtered))
+
+        # Similarity runs on the surviving text: removing a tag may well have
+        # removed the resemblance, and re-checking the original would fail a
+        # prompt that is no longer the one about to be generated.
+        violated, score, phrase = Blacklist.check_similarity(positive)
+        if violated:
+            raise BlacklistException(
+                _("Extracted prompt too similar to blocked concept \"{0}\" ({1:.0%})").format(
+                    phrase, score
+                ),
+                [],
+                {positive: phrase},
+            )
+
+        return positive, negative
+
+    @staticmethod
+    def take_prompt_from_image(related_image_path: str) -> tuple[str, str]:
+        if Prompter.IMAGE_DATA_EXTRACTOR is None:
+            Prompter.IMAGE_DATA_EXTRACTOR = ImageDataExtractor()
+        positive, negative = Prompter.IMAGE_DATA_EXTRACTOR.extract(related_image_path)
+        positive = str(positive or "").strip()
+        negative = str(negative or "").strip()
+        if positive or negative:
+            return positive, negative
+
+        # Metadata may be absent. Fall back to captioner, then fast tagger.
+        try:
+            from teikr.image_to_prompt import ImageToPromptBackend, ImageToPromptService
+
+            if Prompter.IMAGE_TO_PROMPT_CAPTIONER is None:
+                Prompter.IMAGE_TO_PROMPT_CAPTIONER = ImageToPromptService.from_backend(
+                    ImageToPromptBackend.CAPTIONER
+                )
+            if Prompter.IMAGE_TO_PROMPT_TAGGER is None:
+                Prompter.IMAGE_TO_PROMPT_TAGGER = ImageToPromptService.from_backend(
+                    ImageToPromptBackend.FAST_TAGGER
+                )
+
+            caption_prompt = ""
+            tagger_prompt = ""
+            try:
+                caption_res = Prompter.IMAGE_TO_PROMPT_CAPTIONER.generate(image_path=related_image_path)
+                caption_prompt = str(caption_res.positive_prompt or "").strip()
+            except Exception as e:
+                logger.debug("Captioner fallback failed for %s: %s", related_image_path, e)
+            try:
+                tagger_res = Prompter.IMAGE_TO_PROMPT_TAGGER.generate(image_path=related_image_path)
+                tagger_prompt = str(tagger_res.positive_prompt or "").strip()
+            except Exception as e:
+                logger.debug("Fast tagger fallback failed for %s: %s", related_image_path, e)
+
+            combined = ", ".join([p for p in [caption_prompt, tagger_prompt] if p])
+            return combined, ""
+        except Exception as e:
+            logger.debug("Image-to-prompt fallback unavailable for %s: %s", related_image_path, e)
+            return "", ""
+
+    @staticmethod
+    def emphasize(mix: list[str], emphasis_chance: float = 0.1) -> None:
+        # Randomly boost some concepts
+        for i in range(len(mix)):
+            if random.random() < emphasis_chance and len(mix[i]) > 0:
+                if random.random() < 0.9:
+                    mix[i] = "(" + mix[i] + ")"
+                else:
+                    random_deemphasis = random.random()
+                    if random.random() > 0.9:
+                        random_deemphasis *= random.randint(2, 10)
+                    if random_deemphasis >= 0.1:
+                        deemphasis_str = str(random_deemphasis)[:3]
+                        if random_deemphasis > 1.5:
+                            deemphasis_str = "1.1"
+                        mix[i] = f"({mix[i]}:{deemphasis_str})"
+
+    @staticmethod
+    def _find_matching_bracket(text: str, start_pos: int, open_char: str = "[", close_char: str = "]") -> int:
+        """
+        Finds the matching closing bracket for an opening bracket at start_pos.
+        Returns the position of the matching closing bracket, or -1 if not found.
+        """
+        if start_pos >= len(text) or text[start_pos] != open_char:
+            return -1
+        
+        depth = 0
+        i = start_pos
+        while i < len(text):
+            if text[i] == open_char:
+                depth += 1
+            elif text[i] == close_char:
+                depth -= 1
+                if depth == 0:
+                    return i
+            i += 1
+        return -1
+
+    @staticmethod
+    def _expand_nested_choices(text: str) -> list[tuple[str, float]]:
+        """
+        Recursively expands nested [choice1,choice2] patterns in text.
+        Returns a list of (expansion, weight) tuples for all possible combinations.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.debug(f"Starting expansion with text: '{text}'")
+        
+        result = [(text, 1.0)]
+        changed = True
+        iteration = 0
+        
+        while changed:
+            iteration += 1
+            logger.debug(f"=== Starting iteration {iteration} ===")
+            logger.debug(f"Current result count: {len(result)}")
+            
+            changed = False
+            new_result = []
+            
+            for base_text, base_weight in result:
+                logger.debug(f"Processing base_text: '{base_text}' with weight: {base_weight}")
+                
+                i = 0
+                while i < len(base_text):
+                    if base_text[i] == "[":
+                        logger.debug(f"Found opening bracket at position {i}")
+                        
+                        # Find matching closing bracket
+                        close_pos = Prompter._find_matching_bracket(base_text, i, "[", "]")
+                        
+                        if close_pos == -1:
+                            logger.debug("No matching closing bracket found, skipping")
+                            i += 1
+                            continue
+                        
+                        logger.debug(f"Found matching closing bracket at position {close_pos}")
+                        
+                        # Extract the nested choice set content
+                        nested_content = base_text[i + 1:close_pos]
+                        logger.debug(f"Nested content: '{nested_content}'")
+                        
+                        # Split by top-level pipes or commas (respecting bracket depth)
+                        options = []
+                        current_option = ""
+                        depth = 0
+                        for char in nested_content:
+                            if char == "[":
+                                depth += 1
+                                current_option += char
+                            elif char == "]":
+                                depth -= 1
+                                current_option += char
+                            elif char in ("|", ",") and depth == 0:
+                                if current_option.strip():
+                                    options.append(current_option.strip())
+                                current_option = ""
+                            else:
+                                current_option += char
+                        if current_option.strip():
+                            options.append(current_option.strip())
+
+                        # LOGGING POINT 5: Options found
+                        logger.debug(f"Found {len(options)} options: {options}")
+
+                        # If no separators found, treat entire content as one option
+                        if not options:
+                            options = [nested_content]
+                        
+                        # Recursively expand each option
+                        expanded_options = []
+                        for option in options:
+                            # Extract weight if present
+                            weight = 1.0
+                            option_text = option
+                            if ":" in option:
+                                # Check if colon is outside all brackets
+                                colon_pos = -1
+                                depth = 0
+                                for j, char in enumerate(option):
+                                    if char == "[":
+                                        depth += 1
+                                    elif char == "]":
+                                        depth -= 1
+                                    elif char == ":" and depth == 0:
+                                        colon_pos = j
+                                
+                                if colon_pos != -1:
+                                    try:
+                                        weight = float(option[colon_pos + 1:])
+                                        option_text = option[:colon_pos].strip()
+                                        logger.debug(f"Found weight {weight} for option '{option_text}'")
+                                    except ValueError:
+                                        pass
+                            
+                            logger.debug(f"Recursively expanding option: '{option_text}'")
+                            sub_expansions = Prompter._expand_nested_choices(option_text)
+                            
+                            # Add each expansion with its weight
+                            for sub_exp, sub_weight in sub_expansions:
+                                # Multiply weights (nested weight * parent weight)
+                                expanded_options.append((sub_exp, weight * sub_weight))
+                        
+                        logger.debug(f"Generated {len(expanded_options)} expanded options")
+                        
+                        # Generate all combinations by replacing the nested pattern
+                        for expanded_option, exp_weight in expanded_options:
+                            new_text = base_text[:i] + expanded_option + base_text[close_pos + 1:]
+                            # Multiply weights
+                            new_result.append((new_text, base_weight * exp_weight))
+                            logger.debug(f"Added new result: '{new_text}' with weight {base_weight * exp_weight}")
+                        
+                        changed = True
+                        break  # Move to next base_text after processing this pattern
+                    else:
+                        i += 1
+                
+                if not changed:
+                    new_result.append((base_text, base_weight))
+            
+            logger.debug(f"End of iteration {iteration}. Changed: {changed}, New result count: {len(new_result)}")
+            
+            if iteration > 20:  # Arbitrary limit to prevent infinite loops
+                logger.warning(f"Stopping expansion after {iteration} iterations to prevent infinite loop")
+                break
+                
+            result = new_result
+        
+        logger.debug(f"Final result count: {len(result)}")
+        for i, (res_text, res_weight) in enumerate(result):
+            logger.debug(f"Result {i+1}: '{res_text}' with weight {res_weight}")
+        
+        return result
+
+    @staticmethod
+    def _expand_range(inner_content: str):
+        """
+        If inner_content matches `start--stop` or `start--stop--step`, return the
+        list of string values for that range (inclusive of stop).  Returns None if
+        the content is not a valid range expression.
+
+        Supports integers, floats, and single ASCII characters.  No weighted
+        choices — every value in the range has equal probability.
+        """
+        if not inner_content or "," in inner_content or "|" in inner_content:
+            return None
+        parts = inner_content.split("--")
+        if len(parts) < 2 or len(parts) > 3:
+            return None
+        start_str = parts[0].strip()
+        stop_str = parts[1].strip()
+        step_str = parts[2].strip() if len(parts) == 3 else None
+
+        # --- numeric range ---
+        try:
+            use_float = any("." in s for s in [start_str, stop_str] + ([step_str] if step_str else []))
+            if use_float:
+                start = float(start_str)
+                stop = float(stop_str)
+                step = float(step_str) if step_str else 1.0
+                if step == 0:
+                    return None
+                decimals = max(
+                    len(s.split(".")[-1]) if "." in s else 0
+                    for s in [start_str, stop_str] + ([step_str] if step_str else [])
+                )
+                fmt = f"{{:.{decimals}f}}"
+                values = []
+                v = start
+                epsilon = abs(step) * 1e-9
+                while (step > 0 and v <= stop + epsilon) or (step < 0 and v >= stop - epsilon):
+                    values.append(fmt.format(round(v, decimals)))
+                    v = round(v + step, decimals)
+            else:
+                start = int(start_str)
+                stop = int(stop_str)
+                step = int(step_str) if step_str else 1
+                if step == 0:
+                    return None
+                stop_exclusive = stop + (1 if step > 0 else -1)
+                values = [str(v) for v in range(start, stop_exclusive, step)]
+            return values if values else None
+        except ValueError:
+            pass
+
+        # --- single-character range (e.g. a--z) ---
+        if len(start_str) == 1 and len(stop_str) == 1:
+            step = 1
+            if step_str:
+                try:
+                    step = int(step_str)
+                except ValueError:
+                    return None
+            if step == 0:
+                return None
+            start_ord = ord(start_str)
+            stop_ord = ord(stop_str)
+            stop_exclusive = stop_ord + (1 if step > 0 else -1)
+            values = [chr(c) for c in range(start_ord, stop_exclusive, step)]
+            return values if values else None
+
+        return None
+
+    @staticmethod
+    def contains_choice_set(text: str) -> bool:
+        if "[[" not in text or "]]" not in text:
+            return False
+        # Check for [[...]] pattern (may contain nested brackets)
+        i = 0
+        while i < len(text) - 1:
+            if text[i:i+2] == "[[":
+                close_pos = Prompter._find_matching_bracket(text, i + 1, "[", "]")
+                if close_pos != -1 and close_pos < len(text) - 1 and text[close_pos + 1] == "]":
+                    return True
+            i += 1
+        return False
+
+    @staticmethod
+    def _split_choice_options(inner_content: str) -> list[str]:
+        """Split choice-set content on top-level ``|`` or ``,``.
+
+        Separators inside nested brackets are left alone, so
+        ``"a,[[b,c]]"`` yields ``["a", "[[b,c]]"]``. Empty options are dropped.
+        """
+        options = []
+        current_option = ""
+        depth = 0
+        for char in inner_content:
+            if char == "[":
+                depth += 1
+                current_option += char
+            elif char == "]":
+                depth -= 1
+                current_option += char
+            elif char in ("|", ",") and depth == 0:
+                if current_option.strip():
+                    options.append(current_option.strip())
+                current_option = ""
+            else:
+                current_option += char
+        if current_option.strip():
+            options.append(current_option.strip())
+        return options
+
+    @staticmethod
+    def _split_option_weight(option: str) -> tuple[str, float]:
+        """Split ``"red:3"`` into ``("red", 3.0)``.
+
+        Only the last colon outside all brackets counts, and only when what
+        follows it parses as a number: ``"a:b"`` keeps its colon and weight 1.0.
+        Note the consequence -- an option ending in a number after a colon is
+        read as a weight whether or not that was meant, so ``"ratio 16:9"``
+        becomes ``("ratio 16", 9.0)``. Longstanding choice-set behaviour, kept
+        as-is here so conversion and expansion agree on what an item is.
+        """
+        weight = 1.0
+        option_text = option
+        if ":" in option:
+            colon_pos = -1
+            depth = 0
+            for j, char in enumerate(option):
+                if char == "[":
+                    depth += 1
+                elif char == "]":
+                    depth -= 1
+                elif char == ":" and depth == 0:
+                    colon_pos = j
+            if colon_pos != -1:
+                try:
+                    weight = float(option[colon_pos + 1:])
+                    option_text = option[:colon_pos].strip()
+                except ValueError:
+                    pass
+        return option_text, weight
+
+    @staticmethod
+    def choice_set_items(choice_set) -> list[str]:
+        """Return the selectable items of *choice_set*, without weights.
+
+        Accepts a list of strings, a bare ``"red,blue"`` string, or a wrapped
+        ``"[[red,blue]]"`` one. Range syntax (``"[[1--5]]"``) is expanded to its
+        values. Nested sets are returned as written rather than expanded --
+        conversion matches literal text, and a nested set has no literal form.
+        """
+        if choice_set is None:
+            return []
+        if isinstance(choice_set, (list, tuple, set)):
+            return [str(item).strip() for item in choice_set if str(item).strip()]
+
+        content = str(choice_set).strip()
+        if content.startswith("[[") and content.endswith("]]"):
+            content = content[2:-2]
+        if not content.strip():
+            return []
+
+        range_values = Prompter._expand_range(content)
+        if range_values:
+            return list(range_values)
+
+        options = Prompter._split_choice_options(content)
+        if not options:
+            options = [content]
+        return [
+            text for text, _weight in (Prompter._split_option_weight(o) for o in options)
+            if text.strip()
+        ]
+
+    @staticmethod
+    def _choice_conversion_pattern(item: str) -> str:
+        """Regex matching *item* as a standalone word or phrase.
+
+        Lookarounds rather than ``\\b`` so items starting or ending with
+        punctuation still anchor correctly, and runs of whitespace in the item
+        match any run in the text. Because the boundaries only exclude word
+        characters, an item still matches inside the emphasis form the prompter
+        produces -- ``red`` is found in ``(red:1.2)``.
+        """
+        parts = [re.escape(part) for part in re.split(r"\s+", item.strip()) if part]
+        if not parts:
+            return None
+        return r"(?<!\w)" + r"\s+".join(parts) + r"(?!\w)"
+
+    @staticmethod
+    def find_choice_conversions(
+        text: str,
+        choice_set_a,
+        choice_set_b,
+        case_sensitive: bool = False,
+    ) -> list[tuple[int, int, str, str]]:
+        """Locate the conversions ``convert_choices`` would apply.
+
+        Returns ``(start, end, matched_text, replacement)`` tuples ordered by
+        position and guaranteed not to overlap. An empty list means nothing in
+        *text* came from choice set A, which callers should surface rather than
+        silently returning the text unchanged.
+        """
+        items_a = Prompter.choice_set_items(choice_set_a)
+        items_b = Prompter.choice_set_items(choice_set_b)
+        if not text or not items_a or not items_b:
+            return []
+        if len(items_a) != len(items_b):
+            raise ValueError(
+                f"Choice sets must be the same length to convert positionally: "
+                f"A has {len(items_a)}, B has {len(items_b)}"
+            )
+
+        flags = 0 if case_sensitive else re.IGNORECASE
+        candidates = []
+        seen_items = set()
+        for item_a, item_b in zip(items_a, items_b):
+            key = item_a if case_sensitive else item_a.lower()
+            if key in seen_items:
+                # A duplicate source item is ambiguous; the first pairing wins.
+                continue
+            seen_items.add(key)
+            pattern = Prompter._choice_conversion_pattern(item_a)
+            if pattern is None:
+                continue
+            try:
+                compiled = re.compile(pattern, flags)
+            except re.error:
+                logger.warning(f"Could not build a conversion pattern for {item_a!r}")
+                continue
+            for match in compiled.finditer(text):
+                candidates.append((match.start(), match.end(), match.group(), item_b))
+
+        # Longest match wins at a given position, then leftmost; a longer item
+        # elsewhere never displaces an earlier match. Keeps "dark red" from
+        # being converted as "red".
+        candidates.sort(key=lambda c: (c[0], -(c[1] - c[0])))
+        resolved = []
+        last_end = -1
+        for start, end, matched, replacement in candidates:
+            if start < last_end:
+                continue
+            resolved.append((start, end, matched, replacement))
+            last_end = end
+        return resolved
+
+    @staticmethod
+    def convert_choices(
+        text: str,
+        choice_set_a,
+        choice_set_b,
+        case_sensitive: bool = False,
+    ) -> str:
+        """Rewrite *text*, replacing items of choice set A with their B counterpart.
+
+        The sets are paired positionally: the first item of A becomes the first
+        item of B, and so on. No template is needed -- matching is done against
+        the rendered prompt text, so this works on a prompt read back out of an
+        image, typed by hand, or produced by another tool.
+
+        Substitution is a single pass over non-overlapping spans, so an item that
+        appears in both sets cannot be converted twice: converting
+        ``["red", "blue"]`` to ``["blue", "green"]`` turns ``"red"`` into
+        ``"blue"`` and leaves it there, rather than carrying on to ``"green"``.
+        """
+        conversions = Prompter.find_choice_conversions(
+            text, choice_set_a, choice_set_b, case_sensitive=case_sensitive
+        )
+        if not conversions:
+            return text
+        out = []
+        cursor = 0
+        for start, end, _matched, replacement in conversions:
+            out.append(text[cursor:start])
+            out.append(replacement)
+            cursor = end
+        out.append(text[cursor:])
+        return "".join(out)
+
+    @staticmethod
+    def apply_choices(text: str) -> str:
+        """
+        Applies choice set expansion, supporting nested [choice1,choice2] patterns
+        inside [[choice1,choice2]] choice sets.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        offset = 0
+        i = 0
+        original_text = text
+        max_iterations = len(text) * 10  # Arbitrary large number
+        iteration = 0
+        
+        while i < len(original_text) - 1 and iteration < max_iterations:
+            iteration += 1
+            
+            # Look for [[ pattern in the original text
+            if original_text[i:i+2] == "[[":
+                # Find the matching ]] bracket pair in the original text
+                # First find the inner ] bracket
+                inner_close = Prompter._find_matching_bracket(original_text, i + 1, "[", "]")
+                if inner_close == -1:
+                    i += 1
+                    continue
+                
+                # Check if next character is ]
+                if inner_close + 1 >= len(original_text) or original_text[inner_close + 1] != "]":
+                    i += 1
+                    continue
+                
+                # We have a valid [[...]] pattern
+                outer_start = i
+                outer_end = inner_close + 2
+                
+                # Extract the inner content (between the double brackets)
+                inner_content = original_text[outer_start + 2:inner_close]
+
+                # [[~...]] is chosen by image similarity at generation time.
+                if inner_content.startswith(SET_MARKER):
+                    i = outer_end
+                    continue
+
+                # Range syntax: [[start--stop]] or [[start--stop--step]]
+                range_values = Prompter._expand_range(inner_content)
+                if range_values:
+                    choice = random.choice(range_values)
+                    adjusted_start = outer_start + offset
+                    adjusted_end = outer_end + offset
+                    text = text[:adjusted_start] + choice + text[adjusted_end:]
+                    offset += len(choice) - (outer_end - outer_start)
+                    i = outer_end
+                    continue
+
+                # Split by top-level pipes or commas (respecting bracket depth)
+                options = Prompter._split_choice_options(inner_content)
+
+                # If no separators found, treat entire content as one option
+                if not options:
+                    options = [inner_content]
+
+                # Expand nested choices in each option and build final population
+                population = []
+                weights = []
+
+                for option in options:
+                    option_text, weight = Prompter._split_option_weight(option)
+                    
+                    # Expand nested [choice1,choice2] patterns in this option
+                    expanded = Prompter._expand_nested_choices(option_text)
+                    
+                    # Add all expansions to population
+                    # Multiply outer weight with nested weights
+                    for exp, nested_weight in expanded:
+                        population.append(exp)
+                        weights.append(weight * nested_weight)
+                
+                # Randomly select one option
+                if population:
+                    choice = random.choices(population=population, weights=weights, k=1)[0]
+                    
+                    # Calculate the adjusted position in the current text with offset
+                    adjusted_start = outer_start + offset
+                    adjusted_end = outer_end + offset
+                    
+                    # Replace the pattern in the current text
+                    text = text[:adjusted_start] + choice + text[adjusted_end:]
+                    
+                    # Update offset based on the length difference
+                    offset += len(choice) - (outer_end - outer_start)
+                    
+                    # Continue from after the original position in the original text
+                    i = outer_end
+                else:
+                    i += 1
+            else:
+                i += 1
+        
+        if iteration >= max_iterations:
+            logger.warning(f"apply_choices stopped after {max_iterations} iterations to prevent infinite loop")
+
+        return text
+
+    @staticmethod
+    def apply_file_choices(text: str) -> str:
+        """Replace @filepath tokens with a randomly chosen line from that file.
+
+        The token must use the @@ prefix and contain a dot (e.g. @@choices.txt,
+        @@/path/to/file.txt). Paths are resolved via Concepts.load, so bare names
+        are looked up in the concepts directory with .txt appended automatically.
+        Tokens whose path resolves to no content are left unchanged.
+        """
+        def _replace(m):
+            path = os.path.normpath(m.group(1))
+            lines = Concepts.load(path)
+            if lines:
+                return random.choice(lines)
+            raise ValueError(f"@@file reference '{m.group(1)}' could not be resolved — file not found or empty")
+        return re.sub(r'@@(\S+\.\S+)', _replace, text)
+
+    @staticmethod
+    def _expansion_var_pattern(from_ui: bool = False) -> str:
+        if from_ui:
+            # (?<!\$) prevents matching the inner $var portion of a $$var token.
+            # Without this, contains_expansion_var returns True for $$var text,
+            # the loop enters, _expand_one_pass skips every match, has_more stays
+            # True, and the loop spins all 10 iterations producing a spurious warning.
+            return Prompter.EXPANSION_VAR_PATTERN_UI
+        else:
+            return Prompter.EXPANSION_VAR_PATTERN
+
+    @staticmethod
+    def contains_expansion_var(text: str, from_ui: bool = False) -> bool:
+        # if "*" in text or "?" in text:
+        #     return True
+        if re.search(Prompter._expansion_var_pattern(from_ui), text):
+            return True
+        return False
+
+    @staticmethod
+    def extract_inline_vars(text: str) -> tuple[dict, str]:
+        """Parse inline variable definitions from the top of a prompt.
+
+        Lines of the form ``|||VarName->value`` at the very start of *text*
+        are treated as variable definitions.  The definition block and any
+        whitespace that immediately follows it are stripped, and the remaining
+        prompt text is returned alongside the mapping.
+
+        Values may use the ``[[a,b,c]]`` choice-set syntax; the value is stored
+        verbatim and the choice-set is resolved later by ``apply_choices``.
+
+        Returns ``({}, text)`` unchanged when no ``|||`` header is found.
+        """
+        if not text or ('|||' not in text and '::' not in text):
+            return {}, text
+        lines = text.split('\n')
+        vars_dict = {}
+        header_line_count = 0
+        for line in lines:
+            stripped = line.strip()
+            m = Prompter.INLINE_VAR_PATTERN.match(stripped) or Prompter.INLINE_VAR_PATTERN2.match(stripped)
+            if m:
+                var_value = m.group(2).strip()
+                # Resolve choice sets now so every reference to this variable shares
+                # the same value within a single prompt.  @@filepath tokens are NOT
+                # resolved here; they are resolved per generate_prompt() call so that
+                # each prompt in a multi-total run draws a fresh line from the file.
+                if Prompter.contains_choice_set(var_value):
+                    var_value = Prompter.apply_choices(var_value)
+                # Substitute $$VarName references to variables defined above this line.
+                if '$$' in var_value and vars_dict:
+                    try:
+                        var_value = Prompter.DOUBLE_DOLLAR_VAR_PATTERN.sub(
+                            lambda m2: vars_dict[m2.group(1).lower()],
+                            var_value,
+                        )
+                    except KeyError as e:
+                        raise ValueError(f"Inline variable {e} referenced before it was defined")
+                vars_dict[m.group(1).lower()] = var_value
+                header_line_count += 1
+            else:
+                break
+        if not vars_dict:
+            return {}, text
+        remaining = '\n'.join(lines[header_line_count:]).lstrip()
+        return vars_dict, remaining
+
+    @staticmethod
+    def _choose(concept_list: list[str]) -> str:
+        """Pick one item, or None if the category returned nothing.
+
+        A concept getter can legitimately come back empty -- an inclusion-chance
+        roll, post-sampling filtering, or a subcategory file that failed to load.
+        Returning None leaves the variable unexpanded instead of raising.
+        """
+        return random.choice(concept_list) if concept_list else None
+
+    @staticmethod
+    def _select_concept(name: str, concepts: Concepts, specific_locations_chance: float = 0.3) -> str:
+        concept = None
+        if name.startswith("act"):
+            concept = Prompter._choose(concepts.get_actions(ConceptConfiguration(1, 1)))
+        elif name.startswith("media"):
+            concept = Prompter._choose(concepts.get_media_features(ConceptConfiguration(1, 1)))
+        elif name.startswith("obj"):
+            concept = Prompter._choose(concepts.get_objects(ConceptConfiguration(1, 1)))
+        elif name.startswith("plant") or name.startswith("flora"):
+            concept = Prompter._choose(concepts.get_plants(ConceptConfiguration(1, 1)))
+        elif name.startswith("concept"):
+            # backward-compat alias: $concept expands from media_features
+            concept = Prompter._choose(concepts.get_media_features(ConceptConfiguration(1, 1)))
+        elif name == "dress":
+            concept = Prompter._choose(concepts.get_dress(ConceptConfiguration(1, 1, inclusion_chance=1.0)))
+        elif name.startswith("time"):
+            concept = Prompter._choose(concepts.get_times(ConceptConfiguration(1, 1)))
+        elif name.startswith("unit"):
+            concept = Prompter._choose(concepts.get_units(ConceptConfiguration(1, 1)))
+        elif name.startswith("expr"):
+            concept = Prompter._choose(concepts.get_expressions(ConceptConfiguration(1, 1)))
+        elif name.startswith("animal"):
+            concept = Prompter._choose(concepts.get_animals(ConceptConfiguration(1, 1, inclusion_chance=1.0)))
+        elif name.startswith("desc"):
+            concept = Prompter._choose(concepts.get_descriptions(ConceptConfiguration(1, 1)))
+        elif name == "random_word":
+            concept = Prompter._choose(concepts.get_random_words(ConceptConfiguration(1, 1)))
+        elif name.startswith("nons"):
+            concept = Prompter._choose(concepts.get_nonsense(ConceptConfiguration(1, 1)))
+        elif name.startswith("color"):
+            concept = Prompter._choose(concepts.get_colors(ConceptConfiguration(1, 1)))
+        elif name.startswith("loc"):
+            concept = Prompter._choose(concepts.get_locations(ConceptConfiguration(1, 1, specific_chance=specific_locations_chance)))
+        elif name.startswith("human"):
+            concept = Prompter._choose(concepts.get_humans(ConceptConfiguration(1, 1)))
+        elif name.startswith("posit"):
+            concept = Prompter._choose(concepts.get_positions(ConceptConfiguration(1, 1)))
+        elif name.startswith("witt"):
+            concept = Prompter._choose(concepts.get_witticisms(ConceptConfiguration.from_subcategory_list(
+                1, 1, list(PrompterConfiguration.WITTICISMS_DEFAULT_WEIGHTS))))
+        elif name.startswith("saying"):
+            concept = Prompter._choose(concepts.get_witticisms(ConceptConfiguration.from_subcategory_list(1, 1, ["sayings"])))
+        elif name.startswith("pun"):
+            concept = Prompter._choose(concepts.get_witticisms(ConceptConfiguration.from_subcategory_list(1, 1, ["puns"])))
+        elif name.startswith("quot"):
+            concept = Prompter._choose(concepts.get_witticisms(ConceptConfiguration.from_subcategory_list(1, 1, ["quotations"])))
+        elif name.startswith("jarg"):
+            concept = Prompter._choose(concepts.get_jargon(ConceptConfiguration(1, 1)))
+        elif name.startswith("number"):
+            concept = str(random.randint(1, 999))
+        return concept
+
+    @staticmethod
+    def _get_concept_expansion(name: str, concepts: Concepts, specific_locations_chance: float = 0.3) -> str:
+        concept = Prompter._select_concept(name, concepts, specific_locations_chance)
+        if concept is None:
+            return None
+        elif "$$" in concept and random.random() < 0.5:
+            # Slightly reduce chance of more prompt expansion nesting
+            concept = Prompter._select_concept(name, concepts, specific_locations_chance)
+        return concept
+
+    @staticmethod
+    def _expand_one_pass(
+        text: str,
+        from_ui: bool = False,
+        concepts: Concepts = None,
+        specific_locations_chance: float = 0.3,
+        inline_vars: dict = None,
+    ) -> tuple[str, bool]:
+        """
+        Performs a single pass of expansion on the text.
+        Returns: (expanded_text, has_more_expansions)
+        """
+        offset = 0
+        for match in re.finditer(Prompter._expansion_var_pattern(from_ui), text):
+            left = text[:match.start() + offset]
+            right = text[match.end() + offset:]
+            name = match.group().lower()
+            if from_ui and name[0] == "$" and match.start() > 0 and text[match.start()-1] == "$":
+                continue
+            original_length = len(name)
+            if "$" in name:
+                name = name.replace("$", "")
+            if "{" in name:
+                name = name.replace("{", "")
+            if "}" in name:
+                name = name.replace("}", "")
+            replacement = None
+            if inline_vars and name in inline_vars:
+                replacement = inline_vars[name]
+            elif name in config.wildcards:
+                replacement = config.wildcards[name]
+            elif Expansion.contains_expansion(name):
+                replacement = Expansion.get_expansion_text_by_id(name)
+            elif name == "random" and len(config.wildcards) > 0:
+                name = random.choice(list(config.wildcards))
+                replacement = config.wildcards[name]
+                logger.info(f"Using random prompt replacement ID: {name}")
+            elif concepts is not None:
+                replacement = Prompter._get_concept_expansion(name, concepts, specific_locations_chance)
+            if replacement is None:
+                logger.debug(f"No expansion found for prompt variable: \"{name}\"")
+                continue
+            text = left + replacement + right
+            offset += len(replacement) - original_length
+        
+        # Check if the result still contains expansion variables
+        has_more = Prompter.contains_expansion_var(text, from_ui=from_ui)
+        return str(text), has_more
+
+    @staticmethod
+    def apply_expansions(
+        text: str,
+        from_ui: bool = False,
+        concepts: Concepts = None,
+        specific_locations_chance: float = 0.3,
+        inline_vars: dict = None,
+    ) -> str:
+        """
+        Applies prompt expansions recursively until no more expansion variables are found.
+        When from_ui=False, converts $$var to $var before expanding.
+
+        *inline_vars* is an optional mapping of lowercased variable names to their
+        replacement text, extracted from a ``|||Name->value`` header block by
+        ``extract_inline_vars``.  These take priority over config wildcards and
+        stored expansions.
+
+        Note: Self-referencing (e.g., wildcard1 = "$wildcard1") or circular references
+        (e.g., wildcard1 = "$wildcard2", wildcard2 = "$wildcard1") will cause the
+        expansion to stop after max_iterations, with a warning logged. The maximum
+        iteration limit prevents infinite loops in such cases.
+        """
+        max_iterations = 10
+        iteration = 0
+        current_text = text
+
+        while Prompter.contains_expansion_var(current_text, from_ui=from_ui) and iteration < max_iterations:
+            # Convert $$var to $var when not in UI mode (for final expansion)
+            if not from_ui:
+                current_text = Prompter.DOUBLE_DOLLAR_VAR_PATTERN.sub(r'$\1', current_text)
+
+            # Perform one expansion pass
+            current_text, has_more = Prompter._expand_one_pass(
+                current_text,
+                from_ui=from_ui,
+                concepts=concepts,
+                specific_locations_chance=specific_locations_chance,
+                inline_vars=inline_vars,
+            )
+
+            iteration += 1
+
+            # If no expansions were made or no more expansions exist, break
+            if not has_more:
+                break
+
+        if iteration >= max_iterations:
+            logger.warning(f"Reached maximum expansion iterations ({max_iterations}). Some variables may not be expanded.")
+
+        return str(current_text)
+
+
+class GlobalPrompter:
+    prompter_instance = Prompter()
+
+    @classmethod
+    def set_prompter(cls, prompter_config: PrompterConfiguration, get_specific_locations: bool, get_specific_times: bool = False, prompt_list: list[str] = []):
+        cls.prompter_instance = Prompter(prompter_config=prompter_config, get_specific_locations=get_specific_locations, get_specific_times=get_specific_times, prompt_list=prompt_list)
+
+
+if __name__ == "__main__":
+    print(Prompter().generate_prompt())

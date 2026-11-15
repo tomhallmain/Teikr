@@ -9,10 +9,10 @@ whole of the behaviour -- there is no separate UI path.
 
 import pytest
 
-from src.globals import Globals
-from src.image_to_prompt.negative import resolve_negative
-from src.image_to_prompt.service import ImageToPromptService
-from src.image_to_prompt.types import (
+from teikr.globals import Globals
+from teikr.image_to_prompt.negative import resolve_negative
+from teikr.image_to_prompt.service import ImageToPromptService
+from teikr.image_to_prompt.types import (
     ImageToPromptBackend,
     ImageToPromptRequest,
     ImageToPromptResult,

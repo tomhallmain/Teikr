@@ -1,5 +1,5 @@
 import pytest
-from src.globals import (
+from teikr.globals import (
     ArchitectureType,
     BlacklistMode,
     BlacklistPromptMode,

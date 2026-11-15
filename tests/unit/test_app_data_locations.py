@@ -15,9 +15,9 @@ import os
 
 import pytest
 
-import src.prompts.blacklist as blacklist_mod
+import teikr.prompts.blacklist as blacklist_mod
 from lib.logging_setup import EncryptedFileHandler, adopt_legacy_file, app_data_dir
-from src.config import Config
+from teikr.config import Config
 
 CACHE_NAME = "blacklist_filter_cache.pkl"
 
@@ -34,10 +34,10 @@ def fake_app_data(tmp_path, monkeypatch):
 @pytest.fixture
 def fake_repo(tmp_path, monkeypatch):
     """A repo root whose legacy configs/ folder holds a config and cache, with
-    the example config in src/data/. Returns the configs/ folder."""
+    the example config in src/teikr/data/. Returns the configs/ folder."""
     repo = tmp_path / "repo"
     configs = repo / "configs"
-    data = repo / "src" / "data"
+    data = repo / "src" / "teikr" / "data"
     configs.mkdir(parents=True)
     data.mkdir(parents=True)
     (configs / "config.json").write_text('{"legacy": true}', encoding="utf-8")
@@ -174,8 +174,8 @@ class TestAppInfoCacheIsolation:
     def test_the_cache_is_neither_in_the_repo_nor_the_real_app_data_dir(self):
         import sys
 
-        from src.app_paths import REPO_ROOT
-        from src.persistence.app_info_cache import app_info_cache
+        from teikr.app_paths import REPO_ROOT
+        from teikr.persistence.app_info_cache import app_info_cache
 
         location = os.path.realpath(app_info_cache._cache_loc)
         assert location.startswith(os.path.realpath(os.environ["SD_RUNNER_CACHE_DIR"]) + os.sep)

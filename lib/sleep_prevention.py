@@ -123,7 +123,7 @@ _app_id_cache: Optional[str] = None
 def _app_identifier() -> str:
     """This application's key in the shared state file.
 
-    Imported lazily to avoid pulling ``src.globals`` in at module load
+    Imported lazily to avoid pulling ``teikr.globals`` in at module load
     (circular import with ``lib.utils``), and cached so the resolution and
     its failure log happen once. Resolution failure is logged rather than
     silently adopting another application's identity -- with the state file
@@ -132,7 +132,7 @@ def _app_identifier() -> str:
     global _app_id_cache
     if _app_id_cache is None:
         try:
-            from src.globals import Globals
+            from teikr.globals import Globals
 
             _app_id_cache = Globals.APP_IDENTIFIER
         except Exception as e:
@@ -1086,8 +1086,9 @@ if __name__ == "__main__":
     # lib.sleep_prevention`` (repo root resolves ``utils``, etc.; redundant
     # but harmless under -m).
     _repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if _repo_root not in sys.path:
-        sys.path.insert(0, _repo_root)
+    for _entry in (_repo_root, os.path.join(_repo_root, "src")):
+        if _entry not in sys.path:
+            sys.path.insert(0, _entry)
 
     # Redirect to a scratch state dir before touching the API. These smoke
     # tests end in reset_state_for_application(), which drops every row for

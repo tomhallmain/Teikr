@@ -8,7 +8,7 @@ with a number when it has none.
 
 import pytest
 
-from src.runs.generation_timing import (
+from teikr.runs.generation_timing import (
     OUTLIER_FACTOR,
     WINDOW,
     GenerationTimingStore,

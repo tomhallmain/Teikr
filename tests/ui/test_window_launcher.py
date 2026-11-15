@@ -12,8 +12,8 @@ from types import SimpleNamespace
 import pytest
 
 from lib.translations import _
-from src.globals import ProtectedActions
-from src.ui.app_window.window_launcher import WindowLauncher
+from teikr.globals import ProtectedActions
+from teikr.ui.app_window.window_launcher import WindowLauncher
 from tests.utils import install_password_bypass
 
 
@@ -123,39 +123,39 @@ class TestFocusOrOpen:
 
 # method, window module, window class, tab, untranslated title, password gate
 ROUTES = [
-    ("show_tag_blacklist", "src.ui.prompts.blacklist_window", "BlacklistWindow",
+    ("show_tag_blacklist", "teikr.ui.prompts.blacklist_window", "BlacklistWindow",
      None, "Blacklist Window Error", ProtectedActions.EDIT_BLACKLIST),
-    ("open_presets_window", "src.ui.presets.presets_window", "PresetsWindow",
+    ("open_presets_window", "teikr.ui.presets.presets_window", "PresetsWindow",
      None, "Presets Window Error", ProtectedActions.EDIT_PRESETS),
-    ("open_preset_schedules_window", "src.ui.presets.schedules_window", "SchedulesWindow",
+    ("open_preset_schedules_window", "teikr.ui.presets.schedules_window", "SchedulesWindow",
      None, "Schedules Window Error", ProtectedActions.EDIT_SCHEDULES),
-    ("open_timed_schedules_window", "src.ui.presets.timed_schedules_window", "TimedSchedulesWindow",
+    ("open_timed_schedules_window", "teikr.ui.presets.timed_schedules_window", "TimedSchedulesWindow",
      None, "Timed Schedules Window Error", ProtectedActions.EDIT_TIMED_SCHEDULES),
-    ("open_concept_editor_window", "src.ui.prompts.concept_editor_window", "ConceptEditorWindow",
+    ("open_concept_editor_window", "teikr.ui.prompts.concept_editor_window", "ConceptEditorWindow",
      None, "Concept Editor Window Error", ProtectedActions.EDIT_CONCEPTS),
-    ("open_expansions_window", "src.ui.prompts.expansions_window", "ExpansionsWindow",
+    ("open_expansions_window", "teikr.ui.prompts.expansions_window", "ExpansionsWindow",
      None, "Expansions Window Error", ProtectedActions.EDIT_EXPANSIONS),
-    ("open_prompt_generator_window", "src.ui.prompts.prompt_generator_window", "PromptGeneratorWindow",
+    ("open_prompt_generator_window", "teikr.ui.prompts.prompt_generator_window", "PromptGeneratorWindow",
      None, "Prompt Generator Window Error", None),
-    ("open_frequent_tags_window", "src.ui.prompts.frequent_prompt_tags_window", "FrequentPromptTagsWindow",
+    ("open_frequent_tags_window", "teikr.ui.prompts.frequent_prompt_tags_window", "FrequentPromptTagsWindow",
      None, "Frequent Tags Window Error", None),
-    ("open_image_to_prompt_window", "src.ui.prompts.image_to_prompt_window", "ImageToPromptWindow",
+    ("open_image_to_prompt_window", "teikr.ui.prompts.image_to_prompt_window", "ImageToPromptWindow",
      None, "Image to Prompt Window Error", None),
-    ("open_config_window", "src.ui.config_window", "ConfigWindow",
+    ("open_config_window", "teikr.ui.config_window", "ConfigWindow",
      None, "Config Window Error", None),
-    ("open_models_window", "src.ui.models.models_window", "ModelsWindow",
+    ("open_models_window", "teikr.ui.models.models_window", "ModelsWindow",
      None, "Models Window Error", None),
-    ("open_model_presets_window", "src.ui.models.model_presets_window", "ModelPresetsWindow",
+    ("open_model_presets_window", "teikr.ui.models.model_presets_window", "ModelPresetsWindow",
      None, "Model Presets Window Error", None),
-    ("open_lora_models_window", "src.ui.models.models_window", "ModelsWindow",
+    ("open_lora_models_window", "teikr.ui.models.models_window", "ModelsWindow",
      1, "LoRA Models Window Error", None),
-    ("open_controlnet_adapters_window", "src.ui.models.recent_adapters_window", "RecentAdaptersWindow",
+    ("open_controlnet_adapters_window", "teikr.ui.models.recent_adapters_window", "RecentAdaptersWindow",
      0, "ControlNet Adapters Window Error", None),
-    ("open_ipadapter_adapters_window", "src.ui.models.recent_adapters_window", "RecentAdaptersWindow",
+    ("open_ipadapter_adapters_window", "teikr.ui.models.recent_adapters_window", "RecentAdaptersWindow",
      1, "IPAdapter Adapters Window Error", None),
-    ("open_source_prompt_adapters_window", "src.ui.models.recent_adapters_window", "RecentAdaptersWindow",
+    ("open_source_prompt_adapters_window", "teikr.ui.models.recent_adapters_window", "RecentAdaptersWindow",
      2, "Source Prompt Adapters Window Error", None),
-    ("open_runs_window", "src.ui.runs.runs_window", "RunsWindow",
+    ("open_runs_window", "teikr.ui.runs.runs_window", "RunsWindow",
      None, "Runs Window Error", None),
 ]
 
@@ -188,7 +188,7 @@ def test_refused_password_opens_nothing(launcher, app, monkeypatch, method):
     install_password_bypass(monkeypatch, granted=False)
     calls = []
     monkeypatch.setattr(launcher, "_focus_or_open", lambda *a, **k: calls.append(a))
-    import src.ui.app_window.window_launcher as window_launcher
+    import teikr.ui.app_window.window_launcher as window_launcher
 
     def must_not_run(*args, **kwargs):
         raise AssertionError("reached past the password gate")
@@ -207,7 +207,7 @@ def test_refused_password_opens_nothing(launcher, app, monkeypatch, method):
 # are opened by hand; only their error path is shared with the rest.
 
 def test_prompt_config_error_is_reported_under_its_title(launcher, app, monkeypatch):
-    from src.ui.prompts.prompt_config_window import PromptConfigWindow
+    from teikr.ui.prompts.prompt_config_window import PromptConfigWindow
 
     def broken():
         raise RuntimeError("cannot read")
@@ -220,8 +220,8 @@ def test_prompt_config_error_is_reported_under_its_title(launcher, app, monkeypa
 
 
 def test_password_admin_error_is_reported_under_its_title(launcher, app, monkeypatch):
-    import src.ui.app_window.window_launcher as window_launcher
-    from src.ui.auth.password_admin_window import PasswordAdminWindow
+    import teikr.ui.app_window.window_launcher as window_launcher
+    from teikr.ui.auth.password_admin_window import PasswordAdminWindow
 
     crossings = install_password_bypass(monkeypatch)
     monkeypatch.setattr(PasswordAdminWindow, "top_level", object())

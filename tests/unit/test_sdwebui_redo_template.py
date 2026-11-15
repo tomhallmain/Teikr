@@ -13,9 +13,9 @@ surrounding load-and-populate path needs a real PNG and a backend.
 
 import pytest
 
-from src.metadata.a1111 import parse_a1111_parameters
-from src.workflow_prompts.sdwebui import WorkflowPromptSDWebUI
-from src.globals import PromptTypeSDWebUI
+from teikr.metadata.a1111 import parse_a1111_parameters
+from teikr.workflow_prompts.sdwebui import WorkflowPromptSDWebUI
+from teikr.globals import PromptTypeSDWebUI
 
 
 TXT2IMG = "a cat\nSteps: 20, Sampler: Euler, Seed: 1, Size: 512x512, Model: x"

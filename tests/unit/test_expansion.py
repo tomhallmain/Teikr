@@ -1,5 +1,5 @@
 import pytest
-from src.prompts.expansion import Expansion
+from teikr.prompts.expansion import Expansion
 
 
 @pytest.fixture(autouse=True)

@@ -1,0 +1,672 @@
+import hashlib
+import json
+import os
+import shutil
+import tempfile
+import threading
+import datetime
+
+from lib.equivalence import are_equivalent
+from lib.position_data_qt import PositionData
+from teikr.prompts.blacklist import Blacklist
+from teikr.config import config
+from teikr.globals import Globals, PromptMode, BlacklistPromptMode
+from lib.encryptor import encrypt_data_to_file, decrypt_data_from_file, stored_keys_need_unavailable_oqs
+from lib.logging_setup import get_logger
+from teikr.app_paths import adopt_legacy_repo_file, user_data_path
+from teikr.runs.runner_app_config import RunnerAppConfig
+
+logger = get_logger("persistence.app_info_cache")
+
+CACHE_FILENAME = "app_info_cache.enc"
+JSON_FILENAME = "app_info_cache.json"
+#: Plaintext saves while the encrypted cache cannot be read (quantum keys
+#: without OQS). load() never migrates this file into the encrypted cache: it
+#: holds only what was saved since then, and would replace the encrypted
+#: cache's contents. Kept for manual recovery.
+NO_OQS_JSON_FILENAME = "app_info_cache.no_oqs.json"
+
+
+def _cache_dir() -> str:
+    """SD_RUNNER_CACHE_DIR if set, else the app data dir, after moving in a
+    cache left in the repo root by earlier versions."""
+    override = os.environ.get("SD_RUNNER_CACHE_DIR")
+    if override:
+        return override
+    target = user_data_path()
+    for i in range(AppInfoCache.NUM_BACKUPS, 0, -1):
+        name = f"{CACHE_FILENAME}.bak" + ("" if i == 1 else str(i))
+        adopt_legacy_repo_file(name, os.path.join(target, name))
+    for name in (CACHE_FILENAME, JSON_FILENAME, NO_OQS_JSON_FILENAME):
+        adopt_legacy_repo_file(name, os.path.join(target, name))
+    return target
+
+
+class AppInfoCache:
+    INFO_KEY = "info"
+    HISTORY_KEY = "run_history"
+    PROMPT_HISTORY_KEY = "prompt_history"  # New key for prompt tag history
+    MAX_HISTORY_ENTRIES = 1000
+    MAX_PROMPT_HISTORY_ENTRIES = 5000  # Larger limit for prompt history
+    DIRECTORIES_KEY = "directories"
+    HISTORY_PURGE_CACHE_KEY = "history_purge_cache"  # Cache for history purge results
+    EDIT_HISTORY_KEY = "edit_history"
+    NUM_BACKUPS = 4  # Number of backup files to maintain
+
+    def __init__(self):
+        self._lock = threading.RLock()
+        self._cache = {
+            AppInfoCache.INFO_KEY: {},
+            AppInfoCache.HISTORY_KEY: [],
+            AppInfoCache.PROMPT_HISTORY_KEY: [],
+            AppInfoCache.DIRECTORIES_KEY: {}
+        }
+        # Used to ensure post-init logic that depends on other subsystems
+        # (like blacklist configuration) only runs once.
+        self._post_init_done = False
+        # Set True while _purge_blacklisted_history is running so that
+        # external code (e.g. shutdown failsafe) can extend its timeout.
+        self.purging_history = False
+        # Set by every mutator, cleared by a successful store. Lets the periodic
+        # store skip writing when nothing has actually moved.
+        self._has_changes = False
+        # Set by wipe_instance. Shutdown deliberately empties the cache from
+        # memory after its final write, so any store attempted afterwards would
+        # overwrite good data with nothing.
+        self._wiped = False
+        cache_dir = _cache_dir()
+        self._cache_loc = os.path.join(cache_dir, CACHE_FILENAME)
+        self._json_loc = os.path.join(cache_dir, JSON_FILENAME)
+        self._no_oqs_json_loc = os.path.join(cache_dir, NO_OQS_JSON_FILENAME)
+        # Set when the stored keys are quantum keys and this process has no
+        # OQS: the encrypted cache is then neither read nor written.
+        self._encrypted_cache_unreadable = False
+        self.load()
+        self.validate()
+
+    def wipe_instance(self):
+        with self._lock:
+            self._cache = {
+                AppInfoCache.INFO_KEY: {},
+                AppInfoCache.HISTORY_KEY: [],
+                AppInfoCache.PROMPT_HISTORY_KEY: [],
+                AppInfoCache.DIRECTORIES_KEY: {},
+                AppInfoCache.HISTORY_PURGE_CACHE_KEY: {},
+                AppInfoCache.EDIT_HISTORY_KEY: {},
+            }
+            self._wiped = True
+
+    @property
+    def has_changes(self) -> bool:
+        """True if there are pending writes that have not yet been stored."""
+        with self._lock:
+            return self._has_changes
+
+    def _encrypt_to_path_atomically(self, cache_data, destination) -> None:
+        """Encrypt *cache_data* to *destination* via a temp file and one rename.
+
+        Writing straight to the destination truncates it first, so a crash or
+        power loss part-way through leaves an unreadable cache. Building the new
+        file alongside it and renaming means the destination is only ever the
+        old complete file or the new complete file.
+
+        The temp file is created in the destination's own directory so the
+        rename stays on one filesystem, which is what makes it atomic.
+        """
+        destination_dir = os.path.dirname(destination) or "."
+        os.makedirs(destination_dir, exist_ok=True)
+        fd, temp_path = tempfile.mkstemp(
+            prefix=".app_info_cache_", suffix=".tmp", dir=destination_dir
+        )
+        os.close(fd)
+        try:
+            encrypt_data_to_file(
+                cache_data,
+                Globals.SERVICE_NAME,
+                Globals.APP_IDENTIFIER,
+                temp_path
+            )
+            os.replace(temp_path, destination)
+        except Exception:
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except Exception:
+                pass
+            raise
+
+    def store(self, only_if_changed: bool = False):
+        """Persist cache to encrypted file. Returns True on success, False if encrypted store failed but JSON fallback succeeded. Raises on encoding or JSON fallback failure.
+
+        With *only_if_changed*, a store where nothing has been modified since the
+        last one is skipped entirely and None is returned. Callers that must
+        write regardless -- anything tied to a prompt execution, because the
+        blacklist purge below runs as part of the store and there is no purge on
+        load -- should leave it False.
+        """
+        with self._lock:
+            if self._wiped:
+                # Refuses rather than raises: the callers that could hit this
+                # are shutdown and crash paths, which must not be derailed.
+                logger.warning("Refusing to store a wiped cache over the saved one")
+                return None
+            if only_if_changed and not self._has_changes:
+                logger.debug("No cache changes since last store; skipping")
+                return None
+            try:
+                if config.purge_blacklisted_prompt_history:
+                    logger.debug("Purging blacklisted prompt history...")
+                    self.purging_history = True
+                    try:
+                        self._purge_blacklisted_history()
+                    finally:
+                        self.purging_history = False
+                cache_data = json.dumps(self._cache).encode('utf-8')
+            except Exception as e:
+                raise Exception(f"Error compiling application cache", e)
+
+            if self._encrypted_cache_unreadable:
+                # Encrypting fails the same way reading would; go straight to
+                # the file that is never merged back automatically.
+                json_loc = self._no_oqs_json_loc
+            else:
+                json_loc = self._json_loc
+                logger.debug("Encrypting cache...")
+                try:
+                    self._encrypt_to_path_atomically(cache_data, self._cache_loc)
+                    self._has_changes = False
+                    return True  # Encryption successful
+                except Exception as e:
+                    logger.error(f"Error encrypting cache: {e}")
+
+            logger.debug("Falling back to JSON store...")
+            try:
+                with open(json_loc, "w", encoding="utf-8") as f:
+                    json.dump(self._cache, f)
+                self._has_changes = False
+                return False  # Encryption failed, but JSON fallback succeeded
+            except Exception as e:
+                raise Exception(f"Error storing application cache", e)
+
+    def _try_load_cache_from_file(self, path):
+        """Attempt to load and decrypt the cache from the given file path. Raises on failure."""
+        encrypted_data = decrypt_data_from_file(
+            path,
+            Globals.SERVICE_NAME,
+            Globals.APP_IDENTIFIER
+        )
+        return json.loads(encrypted_data.decode('utf-8'))
+
+    def load(self):
+        with self._lock:
+            try:
+                if self._needs_unavailable_oqs():
+                    self._start_without_encrypted_cache()
+                    return
+
+                if os.path.exists(self._json_loc):
+                    logger.info(f"Detected JSON-format application cache, will attempt migration to encrypted store")
+                    with open(self._json_loc, "r", encoding="utf-8") as f:
+                        self._cache = json.load(f)
+                    if self.store():
+                        logger.info(f"Migrated application cache from {self._json_loc} to encrypted store")
+                        os.remove(self._json_loc)
+                    else:
+                        logger.warning("Encrypted store of application cache failed; keeping JSON cache file")
+                    return
+
+                # Try encrypted cache and backups in order
+                cache_paths = [self._cache_loc] + self._get_backup_paths()
+                any_exist = any(os.path.exists(path) for path in cache_paths)
+                if not any_exist:
+                    logger.info(f"No cache file found at {self._cache_loc}, creating new cache")
+                    return
+
+                for path in cache_paths:
+                    if os.path.exists(path):
+                        try:
+                            self._cache = self._try_load_cache_from_file(path)
+                            # Only shift backups if we loaded from the main file
+                            if path == self._cache_loc:
+                                message = f"Loaded cache from {self._cache_loc}"
+                                rotated_count = self._rotate_backups()
+                                if rotated_count > 0:
+                                    message += f", rotated {rotated_count} backups"
+                                logger.info(message)
+                            else:
+                                logger.warning(f"Loaded cache from backup: {path}")
+                            return
+                        except Exception as e:
+                            logger.error(f"Failed to load cache from {path}: {e}")
+                            continue
+                # If we get here, all attempts failed (but at least one file existed)
+                raise Exception(f"Failed to load cache from all locations: {cache_paths}")
+            except Exception as e:
+                logger.error(f"Error loading cache: {e}")
+                pass
+
+    def _needs_unavailable_oqs(self) -> bool:
+        """Whether an existing encrypted cache was written with quantum keys
+        this process cannot use. Only asked when a cache exists: without one
+        the lookup would fall through to the OS keychain for nothing."""
+        if not any(os.path.exists(p) for p in [self._cache_loc] + self._get_backup_paths()):
+            return False
+        return stored_keys_need_unavailable_oqs(Globals.SERVICE_NAME, Globals.APP_IDENTIFIER)
+
+    def _start_without_encrypted_cache(self):
+        """Continue from the last no-OQS session's saves, or from an empty cache,
+        leaving the encrypted cache and its backups untouched for a process
+        with OQS."""
+        self._encrypted_cache_unreadable = True
+        logger.warning(
+            f"{self._cache_loc} is encrypted with quantum (OQS) keys and this process has no OQS "
+            f"(a build needs --with-oqs to read it). Starting without it; it is left untouched, "
+            f"and this session's changes are saved to {self._no_oqs_json_loc} only."
+        )
+        if os.path.exists(self._no_oqs_json_loc):
+            try:
+                with open(self._no_oqs_json_loc, "r", encoding="utf-8") as f:
+                    self._cache = json.load(f)
+                logger.info(f"Loaded cache from {self._no_oqs_json_loc}")
+            except (OSError, ValueError) as e:
+                logger.error(f"Could not read {self._no_oqs_json_loc}, starting empty: {e}")
+
+    @property
+    def encrypted_cache_unreadable(self) -> bool:
+        return self._encrypted_cache_unreadable
+
+    def validate(self):
+        with self._lock:
+            pass
+
+    def post_init(self):
+        """Run initialization that depends on other subsystems having been configured.
+
+        This is intended to be called once, after components like the blacklist
+        window have been initialized and restored persisted blacklist settings.
+        """
+        if self._post_init_done:
+            return
+        self._post_init_done = True
+
+        if config.purge_blacklisted_prompt_history:
+            self._purge_blacklisted_history()
+
+    def _purge_blacklisted_history(self):
+        """Remove any history entries that contain blacklisted items in their prompts.
+        
+        Uses per-entry caching to avoid re-checking history entries that have already
+        been checked. The cache is keyed by entry content hash and blacklist version
+        to ensure consistency. Only clears cache when blacklist version changes.
+        
+        If every entry would be removed, the most recent run is still kept so the
+        user's last-used configuration can load on the next session. Truly empty
+        history (never saved) is unchanged; ``get_history(0)`` then returns defaults.
+
+        Must be called from within a locked context.
+        """
+        if not self._cache.get(AppInfoCache.HISTORY_KEY):
+            return
+
+        prompt_mode = PromptMode.get(self.get("prompt_mode", default_val=PromptMode.SFW.name))
+        if prompt_mode.is_nsfw() and Blacklist.get_blacklist_prompt_mode() == BlacklistPromptMode.ALLOW_IN_NSFW:
+            return
+
+        raw_history = list(self._cache[AppInfoCache.HISTORY_KEY])
+
+        # Get current blacklist version
+        current_version = Blacklist.get_version()
+        
+        # Initialize purge cache if it doesn't exist
+        if AppInfoCache.HISTORY_PURGE_CACHE_KEY not in self._cache:
+            self._cache[AppInfoCache.HISTORY_PURGE_CACHE_KEY] = {}
+        
+        purge_cache = self._cache[AppInfoCache.HISTORY_PURGE_CACHE_KEY]
+        
+        # Check if cache version matches, clear if not
+        cached_version = purge_cache.get("_version", -1)
+        if cached_version != current_version:
+            # Version changed, clear the cache (but keep the markers)
+            purge_cache.clear()
+            purge_cache["_version"] = current_version
+        
+        filtered_history = []
+        count_removed = 0
+
+        for config_dict in raw_history:
+            config = RunnerAppConfig.from_dict(config_dict)
+            if not config.positive_tags or not config.positive_tags.strip():
+                filtered_history.append(config_dict)
+                continue
+            
+            # Create cache key from entry content and blacklist version
+            entry_content = config.positive_tags.strip()
+            entry_hash = hashlib.md5(entry_content.encode('utf-8')).hexdigest()
+            cache_key = f"{entry_hash}_{current_version}"
+            
+            # Check cache first
+            if cache_key in purge_cache:
+                # Use cached result
+                is_blacklisted = purge_cache[cache_key]
+            else:
+                # Not in cache, perform the check
+                # First do standard check, then detailed check if standard check passes
+                blacklisted = Blacklist.find_blacklisted_items(config.positive_tags)
+                if not blacklisted:
+                    # Perform detailed check for filter evasion attempts
+                    blacklisted = Blacklist.check_user_prompt_detailed(config.positive_tags)
+                
+                is_blacklisted = len(blacklisted) > 0
+                # Cache the result
+                purge_cache[cache_key] = is_blacklisted
+            
+            if not is_blacklisted:
+                filtered_history.append(config_dict)
+            else:
+                count_removed += 1
+
+        if not filtered_history and raw_history:
+            filtered_history.append(raw_history[0])
+            logger.info(
+                "All run history entries matched blacklist rules; retaining the "
+                "most recent entry so the last-used configuration can still be restored."
+            )
+
+        if count_removed > 0:
+            logger.info(f"Removed {count_removed} history entries with blacklisted items.")
+            logger.info(f"Remaining history entries: {len(filtered_history)}")
+
+        # Ensure we don't exceed MAX_HISTORY_ENTRIES after filtering
+        if len(filtered_history) > AppInfoCache.MAX_HISTORY_ENTRIES:
+            filtered_history = filtered_history[:AppInfoCache.MAX_HISTORY_ENTRIES]
+            logger.info(f"Truncated history to {AppInfoCache.MAX_HISTORY_ENTRIES} entries")
+            
+        if len(filtered_history) != len(raw_history):
+            self._has_changes = True
+        self._cache[AppInfoCache.HISTORY_KEY] = filtered_history
+
+    def _get_history(self) -> list:
+        """Get history list. Must be called from within a locked context."""
+        if AppInfoCache.HISTORY_KEY not in self._cache:
+            self._cache[AppInfoCache.HISTORY_KEY] = []
+        return self._cache[AppInfoCache.HISTORY_KEY]
+
+    def _get_prompt_history(self) -> list:
+        """Get the prompt history list, creating it if it doesn't exist. Must be called from within a locked context."""
+        if AppInfoCache.PROMPT_HISTORY_KEY not in self._cache:
+            self._cache[AppInfoCache.PROMPT_HISTORY_KEY] = []
+        return self._cache[AppInfoCache.PROMPT_HISTORY_KEY]
+
+    def _get_directory_info(self):
+        """Get directory info dict. Must be called from within a locked context."""
+        if AppInfoCache.DIRECTORIES_KEY not in self._cache:
+            self._cache[AppInfoCache.DIRECTORIES_KEY] = {}
+        return self._cache[AppInfoCache.DIRECTORIES_KEY]
+
+    def _get_edit_history(self) -> dict:
+        """Get edit history dict (basename → ISO timestamp). Must be called within a locked context."""
+        # TODO: At some point the stored timestamps may be used to trim old entries
+        #       from this history (e.g. drop anything older than N days) to bound growth.
+        if AppInfoCache.EDIT_HISTORY_KEY not in self._cache:
+            self._cache[AppInfoCache.EDIT_HISTORY_KEY] = {}
+        return self._cache[AppInfoCache.EDIT_HISTORY_KEY]
+
+    def record_edit_output(self, basename: str) -> None:
+        """Record an edit output basename with the current timestamp."""
+        with self._lock:
+            self._get_edit_history()[basename] = datetime.datetime.now().isoformat()
+            self._has_changes = True
+
+    def edit_output_exists(self, basename: str) -> bool:
+        """Return True if this basename was previously produced by an edit."""
+        with self._lock:
+            return basename in self._get_edit_history()
+
+    def set(self, key, value):
+        with self._lock:
+            if AppInfoCache.INFO_KEY not in self._cache:
+                self._cache[AppInfoCache.INFO_KEY] = {}
+            # Already dirty means the comparison cannot change the outcome.
+            if self._has_changes or not are_equivalent(
+                self._cache[AppInfoCache.INFO_KEY].get(key), value
+            ):
+                self._cache[AppInfoCache.INFO_KEY][key] = value
+                self._has_changes = True
+
+    def get(self, key, default_val=None):
+        with self._lock:
+            if AppInfoCache.INFO_KEY not in self._cache or key not in self._cache[AppInfoCache.INFO_KEY]:
+                return default_val
+            return self._cache[AppInfoCache.INFO_KEY][key]
+
+    def remove(self, key) -> bool:
+        """Drop *key* entirely. Returns whether it was there to drop.
+
+        Distinct from setting it to None: ``get``'s *default_val* only answers
+        for an absent key, so a stored None would read back as a present value
+        that every caller would have to special-case.
+        """
+        with self._lock:
+            info = self._cache.get(AppInfoCache.INFO_KEY)
+            if not info or key not in info:
+                return False
+            del info[key]
+            self._has_changes = True
+            return True
+
+    def set_display_position(self, master):
+        """Store the main window's display position and size (PySide6 QWidget)."""
+        self.set("display_position", PositionData.from_master(master).to_dict())
+
+    def set_virtual_screen_info(self, master):
+        """Store virtual screen information (PySide6 QWidget)."""
+        try:
+            self.set("virtual_screen_info", PositionData.from_master_virtual_screen(master).to_dict())
+        except Exception as e:
+            logger.warning(f"Failed to store virtual screen info: {e}")
+
+    def get_virtual_screen_info(self):
+        """Get cached virtual screen info as PositionData, or None if not set."""
+        virtual_screen_data = self.get("virtual_screen_info")
+        if not virtual_screen_data:
+            return None
+        return PositionData.from_dict(virtual_screen_data)
+
+    def get_display_position(self):
+        """Get cached display position as PositionData, or None if not set."""
+        position_data = self.get("display_position")
+        if not position_data:
+            return None
+        return PositionData.from_dict(position_data)
+
+    def set_history(self, runner_app_config: RunnerAppConfig) -> bool:
+        with self._lock:
+            history = self._get_history()
+            if len(history) > 0 and runner_app_config == RunnerAppConfig.from_dict(history[0]):
+                logger.debug("History already contains this config")
+                return False
+                
+            config_dict = runner_app_config.to_dict()
+            history.insert(0, config_dict)
+            self._has_changes = True
+            
+            # Add to prompt history if there are positive tags
+            self.add_prompt_history_entry(
+                positive_tags=runner_app_config.positive_tags,
+                negative_tags=runner_app_config.negative_tags,
+                timestamp=config_dict.get("timestamp", ""),
+            )
+            
+            # Remove the oldest entry from history if over the limit of entries
+            while len(history) > AppInfoCache.MAX_HISTORY_ENTRIES:
+                history.pop()
+            return True
+
+    def add_prompt_history_entry(self, positive_tags: str, negative_tags: str = "", timestamp: str = "") -> bool:
+        """Add one prompt to prompt history without modifying run history."""
+        with self._lock:
+            if not positive_tags or not str(positive_tags).strip():
+                return False
+            prompt_history = self._get_prompt_history()
+            entry = {
+                "positive_tags": str(positive_tags),
+                "negative_tags": str(negative_tags or ""),
+                "timestamp": str(timestamp or datetime.datetime.now().isoformat()),
+            }
+            if len(prompt_history) > 0 and prompt_history[0] == entry:
+                logger.debug("Prompt history already contains this prompt at top")
+                return False
+            prompt_history.insert(0, entry)
+            self._has_changes = True
+            while len(prompt_history) > AppInfoCache.MAX_PROMPT_HISTORY_ENTRIES:
+                prompt_history.pop()
+            return True
+
+    def get_last_history_index(self):
+        with self._lock:
+            history = self._get_history()
+            if not history:
+                return 0
+            return len(history) - 1
+
+    def clamp_config_history_index(self, index: int) -> int:
+        """Clamp a persisted config-history navigation index to a valid row after load/purge."""
+        with self._lock:
+            history = self._get_history()
+            idx = max(0, index)
+            if not history:
+                return 0
+            return min(idx, len(history) - 1)
+
+    def get_history(self, _idx=0):
+        with self._lock:
+            history = self._get_history()
+            if not history:
+                if _idx == 0:
+                    return RunnerAppConfig().to_dict()
+                raise Exception("Invalid history index " + str(_idx))
+            if _idx < 0 or _idx >= len(history):
+                raise Exception("Invalid history index " + str(_idx))
+            return history[_idx]
+
+    def get_prompt_tags_by_frequency(self, weighted=False) -> dict[str, int]:
+        """Get frequency of prompt tags from the prompt history.
+        
+        Args:
+            weighted: If True, weight tags by recency (newer tags count more)
+            
+        Returns:
+            dict: Mapping of tags to their frequency counts
+        """
+        with self._lock:
+            prompt_history = self._get_prompt_history()
+            prompt_tags = {}
+            
+            for idx, entry in enumerate(prompt_history):
+                if not entry.get("positive_tags"):
+                    continue
+                    
+                # Calculate weight based on position if weighted
+                weight = 1.0
+                if weighted:
+                    # Newer entries get higher weights, decreasing exponentially
+                    weight = 1.0 / (1.0 + idx * 0.1)
+                    
+                tags = entry["positive_tags"].split(",")
+                for tag in tags:
+                    tag = tag.strip()
+                    if not tag:
+                        continue
+                        
+                    # Clean the tag by removing parentheses
+                    while tag.startswith('(') or tag.startswith('['):
+                        tag = tag[1:].strip()
+                    while tag.endswith(')') or tag.endswith(']'):
+                        tag = tag[:-1].strip()
+                        
+                    if tag not in prompt_tags:
+                        prompt_tags[tag] = weight
+                    else:
+                        prompt_tags[tag] += weight
+                        
+            return prompt_tags
+
+    def get_recent_prompts(self, limit=10) -> list[dict]:
+        """Get the most recent prompts from the prompt history.
+        
+        Args:
+            limit: Maximum number of prompts to return
+            
+        Returns:
+            list: List of recent prompt entries, each containing positive_tags, negative_tags, and timestamp
+        """
+        with self._lock:
+            prompt_history = self._get_prompt_history()
+            return prompt_history[:limit]
+
+    def set_directory(self, directory, key, value):
+        with self._lock:
+            directory = AppInfoCache.normalize_directory_key(directory)
+            if directory is None or directory.strip() == "":
+                raise Exception(f"Invalid directory provided to app_info_cache.set(). key={key} value={value}")
+            directory_info = self._get_directory_info()
+            if directory not in directory_info:
+                directory_info[directory] = {}
+            if self._has_changes or not are_equivalent(
+                directory_info[directory].get(key), value
+            ):
+                directory_info[directory][key] = value
+                self._has_changes = True
+
+    def get_directory(self, directory, key, default_val=None):
+        with self._lock:
+            directory = AppInfoCache.normalize_directory_key(directory)
+            directory_info = self._get_directory_info()
+            if directory not in directory_info or key not in directory_info[directory]:
+                return default_val
+            return directory_info[directory][key]
+
+    @staticmethod
+    def normalize_directory_key(directory):
+        return os.path.normpath(os.path.abspath(directory))
+
+    def export_as_json(self, json_path=None):
+        """Export the current cache as a JSON file (not encrypted)."""
+        if json_path is None:
+            json_path = self._json_loc
+        with self._lock:
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(self._cache, f, ensure_ascii=False, indent=2)
+        return json_path
+
+    def _get_backup_paths(self):
+        """Get list of backup file paths in order of preference"""
+        backup_paths = []
+        for i in range(1, self.NUM_BACKUPS + 1):
+            index = "" if i == 1 else f"{i}"
+            path = f"{self._cache_loc}.bak{index}"
+            backup_paths.append(path)
+        return backup_paths
+
+    def _rotate_backups(self):
+        """Rotate backup files: move each backup to the next position, oldest gets overwritten"""
+        backup_paths = self._get_backup_paths()
+        rotated_count = 0
+        
+        # Remove the oldest backup if it exists
+        if os.path.exists(backup_paths[-1]):
+            os.remove(backup_paths[-1])
+        
+        # Shift backups: move each backup to the next position
+        for i in range(len(backup_paths) - 1, 0, -1):
+            if os.path.exists(backup_paths[i - 1]):
+                shutil.copy2(backup_paths[i - 1], backup_paths[i])
+                rotated_count += 1
+        
+        # Copy main cache to first backup position
+        shutil.copy2(self._cache_loc, backup_paths[0])
+        
+        return rotated_count
+
+
+app_info_cache = AppInfoCache()

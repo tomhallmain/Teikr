@@ -13,9 +13,9 @@ list, with the reveal behind the same password gate as the blacklist's own.
 
 import pytest
 
-from src.models.model import Model
-from src.prompts.blacklist import Blacklist, ModelBlacklistItem
-from src.ui.models.models_window import ModelsWindow
+from teikr.models.model import Model
+from teikr.prompts.blacklist import Blacklist, ModelBlacklistItem
+from teikr.ui.models.models_window import ModelsWindow
 from tests.utils import close_window, install_password_bypass, make_model
 
 

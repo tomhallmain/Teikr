@@ -10,8 +10,8 @@ gives a deterministic weekday without depending on the system clock.
 
 import datetime
 import pytest
-from src.presets.timed_schedule import TimedSchedule
-from src.presets.timed_schedules_manager import (
+from teikr.presets.timed_schedule import TimedSchedule
+from teikr.presets.timed_schedules_manager import (
     TimedSchedulesManager,
     ScheduledShutdownException,
 )

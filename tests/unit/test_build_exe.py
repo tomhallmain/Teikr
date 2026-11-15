@@ -9,8 +9,8 @@ import runpy
 
 import pytest
 
-from src.app_paths import REPO_ROOT
-from src.runtime.unpack_cleanup import UNPACK_DIR_PREFIXES
+from teikr.app_paths import REPO_ROOT
+from teikr.runtime.unpack_cleanup import UNPACK_DIR_PREFIXES
 
 
 @pytest.fixture(scope="module")
@@ -45,9 +45,9 @@ class TestDataFiles:
         files = set(build_exe["_data_files"]())
         for path in (
             os.path.join("assets", "icon.png"),
-            os.path.join("src", "data", "blacklist_default.enc"),
-            os.path.join("src", "data", "urban_dictionary.enc"),
-            os.path.join("src", "data", "config_example.json"),
+            os.path.join("src", "teikr", "data", "blacklist_default.enc"),
+            os.path.join("src", "teikr", "data", "urban_dictionary.enc"),
+            os.path.join("src", "teikr", "data", "config_example.json"),
             build_exe["VERSION_FILE"],
         ):
             assert path in files
@@ -68,7 +68,7 @@ class TestTargets:
         assert [t[0] for t in build_exe["_targets"](True)] == ["Teikr", "TeikrHeadless"]
 
     def test_the_executables_carry_the_display_name(self, build_exe):
-        from src.runtime.version import APP_NAME
+        from teikr.runtime.version import APP_NAME
 
         assert build_exe["APP_NAME"] == APP_NAME
         args = build_exe["_common_args"]("Teikr.exe", "teikr", "1.0.0", "20260101-000000")
@@ -96,7 +96,7 @@ class TestHelpers:
         assert all(part.isdigit() for part in version.split("."))
 
     def test_app_version_matches_what_the_app_reads(self, build_exe):
-        from src.runtime.version import app_version
+        from teikr.runtime.version import app_version
 
         assert build_exe["_app_version"]() == app_version()
 
@@ -170,6 +170,15 @@ class TestMemoryWait:
         monkeypatch.delenv(name, raising=False)
         assert build_exe["_nuitka_env"]("12")[name] == "12"
         assert name not in build_exe["_nuitka_env"](None)
+
+    def test_nuitka_finds_the_package_through_src(self, build_exe, monkeypatch):
+        monkeypatch.delenv("PYTHONPATH", raising=False)
+        assert build_exe["_nuitka_env"]()["PYTHONPATH"] == os.path.join(REPO_ROOT, "src")
+
+    def test_an_existing_pythonpath_is_kept_after_src(self, build_exe, monkeypatch):
+        monkeypatch.setenv("PYTHONPATH", "elsewhere")
+        entries = build_exe["_nuitka_env"]()["PYTHONPATH"].split(os.pathsep)
+        assert entries == [os.path.join(REPO_ROOT, "src"), "elsewhere"]
 
     @pytest.mark.parametrize("value", ["0", "12", "2.5"])
     def test_min_free_memory_accepts_gib(self, build_exe, value):

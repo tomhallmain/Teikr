@@ -1,7 +1,7 @@
 import os
 import tempfile
 
-from src.generators.base import BaseImageGenerator
+from teikr.generators.base import BaseImageGenerator
 
 
 class TestMoveToTargetDir:

@@ -12,19 +12,20 @@ concepts/nsfl*
 concepts/nsfw*
 concepts/wildcards.txt
 configs/*
-# src/data/ holds both shipped files and files the app writes at runtime,
+# src/teikr/data/ holds both shipped files and files the app writes at runtime,
 # so nothing there is tracked unless it is listed here.
-src/data/*
-!src/data/blacklist_default.enc
-!src/data/config_example.json
-!src/data/urban_dictionary.enc
-!src/data/workflows/
-src/data/workflows/stableDiffusion3*
-src/data/workflows/test.json
-# The package was sd_runner/ before the move to src/. A checkout updated across
-# the move keeps the untracked files it held there, the plain Urban Dictionary
-# list among them, which must not be committed.
+src/teikr/data/*
+!src/teikr/data/blacklist_default.enc
+!src/teikr/data/config_example.json
+!src/teikr/data/urban_dictionary.enc
+!src/teikr/data/workflows/
+src/teikr/data/workflows/stableDiffusion3*
+src/teikr/data/workflows/test.json
+# Earlier homes of the package, sd_runner/ and then src/ itself. A checkout
+# updated across a move keeps the untracked files it held there, the plain
+# Urban Dictionary list among them, which must not be committed.
 /sd_runner/
+/src/data/
 sdg_script.py
 scripts/i18n_fixes.json
 puns_books*.py

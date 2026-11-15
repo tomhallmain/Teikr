@@ -22,6 +22,11 @@ import pytest
 _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
+# The application package is src/teikr; lib/, extensions/ and the entry points
+# stay at the root above.
+_src_dir = os.path.join(_project_root, "src")
+if _src_dir not in sys.path:
+    sys.path.insert(0, _src_dir)
 
 # Prevent Qt from trying to open a display during headless test runs.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -63,8 +68,8 @@ os.environ["MYPERSONALAPPLICATIONSSERVICELOGS_PASSPHRASE"] = "sd-runner-test-log
 
 # Imported for the side effect: both modules construct their singleton at import
 # time, and this forces that to happen now, with the env vars above in place.
-from src.config import Config  # noqa: F401
-from src.persistence.app_info_cache import AppInfoCache  # noqa: F401
+from teikr.config import Config  # noqa: F401
+from teikr.persistence.app_info_cache import AppInfoCache  # noqa: F401
 
 # ---------------------------------------------------------------------------
 # Keyring: never the developer's real OS credential store
@@ -145,7 +150,7 @@ I18N.install_locale("en", verbose=False)
 def repoint_singleton_bindings(monkeypatch, attr_name, old_obj, new_obj) -> None:
     """Repoint every module-level binding of *old_obj* to *new_obj*.
 
-    A module doing ``from src.config import config`` at import time holds its
+    A module doing ``from teikr.config import config`` at import time holds its
     own reference to the singleton, so patching the source module alone leaves
     that binding stale and the module keeps reading the un-isolated instance --
     which is never reset between tests, so its values leak into whatever runs
@@ -155,7 +160,7 @@ def repoint_singleton_bindings(monkeypatch, attr_name, old_obj, new_obj) -> None
     had already gone out of date: 20 of the 32 modules holding a module-level
     ``config`` binding were unpatched, including every backend generator (whose
     bindings carry the user's real backend URLs and save paths) and
-    ``src.generators.cloud_image_saver``. The identity check touches only bindings to the
+    ``teikr.generators.cloud_image_saver``. The identity check touches only bindings to the
     exact old object, and modules imported later reach the new object through
     the already-patched source module. Test modules are swept too, so a
     module-level import in a test file no longer writes to a different object
@@ -193,7 +198,7 @@ def _default_concepts_dir() -> str:
     """
     global _original_concepts_dir
     if _original_concepts_dir is None:
-        from src.prompts.concepts import Concepts
+        from teikr.prompts.concepts import Concepts
         _original_concepts_dir = Concepts.CONCEPTS_DIR
     return _original_concepts_dir
 
@@ -207,7 +212,7 @@ def _default_prompter_tags() -> dict:
     """
     global _original_prompter_tags
     if _original_prompter_tags is None:
-        from src.prompts.prompter import Prompter
+        from teikr.prompts.prompter import Prompter
         _original_prompter_tags = {
             "POSITIVE_TAGS": Prompter.POSITIVE_TAGS,
             "NEGATIVE_TAGS": Prompter.NEGATIVE_TAGS,
@@ -221,7 +226,7 @@ def _default_prompter_tags() -> dict:
 def _reset_if_imported(module_name: str, class_name: str, **attrs) -> None:
     """Reset class attributes, but only on an already-imported module.
 
-    Importing is deliberately not forced: several of these live in src.ui and
+    Importing is deliberately not forced: several of these live in teikr.ui and
     would pull PySide6 into every unit test just to clear a list that only a UI
     test could have populated.
 
@@ -247,7 +252,7 @@ def _reset_if_imported(module_name: str, class_name: str, **attrs) -> None:
 
 def _reset_class_state() -> None:
     try:
-        from src.runs.run_config import RunConfig
+        from teikr.runs.run_config import RunConfig
         RunConfig.previous_model_tags = None
         RunConfig.model_switch_detected = False
         RunConfig.has_warned_about_prompt_massage_text_mismatch = False
@@ -270,7 +275,7 @@ def _reset_class_state() -> None:
     # Also module-level: measured generation rates accumulate for the life of
     # the process, so one test's timings would answer another's estimate.
     try:
-        from src.runs.generation_timing import generation_timing
+        from teikr.runs.generation_timing import generation_timing
         generation_timing.clear()
     except Exception:
         pass
@@ -278,7 +283,7 @@ def _reset_class_state() -> None:
     # Module-level as well: failed generations count across runs, so failures
     # in one test would pause the queue in the next.
     try:
-        from src.runs.failure_streak import failure_streak
+        from teikr.runs.failure_streak import failure_streak
         failure_streak.reset()
     except Exception:
         pass
@@ -286,13 +291,13 @@ def _reset_class_state() -> None:
     # Module-level too, and installed by constructing a HeadlessApp: left set,
     # it would answer the password gate for every test after the one that built
     # one. Imported only if already loaded, so this stays out of unit tests.
-    _module = sys.modules.get("src.ui.auth.password_core")
+    _module = sys.modules.get("teikr.ui.auth.password_core")
     if _module is not None:
         _module.set_unprompted_gate_handler(None)
 
     try:
-        from src.prompts.blacklist import Blacklist
-        from src.globals import BlacklistMode, BlacklistPromptMode, ModelBlacklistMode
+        from teikr.prompts.blacklist import Blacklist
+        from teikr.globals import BlacklistMode, BlacklistPromptMode, ModelBlacklistMode
         Blacklist.TAG_BLACKLIST = []
         Blacklist.MODEL_BLACKLIST = []
         Blacklist.blacklist_mode = BlacklistMode.REMOVE_ENTIRE_TAG
@@ -322,21 +327,21 @@ def _reset_class_state() -> None:
         pass
 
     try:
-        from src.prompts import language_detection
+        from teikr.prompts import language_detection
         language_detection.detector_hook = None
         language_detection.reset_state()
     except Exception:
         pass
 
     try:
-        from src.prompts.concept_sets import SourceAnchors, concept_set_info
+        from teikr.prompts.concept_sets import SourceAnchors, concept_set_info
         concept_set_info.cache_clear()
         SourceAnchors.reset_cache()
     except Exception:
         pass
 
     try:
-        from src.prompts.concepts import Concepts
+        from teikr.prompts.concepts import Concepts
         Concepts.ALL_WORDS_LIST = []
         # Lazily decrypted from the ~2M-entry corpus on the first NSFW draw.
         Concepts.URBAN_DICTIONARY_CORPUS = []
@@ -348,13 +353,13 @@ def _reset_class_state() -> None:
         pass
 
     try:
-        from src.prompts.expansion import Expansion
+        from teikr.prompts.expansion import Expansion
         Expansion.expansions = []
     except Exception:
         pass
 
     try:
-        from src.models.model import Model
+        from teikr.models.model import Model
         # Populated by scanning config.models_dir, which points at a real
         # directory on the developer's machine. A scan triggered by one test
         # would otherwise be visible to every test after it.
@@ -365,79 +370,79 @@ def _reset_class_state() -> None:
 
     # Read from config once, when the class is defined, so it would otherwise
     # keep the bootstrap config's folder rather than this test's.
-    _adapters = sys.modules.get("src.models.model_adapters")
+    _adapters = sys.modules.get("teikr.models.model_adapters")
     if _adapters is not None:
-        from src.config import config as _config
+        from teikr.config import config as _config
         _adapters.IPAdapter.BASE_DIR = _config.ipadapter_dir
 
     try:
-        from src.presets.timed_schedules_manager import TimedSchedulesManager
+        from teikr.presets.timed_schedules_manager import TimedSchedulesManager
         TimedSchedulesManager.schedule_history = []
     except Exception:
         pass
 
     # Caches whether a password exists, so one test setting a password would
     # otherwise leave every later test believing security is configured.
-    _reset_if_imported("src.ui.auth.password_core", "PasswordManager",
+    _reset_if_imported("teikr.ui.auth.password_core", "PasswordManager",
                        _security_configured_cache=None)
 
     # Per-key generation locks, held for the life of the process. The cached
     # entries themselves live in app_info_cache and are isolated already, but
     # the lock table would carry keys between tests.
-    _reset_if_imported("src.runs.intermediate_cache", "IntermediateCache", _locks={})
+    _reset_if_imported("teikr.runs.intermediate_cache", "IntermediateCache", _locks={})
     # The CLIP model and its embedding caches, built on first use.
-    _reset_if_imported("src.prompts.reference_similarity", "ReferenceSimilarityEngine",
+    _reset_if_imported("teikr.prompts.reference_similarity", "ReferenceSimilarityEngine",
                        _instance=None, _build_failed=False)
 
     # Window-level history lists, all restored from app_info_cache on open. Only
     # reset if the module is already imported: touching them unconditionally
     # would drag PySide6 into every pure-logic unit test.
-    _reset_if_imported("src.presets.schedules_state", "SchedulesState",
+    _reset_if_imported("teikr.presets.schedules_state", "SchedulesState",
                        recent_schedules=[], current_schedule=None)
-    _reset_if_imported("src.ui.presets.schedules_window", "SchedulesWindow",
+    _reset_if_imported("teikr.ui.presets.schedules_window", "SchedulesWindow",
                        schedule_history=[])
-    _reset_if_imported("src.presets.presets_state", "PresetsState",
+    _reset_if_imported("teikr.presets.presets_state", "PresetsState",
                        recent_presets=[], stashed_configs=[],
                        intermediate_prompts=[], intermediate_enabled=False,
                        intermediate_current=None)
-    _reset_if_imported("src.ui.presets.presets_window", "PresetsWindow",
+    _reset_if_imported("teikr.ui.presets.presets_window", "PresetsWindow",
                        preset_history=[], last_set_preset=None)
     # Loaded from the cache on open and read back by save_recent_adapters, so a
     # test that saves would otherwise persist whatever the previous one loaded.
-    _reset_if_imported("src.models.recent_adapters_state", "RecentAdaptersState",
+    _reset_if_imported("teikr.models.recent_adapters_state", "RecentAdaptersState",
                        _recent_controlnets=[], _recent_ipadapters=[],
                        _recent_source_prompts=[], _recent_adapter_files_split=[],
                        _favorite_adapters=[])
-    _reset_if_imported("src.ui.models.recent_adapters_window", "RecentAdaptersWindow",
+    _reset_if_imported("teikr.ui.models.recent_adapters_window", "RecentAdaptersWindow",
                        _controlnet_cache=None, _ipadapter_cache=None,
                        _source_prompt_cache=None, _favorites_cache=None,
                        _cache_timestamp=None)
     # The model scan, cached on the class so reopening the window does not
     # rescan. It holds the names a previous test put in Model.CHECKPOINTS, and
     # is filtered by the blacklist as of when it was built.
-    _reset_if_imported("src.ui.models.models_window", "ModelsWindow",
+    _reset_if_imported("teikr.ui.models.models_window", "ModelsWindow",
                        _checkpoints_cache=None, _adapters_cache=None,
                        _cache_timestamp=None)
     # The open window a run syncs its unapplied edits through. It is cleared on
     # close, so this only matters for a test that leaves one open -- which would
     # otherwise have the next test's sync writing into a dead window's config.
-    _reset_if_imported("src.ui.prompts.prompt_config_window", "PromptConfigWindow",
+    _reset_if_imported("teikr.ui.prompts.prompt_config_window", "PromptConfigWindow",
                        _prompt_config_window_instance=None)
-    _reset_if_imported("src.ui.prompts.blacklist_window", "BlacklistWindow",
+    _reset_if_imported("teikr.ui.prompts.blacklist_window", "BlacklistWindow",
                        item_history=[], _modify_window=None)
-    _reset_if_imported("src.ui.prompts.concept_editor_window", "ConceptEditorWindow",
+    _reset_if_imported("teikr.ui.prompts.concept_editor_window", "ConceptEditorWindow",
                        concept_change_history=[])
-    _reset_if_imported("src.ui.prompts.expansions_window", "ExpansionsWindow",
+    _reset_if_imported("teikr.ui.prompts.expansions_window", "ExpansionsWindow",
                        expansion_history=[])
     # Preferred over the cache when the window reopens, so a generate in one
     # test would otherwise pre-fill the next test's window with its result.
-    _reset_if_imported("src.ui.prompts.image_to_prompt_window", "ImageToPromptWindow",
+    _reset_if_imported("teikr.ui.prompts.image_to_prompt_window", "ImageToPromptWindow",
                        _last_cached_payload={})
-    _reset_if_imported("src.ui.prompts.frequent_prompt_tags_window", "FrequentPromptTagsWindow",
+    _reset_if_imported("teikr.ui.prompts.frequent_prompt_tags_window", "FrequentPromptTagsWindow",
                        tag_history=[])
 
     # Websockets, so close them rather than dropping the list on the floor.
-    _comfy = sys.modules.get("src.generators.comfy")
+    _comfy = sys.modules.get("teikr.generators.comfy")
     if _comfy is not None and getattr(_comfy, "ComfyGen", None) is not None:
         try:
             _comfy.ComfyGen.close_all_connections()
@@ -445,21 +450,21 @@ def _reset_class_state() -> None:
             pass
 
     try:
-        from src.prompts.prompter import Prompter
+        from teikr.prompts.prompter import Prompter
         for name, value in _default_prompter_tags().items():
             setattr(Prompter, name, dict(value) if isinstance(value, dict) else value)
     except Exception:
         pass
 
     try:
-        from src.runs.gen_config import GenConfig
-        from src.config import config as _config
+        from teikr.runs.gen_config import GenConfig
+        from teikr.config import config as _config
         GenConfig.REDO_PARAMETERS = list(getattr(_config, "redo_parameters", []) or [])
     except Exception:
         pass
 
     try:
-        from src.presets.timed_schedules_manager import TimedSchedulesManager
+        from teikr.presets.timed_schedules_manager import TimedSchedulesManager
         TimedSchedulesManager.recent_timed_schedules = []
     except Exception:
         pass
@@ -488,8 +493,8 @@ def isolated_singletons(tmp_path, monkeypatch):
     monkeypatch.setenv("SD_RUNNER_CACHE_DIR", str(cache_dir))
     monkeypatch.setenv("SD_RUNNER_SERVER_PORT", "0")
 
-    import src.config as cfg_mod
-    import src.persistence.app_info_cache as aic_mod
+    import teikr.config as cfg_mod
+    import teikr.persistence.app_info_cache as aic_mod
 
     old_config = cfg_mod.config
     repoint_singleton_bindings(monkeypatch, "config", old_config, cfg_mod.Config())
@@ -517,12 +522,12 @@ def reset_class_state(isolated_singletons):
 @pytest.fixture
 def app_config(isolated_singletons):
     """Return the isolated Config instance for the current test."""
-    from src.config import config
+    from teikr.config import config
     return config
 
 
 @pytest.fixture
 def app_cache(isolated_singletons):
     """Return the isolated AppInfoCache instance for the current test."""
-    from src.persistence.app_info_cache import app_info_cache
+    from teikr.persistence.app_info_cache import app_info_cache
     return app_info_cache

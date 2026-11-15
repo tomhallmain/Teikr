@@ -1,6 +1,6 @@
 """Where bundled and user files resolve, in a checkout and in a compiled build.
 
-Build-only branches are reached by patching ``src.app_paths.IS_BUILD``
+Build-only branches are reached by patching ``teikr.app_paths.IS_BUILD``
 and ``RESOURCE_ROOT``. Every test that unsets ``SD_RUNNER_CACHE_DIR`` also
 patches ``REPO_ROOT`` to a fake repo and points the app data dir into
 ``tmp_path``, so a migration it triggers cannot move the developer's files.
@@ -12,12 +12,12 @@ import os
 
 import pytest
 
-import src.app_paths as app_paths
+import teikr.app_paths as app_paths
 from lib.logging_setup import adopt_legacy_file
-from src.config import Config
-from src.persistence import app_info_cache as app_info_cache_module
-from src.prompts.pending_translation import resolve_pending_translation_file
-from src.workflow_prompts.base import WorkflowPrompt
+from teikr.config import Config
+from teikr.persistence import app_info_cache as app_info_cache_module
+from teikr.prompts.pending_translation import resolve_pending_translation_file
+from teikr.workflow_prompts.base import WorkflowPrompt
 
 
 @pytest.fixture
@@ -176,13 +176,13 @@ class TestOtherUserFiles:
         assert not legacy.exists()
 
     def test_shipped_files_resolve_through_the_resource_root(self):
-        from src.prompts.blacklist import Blacklist
-        from src.prompts.concepts import Concepts
+        from teikr.prompts.blacklist import Blacklist
+        from teikr.prompts.concepts import Concepts
         root = app_paths.RESOURCE_ROOT
         assert Blacklist.DEFAULT_BLACKLIST_FILE_LOC.startswith(root)
         assert Concepts.URBAN_DICTIONARY_CORPUS_PATH.startswith(root)
-        assert WorkflowPrompt.PROMPTS_LOC == os.path.join(root, "src", "data", "workflows")
-        assert Config.EXAMPLE_CONFIG_LOC == os.path.join(root, "src", "data", "config_example.json")
+        assert WorkflowPrompt.PROMPTS_LOC == os.path.join(root, "src", "teikr", "data", "workflows")
+        assert Config.EXAMPLE_CONFIG_LOC == os.path.join(root, "src", "teikr", "data", "config_example.json")
 
 
 class TestConceptSets:
@@ -228,3 +228,21 @@ class TestConfigPaths:
 
     def test_a_bundled_concept_set_named_relatively_is_that_set(self, app_config):
         assert app_config._resolve_concepts_dir("Konzepte") == app_paths.resource_path("Konzepte")
+
+
+class TestTheResourceRootInACheckout:
+    """The package is at <repo>/src/teikr, one level deeper than in a build."""
+
+    REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    def test_it_is_the_repo_root(self):
+        assert os.path.samefile(app_paths.RESOURCE_ROOT, self.REPO)
+
+    def test_the_oqs_lookup_agrees(self):
+        from teikr.runtime import oqs_path
+
+        assert os.path.samefile(oqs_path._RESOURCE_ROOT, app_paths.RESOURCE_ROOT)
+
+    def test_the_package_is_under_src(self):
+        assert os.path.isfile(app_paths.resource_path("src", "teikr", "__init__.py"))
+        assert not os.path.exists(app_paths.resource_path("src", "__init__.py"))
