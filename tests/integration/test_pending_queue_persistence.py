@@ -12,7 +12,7 @@ import json
 
 import pytest
 
-from extensions.sd_runner_server import CommandType
+from extensions.teikr_server import CommandType
 from tests.utils import make_run_config
 from teikr.persistence import cache_controller as cache_controller_module
 

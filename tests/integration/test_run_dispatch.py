@@ -527,7 +527,7 @@ class TestResumePausedQueue:
 
     def test_noop_when_job_running(self, app_window, run_stubs, monkeypatch):
         """resume_paused_queue does nothing while a job is already running."""
-        from extensions.sd_runner_server import CommandType
+        from extensions.teikr_server import CommandType
 
         callbacks = []
         monkeypatch.setattr(
@@ -553,7 +553,7 @@ class TestResumePausedQueue:
 
     def test_promotes_staging_when_job_queue_empty(self, app_window, run_stubs, monkeypatch):
         """resume_paused_queue promotes a staged server request when no SD runs are pending."""
-        from extensions.sd_runner_server import CommandType
+        from extensions.teikr_server import CommandType
 
         staged_args = {"image": "staged.png"}
         app_window.server_staging_queue.add(CommandType.RENOISER, staged_args)
@@ -575,7 +575,7 @@ class TestResumePausedQueue:
 
     def test_pending_jobs_take_priority_over_staging(self, app_window, run_stubs, monkeypatch):
         """When both queues have work, resume starts the pending SD run first."""
-        from extensions.sd_runner_server import CommandType
+        from extensions.teikr_server import CommandType
 
         callbacks = []
         monkeypatch.setattr(

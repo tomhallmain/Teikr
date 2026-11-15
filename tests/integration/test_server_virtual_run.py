@@ -11,7 +11,7 @@ The run machinery is stubbed the same way as test_run_dispatch: no backend, and
 start_thread runs synchronously so the effects are visible on return.
 """
 
-from extensions.sd_runner_server import CommandType, SDRunnerServer
+from extensions.teikr_server import CommandType, TeikrServer
 from teikr.globals import WorkflowType
 from teikr.models.model import Model
 from teikr.runs.run import Run
@@ -196,7 +196,7 @@ class TestOriginFromAnActualMessage:
     """
 
     def serve(self, app_window, messages, peer=("127.0.0.1", 54321)):
-        server = SDRunnerServer(
+        server = TeikrServer(
             run_callback=app_window.run_ctrl.server_run_callback,
             cancel_callback=app_window.run_ctrl.cancel,
             revert_callback=app_window.run_ctrl.server_revert_to_simple_gen,

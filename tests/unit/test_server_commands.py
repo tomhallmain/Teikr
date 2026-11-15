@@ -11,9 +11,9 @@ both the single-request and batch entry points share.
 
 import pytest
 
-from extensions.sd_runner_server import (
+from extensions.teikr_server import (
     LOOPBACK_HOSTS, MAX_CLIENT_ID_LEN, CommandKind, CommandType,
-    SDRunnerServer, sanitize_client_id,
+    TeikrServer, sanitize_client_id,
 )
 from tests.utils import FakeServerConn
 from teikr.globals import WorkflowType
@@ -201,7 +201,7 @@ class TestSanitizeClientId:
 
 class TestClientIdResolution:
     def make_server(self):
-        return SDRunnerServer(
+        return TeikrServer(
             run_callback=lambda *a: {},
             cancel_callback=lambda *a: None,
             revert_callback=lambda *a: None,
@@ -280,7 +280,7 @@ class TestClientIdOverTheWire:
             "port": 0,
         }
         kwargs.update(callbacks)
-        server = SDRunnerServer(**kwargs)
+        server = TeikrServer(**kwargs)
         server._adopt_peer(("127.0.0.1", 54321))
         return server
 

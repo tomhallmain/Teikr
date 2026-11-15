@@ -305,9 +305,9 @@ class HeadlessApp:
             self.run_ctrl.server_health_check,
         )
 
-        from extensions.sd_runner_server import SDRunnerServer
+        from extensions.teikr_server import TeikrServer
         try:
-            self.server = SDRunnerServer(*callbacks)
+            self.server = TeikrServer(*callbacks)
             Utils.start_thread(self.server.start)
         except Exception as e:
             logger.error(f"Failed to start server: {e}")

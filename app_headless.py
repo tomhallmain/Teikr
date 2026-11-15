@@ -61,7 +61,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
 
     def servers():
         from extensions.mcp_server import MCPServerExtension
-        from extensions.sd_runner_server import SDRunnerServer
+        from extensions.teikr_server import TeikrServer
         from teikr.runs.headless_app import HeadlessApp
 
         app = HeadlessApp()
@@ -74,7 +74,7 @@ def _smoke_test(expect_oqs: bool = False) -> int:
             run_ctrl.server_health_check,
         )
         # Constructed only; start() is what binds.
-        SDRunnerServer(*callbacks)
+        TeikrServer(*callbacks)
         MCPServerExtension(*callbacks, run_ctrl.run_status, run_ctrl.server_resource)
 
     smoke.check_call("headless application and servers", servers)

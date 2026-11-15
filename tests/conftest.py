@@ -1,5 +1,5 @@
 """
-Root conftest for the sd-runner test suite.
+Root conftest for the Teikr test suite.
 
 Config and AppInfoCache read SD_RUNNER_CONFIGS_DIR / SD_RUNNER_CACHE_DIR env
 vars at instantiation time (see utils/config.py and utils/app_info_cache.py).
@@ -48,7 +48,7 @@ write_valid_config(_bootstrap_configs_dir, os.path.join(_bootstrap_tmp, "locatio
 os.environ["SD_RUNNER_CONFIGS_DIR"] = _bootstrap_configs_dir
 os.environ["SD_RUNNER_CACHE_DIR"] = _bootstrap_cache_dir
 # Ephemeral port (OS-assigned) so any AppWindow built during tests never
-# contends for the real app's server port (see extensions/sd_runner_server.py).
+# contends for the real app's server port (see extensions/teikr_server.py).
 os.environ["SD_RUNNER_SERVER_PORT"] = "0"
 # The encryptor takes an off-drive backup after every key store write, and with
 # no destination set it picks the first writable external drive it finds -- the

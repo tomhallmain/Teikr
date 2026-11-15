@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from extensions.sd_runner_server import CommandType
+from extensions.teikr_server import CommandType
 from teikr.runs.virtual_run_config import (
     ATTRIBUTE_ONLY_FIELDS,
     apply_preset,

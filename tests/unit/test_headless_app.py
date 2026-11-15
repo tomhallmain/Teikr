@@ -13,7 +13,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from extensions.sd_runner_server import CommandType
+from extensions.teikr_server import CommandType
 from teikr.runs.headless_app import DirectBridge, LoggingNotifications
 from teikr.runs.run_controller import RunController
 

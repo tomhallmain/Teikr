@@ -144,7 +144,7 @@ class CacheController:
 
         requests_data = app_info_cache.get(self.PENDING_SERVER_REQUESTS_KEY) or []
         if requests_data:
-            from extensions.sd_runner_server import CommandType
+            from extensions.teikr_server import CommandType
             restored = 0
             for req in requests_data:
                 try:

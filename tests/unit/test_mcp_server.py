@@ -6,7 +6,7 @@ in ``_serve`` is deliberately outside this — it could not be compiled against 
 installed copy, which is exactly why it is one method and this is the rest.
 
 The routing assertions are really assertions that this front end and
-``SDRunnerServer`` cannot drift: both resolve through the same ``CommandType``.
+``TeikrServer`` cannot drift: both resolve through the same ``CommandType``.
 """
 
 import pytest
@@ -14,7 +14,7 @@ import pytest
 from extensions.mcp_server import (
     MCPServerExtension, MCPToolError, MCP_CLIENT_ID, tool_descriptors,
 )
-from extensions.sd_runner_server import CommandType
+from extensions.teikr_server import CommandType
 
 
 class Recorder:
@@ -85,7 +85,7 @@ class TestToolSurface:
 
 
 # ---------------------------------------------------------------------------
-# Routing — the same decisions SDRunnerServer.run_command makes
+# Routing — the same decisions TeikrServer.run_command makes
 # ---------------------------------------------------------------------------
 
 class TestGenerate:

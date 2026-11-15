@@ -11,7 +11,7 @@ dependency a test does not want:
   ``GenConfig`` declares those as mutable default arguments and ``prepare()``
   appends a ``None`` sentinel to whichever list it is handed -- configs built
   without them would share one list and accumulate sentinels across tests.
-- ``FakeServerConn`` stands in for an accepted socket, so ``SDRunnerServer``'s
+- ``FakeServerConn`` stands in for an accepted socket, so ``TeikrServer``'s
   receive loop can be driven without binding a port.
 """
 
@@ -42,7 +42,7 @@ def make_run_config(**kwargs) -> RunConfig:
 class FakeServerConn:
     """An accepted connection that replays scripted messages, then hangs up.
 
-    Assign to ``SDRunnerServer._conn`` and call ``_handle_connection()`` to
+    Assign to ``TeikrServer._conn`` and call ``_handle_connection()`` to
     exercise the receive loop -- message parsing, client-id adoption, dispatch
     -- without a listener or a port. ``recv`` raises ``EOFError`` once the
     script is exhausted, which is how a real client disconnecting looks, so the

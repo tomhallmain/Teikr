@@ -13,7 +13,7 @@ the progress sink, the thread bridge and ``post_run`` are the parts that differ
 
 import pytest
 
-from extensions.sd_runner_server import CommandType
+from extensions.teikr_server import CommandType
 from teikr.globals import WorkflowType
 from teikr.runs.headless_app import HeadlessApp
 from teikr.runs.job_queue import SDRunsQueue, ServerStagingQueue
@@ -50,7 +50,7 @@ class TestHeadlessApp:
         This is what a served request is assembled from, and it has to work
         with no widgets to read it out of.
         """
-        from extensions.sd_runner_server import CommandType
+        from extensions.teikr_server import CommandType
 
         base_args, preset = headless_app.run_ctrl._snapshot_for_server_run(
             CommandType.RENOISER, {}

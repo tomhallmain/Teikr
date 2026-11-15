@@ -26,6 +26,7 @@ under ``output/video`` and is still named for this app.
 
 import asyncio
 import json
+import os
 import sys
 
 sys.path.insert(0, r"C:\Users\tehal\repos\_external\ComfyUI")
@@ -364,11 +365,13 @@ if __name__ == "__main__":
         _debug_widgets()
         raise SystemExit
     root = r"C:\Users\tehal\miniconda\envs\comfy\Lib\site-packages\comfyui_workflow_templates_json\templates"
-    out = r"c:\Users\tehal\repos\sd-runner\src\teikr\data\workflows\comfyui"
+    # This repo's ComfyUI prompts, wherever the checkout is.
+    out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       "src", "teikr", "data", "workflows", "comfyui")
     pairs = [
-        (root + r"\image_krea2_turbo_t2i.json", out + r"\image_krea2_turbo_t2i.json", "Krea2"),
-        (root + r"\image_flux3_klein_t2i.json", out + r"\image_flux3_klein_t2i.json", "Flux3"),
-        (root + r"\video_minimax_h3_t2v.json", out + r"\video_minimax_h3_t2v.json", "MiniMaxH3"),
+        (root + r"\image_krea2_turbo_t2i.json", os.path.join(out, "image_krea2_turbo_t2i.json"), "Krea2"),
+        (root + r"\image_flux3_klein_t2i.json", os.path.join(out, "image_flux3_klein_t2i.json"), "Flux3"),
+        (root + r"\video_minimax_h3_t2v.json", os.path.join(out, "video_minimax_h3_t2v.json"), "MiniMaxH3"),
     ]
     for src, dest, folder in pairs:
         convert_file(src, dest, folder)

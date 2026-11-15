@@ -505,7 +505,7 @@ def _smoke_test(exe_path: str, with_oqs: bool) -> None:
     # scratch directory so the user's are untouched. The exe still unpacks to
     # the real unpacked/ folder, which a later start of this build reuses.
     command = [exe_path, "--smoke-test", *(["--expect-oqs"] if with_oqs else [])]
-    with tempfile.TemporaryDirectory(prefix="sd-runner-smoke-") as scratch:
+    with tempfile.TemporaryDirectory(prefix=f"{APP_NAME.lower()}-smoke-") as scratch:
         env = dict(os.environ)
         env["QT_QPA_PLATFORM"] = "offscreen"
         env["SD_RUNNER_APP_DATA_DIR"] = scratch

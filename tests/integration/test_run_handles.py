@@ -11,7 +11,7 @@ staging queue -- which is the case with no ``RunConfig`` at all until the item
 is promoted.
 """
 
-from extensions.sd_runner_server import CommandType
+from extensions.teikr_server import CommandType
 from teikr.runs.job_queue import ServerStagingQueue
 from teikr.runs.run_config import RunConfig
 

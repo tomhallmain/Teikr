@@ -5,7 +5,7 @@ from teikr.config import config
 from teikr.globals import WorkflowType
 from lib.logging_setup import get_logger
 
-logger = get_logger("sd_runner_server")
+logger = get_logger("teikr_server")
 
 #: Longest client id kept. The value arrives over the wire and ends up in the
 #: runs window and the encrypted cache, so it is bounded and stripped of
@@ -104,7 +104,7 @@ class CommandType(Enum):
         return args
 
 
-class SDRunnerServer:
+class TeikrServer:
     def __init__(
         self,
         run_callback: callable,

@@ -830,7 +830,7 @@ class AppWindow(FramelessWindowMixin, SmartMainWindow):
     # ------------------------------------------------------------------
     def _setup_server(self):
         """Start the request server in a background thread."""
-        from extensions.sd_runner_server import SDRunnerServer
+        from extensions.teikr_server import TeikrServer
 
         # Server callbacks are invoked on the listener thread but touch Qt
         # widgets, so they are marshalled to the GUI thread through
@@ -842,7 +842,7 @@ class AppWindow(FramelessWindowMixin, SmartMainWindow):
         # size estimate's directory scans -- back on the GUI thread and hold
         # the listener for all of it.
         bridge = self._thread_bridge.wrap
-        server = SDRunnerServer(
+        server = TeikrServer(
             self.run_ctrl.server_run_callback,
             bridge(self.run_ctrl.cancel),
             # The server entry point, not revert_to_simple_gen itself: the run
@@ -867,7 +867,7 @@ class AppWindow(FramelessWindowMixin, SmartMainWindow):
     def _setup_mcp_server(self):
         """Start the MCP front end, when one is configured.
 
-        Given the *same already-wrapped* callables as ``SDRunnerServer``: three
+        Given the *same already-wrapped* callables as ``TeikrServer``: three
         bridged to the GUI thread and two deliberately not, because they bridge
         their own widget sections and wrapping them would hold the caller for a
         whole run build or a multi-second health check. Passing the wrapped

@@ -1081,7 +1081,7 @@ class RunController:
     # ------------------------------------------------------------------
     def server_run_callback(self, command_type, args: dict, client_id: str = "",
                             run_id: str = ""):
-        """Called by ``SDRunnerServer`` when a remote run request arrives.
+        """Called by ``TeikrServer`` when a remote run request arrives.
 
         Runs on the listener thread and bridges only the parts that must happen
         on the GUI thread, so the listener is not held for the whole request.
@@ -1092,7 +1092,7 @@ class RunController:
         given the id the run is built with. It is set only when a staged
         request is promoted, to reuse the id that request was accepted under.
         """
-        from extensions.sd_runner_server import CommandKind
+        from extensions.teikr_server import CommandKind
 
         # A command that brought its own parameters is built from stored state
         # instead of being round-tripped through the sidebar, so it neither
@@ -1324,7 +1324,7 @@ class RunController:
         calls run(), which reads it again and may raise dialogs.
 
         Only CommandKind.CONTEXTUAL_GENERATE arrives here -- STATE commands are
-        answered inside SDRunnerServer and every PARAMETERIZED_GENERATE goes to
+        answered inside TeikrServer and every PARAMETERIZED_GENERATE goes to
         _run_virtual -- so the command selects no workflow, and the args this
         can honour are the ones that do not depend on one. An image or control
         net names the input of a particular workflow, which is what the
@@ -1589,7 +1589,7 @@ class RunController:
         was accepted rather than with what was sent, and ``count`` is its
         length.
         """
-        from extensions.sd_runner_server import CommandType
+        from extensions.teikr_server import CommandType
 
         app = self._app
         staging = getattr(app, "server_staging_queue", None)

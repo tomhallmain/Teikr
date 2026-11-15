@@ -1,7 +1,5 @@
 # Teikr - Image Generation Runner
 
-Teikr was called *sd-runner* (SD Runner) until November 2026. The name comes from Old Norse *teikn* "sign" and Icelandic *teikna* "to draw": the user sets the signs, and the images are drawn from them.
-
 This code is primarily a prompt engineering application that triggers ComfyUI workflows or stable-diffusion-webui functions using advanced prompt randomization, concept management, and intelligent filtering systems.
 
 ## Warnings

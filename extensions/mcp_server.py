@@ -1,8 +1,8 @@
 """Model Context Protocol front end.
 
-A second front end over the same five callables ``SDRunnerServer`` is built
+A second front end over the same five callables ``TeikrServer`` is built
 from, so an MCP client can drive generation without either server knowing about
-the other. ``sd_runner_server`` is imported read-only, for its command
+the other. ``teikr_server`` is imported read-only, for its command
 vocabulary, and is never modified: two front ends with two ideas of what a
 command means is the failure that import avoids.
 
@@ -27,7 +27,7 @@ display implies no trusted desktop around it.
 
 import threading
 
-from extensions.sd_runner_server import CommandType, sanitize_client_id
+from extensions.teikr_server import CommandType, sanitize_client_id
 from lib.logging_setup import get_logger
 
 logger = get_logger("mcp_server")
@@ -151,7 +151,7 @@ def resource_descriptors() -> list:
 class MCPServerExtension:
     """Serves the MCP tool surface over HTTP, on its own thread.
 
-    Takes the same callables ``SDRunnerServer`` is given, *already wrapped* at
+    Takes the same callables ``TeikrServer`` is given, *already wrapped* at
     the construction site: most are bridged to the GUI thread, while the run
     and health-check callbacks deliberately are not, because they bridge their
     own widget sections and wrapping them would hold the caller for a whole run
@@ -173,7 +173,7 @@ class MCPServerExtension:
         token: str = None,
     ):
         # Resolved at call time rather than from the module-level binding, for
-        # the reason SDRunnerServer documents: tests swap in a fresh Config per
+        # the reason TeikrServer documents: tests swap in a fresh Config per
         # test, and only a fresh attribute lookup sees the swap.
         from teikr.config import config as _config
 
@@ -232,7 +232,7 @@ class MCPServerExtension:
     def dispatch(self, tool_name: str, arguments: dict = None) -> dict:
         """Run one tool call and return what the client should see.
 
-        Mirrors ``SDRunnerServer.run_command``: the same resolution, the same
+        Mirrors ``TeikrServer.run_command``: the same resolution, the same
         normalisation, and the same split between state commands and run
         requests. Kept in step with it by using its ``CommandType`` rather than
         a private copy.
@@ -340,7 +340,7 @@ class MCPServerExtension:
     def start(self) -> bool:
         """Serve until stopped. Returns False without serving when it must not.
 
-        Called on its own thread, as ``SDRunnerServer.start`` is. A missing SDK
+        Called on its own thread, as ``TeikrServer.start`` is. A missing SDK
         is not an error: this is an optional dependency and a user who never
         wanted MCP should not see a failure for it.
         """

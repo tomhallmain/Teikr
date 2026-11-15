@@ -2,13 +2,13 @@
 # LoRA Trigger Extractor
 #
 # An intermediary module that wraps the safetriggers functionality
-# for integration with the SD-Runner models window.
+# for integration with the Teikr models window.
 #
 # VERSION
 __version_info__ = ('2025', '10', '04')
 #
 # BY
-# SD-Runner Integration Layer
+# Teikr Integration Layer
 #
 # BASED ON
 # safetriggers by DAVROS*** (2025-03-16)
@@ -18,7 +18,7 @@ __version_info__ = ('2025', '10', '04')
 # =========
 #
 # This module provides a clean API for extracting trigger words and phrases
-# from LoRA (.safetensors) files, designed for integration with the SD-Runner
+# from LoRA (.safetensors) files, designed for integration with the Teikr
 # models window. It wraps the core functionality from lora_extract_safetriggers.py
 # and provides caching, error handling, and UI-friendly interfaces.
 #
