@@ -35,15 +35,15 @@ EXCLUDED_FILES = ("dictionary.txt",)
 def resolve_pending_translation_file() -> str:
     """Path to the backlog file.
 
-    Honours ``SD_RUNNER_CACHE_DIR`` so tests redirect it automatically, and
+    Honours ``TEIKR_CACHE_DIR`` so tests redirect it automatically, and
     otherwise lands in the app data dir. Only computes the path; the move out
     of the legacy repo locations happens once, at import.
     """
-    override = os.environ.get("SD_RUNNER_CACHE_DIR")
+    override = os.environ.get("TEIKR_CACHE_DIR")
     return os.path.join(override if override else user_data_path(), _FILENAME)
 
 
-if not os.environ.get("SD_RUNNER_CACHE_DIR"):
+if not os.environ.get("TEIKR_CACHE_DIR"):
     for _legacy in _LEGACY_LOCATIONS:
         adopt_legacy_repo_file(_legacy, resolve_pending_translation_file())
 

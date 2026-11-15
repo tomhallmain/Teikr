@@ -96,7 +96,7 @@ class TestSourceDrift:
 class TestFaultLog:
     def test_writes_a_start_line_and_enables_faulthandler(self, tmp_path, monkeypatch):
         enabled = []
-        monkeypatch.setenv("SD_RUNNER_APP_DATA_DIR", str(tmp_path))
+        monkeypatch.setenv("TEIKR_APP_DATA_DIR", str(tmp_path))
         monkeypatch.setattr(crash_log, "_fault_log", None)
         monkeypatch.setattr(crash_log.faulthandler, "enable", lambda **kwargs: enabled.append(kwargs))
         path = crash_log.enable_fault_log()

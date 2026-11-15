@@ -142,10 +142,10 @@ def key_store_dir(service_name: str) -> str:
     """Directory holding the key store: ``<user data dir>/<service_name>``.
 
     This decides only the namespace; where the user data directory is per
-    platform is user_data_dir()'s business. SD_RUNNER_CACHE_DIR still wins, so a
+    platform is user_data_dir()'s business. TEIKR_CACHE_DIR still wins, so a
     test or a packaged install can redirect the whole thing.
     """
-    override = os.environ.get("SD_RUNNER_CACHE_DIR")
+    override = os.environ.get("TEIKR_CACHE_DIR")
     return service_subdir(override or user_data_dir(), service_name)
 
 
@@ -334,7 +334,7 @@ def has_prior_key_material(service_name: str, app_identifier: str) -> bool:
 
 #: Explicit destination for key backups. Set this to a path on another drive
 #: and default_key_backup_path() will use it instead of guessing.
-KEY_BACKUP_DIR_ENV_VAR = "SD_RUNNER_KEY_BACKUP_DIR"
+KEY_BACKUP_DIR_ENV_VAR = "TEIKR_KEY_BACKUP_DIR"
 
 
 def default_key_backup_path(service_name: str, app_identifier: str) -> Optional[str]:

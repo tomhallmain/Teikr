@@ -28,7 +28,7 @@ def make_cache_files(cache_dir):
 
 
 def test_starts_empty_and_leaves_the_encrypted_cache_alone(without_oqs):
-    cache_dir = os.environ["SD_RUNNER_CACHE_DIR"]
+    cache_dir = os.environ["TEIKR_CACHE_DIR"]
     enc = make_cache_files(cache_dir)
     cache = module.AppInfoCache()
     assert cache.encrypted_cache_unreadable
@@ -44,7 +44,7 @@ def test_starts_empty_and_leaves_the_encrypted_cache_alone(without_oqs):
 
 
 def test_continues_from_the_previous_session_without_oqs(without_oqs):
-    cache_dir = os.environ["SD_RUNNER_CACHE_DIR"]
+    cache_dir = os.environ["TEIKR_CACHE_DIR"]
     make_cache_files(cache_dir)
     first = module.AppInfoCache()
     first.set("some_key", "kept")

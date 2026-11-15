@@ -52,7 +52,7 @@ class TestOutputPathConfig:
     def test_with_neither_set_it_is_the_app_data_dir(self, monkeypatch):
         monkeypatch.setattr(comfy_module.config, "comfyui_loc", None)
         monkeypatch.setattr(comfy_module.config, "comfyui_output_dir", None)
-        assert comfy_module.config.get_comfyui_save_path() == os.path.normpath(os.environ["SD_RUNNER_APP_DATA_DIR"])
+        assert comfy_module.config.get_comfyui_save_path() == os.path.normpath(os.environ["TEIKR_APP_DATA_DIR"])
 
 
 # ---------------------------------------------------------------------------

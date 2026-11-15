@@ -112,3 +112,40 @@ def test_the_running_folder_is_recognised_under_another_name(unpacked, tmp_path)
     except OSError:
         pytest.skip("symlinks not permitted here")
     assert cleanup._is_same_folder(str(alias), str(unpacked / "teikr-20250101-000000"))
+
+
+class TestTheLegacyAppDataFolder:
+    """Builds made before the app data folder became teikr unpacked under sd_runner."""
+
+    @pytest.fixture
+    def base(self, tmp_path, monkeypatch):
+        root = tmp_path / "app_data_base"
+        for name in ("teikr/unpacked/teikr-20260101-000000",
+                     "sd_runner/unpacked/sdrunner-20250101-000000",
+                     "sd_runner/unpacked/sdrunner-headless-20250101-000000"):
+            (root / name).mkdir(parents=True)
+            (root / name / "file.bin").write_bytes(b"x")
+        monkeypatch.setattr(cleanup, "_running_executables", lambda: set())
+        return root
+
+    def run(self, base):
+        return cleanup.remove_stale_unpack_dirs(
+            resource_root=str(base / "teikr" / "unpacked" / "teikr-20260101-000000"), is_build=True)
+
+    def test_its_unpack_folders_go_and_then_the_empty_folder(self, base):
+        assert len(self.run(base)) == 2
+        assert not (base / "sd_runner").exists()
+        assert (base / "teikr" / "unpacked" / "teikr-20260101-000000").is_dir()
+
+    def test_a_folder_still_holding_user_data_stays(self, base):
+        (base / "sd_runner" / "configs").mkdir()
+        self.run(base)
+        assert (base / "sd_runner" / "configs").is_dir()
+        assert not (base / "sd_runner" / "unpacked").exists()
+
+    def test_a_running_old_build_keeps_its_folder(self, base, monkeypatch):
+        running = cleanup._normalize(
+            str(base / "sd_runner" / "unpacked" / "sdrunner-20250101-000000" / "SDRunner.exe"))
+        monkeypatch.setattr(cleanup, "_running_executables", lambda: {running})
+        self.run(base)
+        assert (base / "sd_runner" / "unpacked" / "sdrunner-20250101-000000").is_dir()

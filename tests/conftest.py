@@ -1,8 +1,8 @@
 """
 Root conftest for the Teikr test suite.
 
-Config and AppInfoCache read SD_RUNNER_CONFIGS_DIR / SD_RUNNER_CACHE_DIR env
-vars at instantiation time (see utils/config.py and utils/app_info_cache.py).
+Config and AppInfoCache read TEIKR_CONFIGS_DIR / TEIKR_CACHE_DIR env
+vars at instantiation time (src/teikr/config.py, persistence/app_info_cache.py).
 The module-level bootstrap sets those vars to a throwaway temp directory before
 the singletons are first imported, so the real files are never touched.
 
@@ -45,21 +45,21 @@ from tests.valid_config import write_valid_config
 write_valid_config(_bootstrap_configs_dir, os.path.join(_bootstrap_tmp, "locations"))
 
 # Must be set before Config() and AppInfoCache() are first instantiated.
-os.environ["SD_RUNNER_CONFIGS_DIR"] = _bootstrap_configs_dir
-os.environ["SD_RUNNER_CACHE_DIR"] = _bootstrap_cache_dir
+os.environ["TEIKR_CONFIGS_DIR"] = _bootstrap_configs_dir
+os.environ["TEIKR_CACHE_DIR"] = _bootstrap_cache_dir
 # Ephemeral port (OS-assigned) so any AppWindow built during tests never
 # contends for the real app's server port (see extensions/teikr_server.py).
-os.environ["SD_RUNNER_SERVER_PORT"] = "0"
+os.environ["TEIKR_SERVER_PORT"] = "0"
 # The encryptor takes an off-drive backup after every key store write, and with
 # no destination set it picks the first writable external drive it finds -- the
 # developer's actual USB stick. Pinned inside the throwaway dir so a test that
 # generates keys cannot write key material outside the run.
-os.environ["SD_RUNNER_KEY_BACKUP_DIR"] = os.path.join(_bootstrap_tmp, "key_backup")
-# Replaces <app data>/sd_runner, so the log files lib.logging_setup opens at
+os.environ["TEIKR_KEY_BACKUP_DIR"] = os.path.join(_bootstrap_tmp, "key_backup")
+# Replaces <app data>/teikr, so the log files lib.logging_setup opens at
 # import, and any config or cache path resolved without the overrides above,
 # stay inside the run. Session-wide rather than per test: a file handler keeps
 # the path it was created with.
-os.environ["SD_RUNNER_APP_DATA_DIR"] = os.path.join(_bootstrap_tmp, "app_data")
+os.environ["TEIKR_APP_DATA_DIR"] = os.path.join(_bootstrap_tmp, "app_data")
 # The log file handler derives its key at import, before the fake keyring
 # below is installed. PassphraseManager checks this variable first, so the key
 # comes from it and the real keyring is never reached. The log encryption has
@@ -280,6 +280,14 @@ def _reset_class_state() -> None:
     except Exception:
         pass
 
+    # Module-level too: the identifier the keys resolved to is kept for the
+    # process, so one test's key material would decide the next test's.
+    try:
+        from teikr.persistence import key_identity
+        key_identity.reset()
+    except Exception:
+        pass
+
     # Module-level as well: failed generations count across runs, so failures
     # in one test would pause the queue in the next.
     try:
@@ -478,7 +486,7 @@ def _reset_class_state() -> None:
 def isolated_singletons(tmp_path, monkeypatch):
     """Give each test a clean Config and AppInfoCache backed by a fresh temp dir.
 
-    Sets SD_RUNNER_CONFIGS_DIR and SD_RUNNER_CACHE_DIR so the constructors pick
+    Sets TEIKR_CONFIGS_DIR and TEIKR_CACHE_DIR so the constructors pick
     up the temp paths, then sweeps sys.modules to repoint every module-level
     binding of the old singletons, so no test reads from or writes to the real
     cache/config.
@@ -489,9 +497,9 @@ def isolated_singletons(tmp_path, monkeypatch):
     cache_dir.mkdir()
     write_valid_config(configs_dir, tmp_path / "locations")
 
-    monkeypatch.setenv("SD_RUNNER_CONFIGS_DIR", str(configs_dir))
-    monkeypatch.setenv("SD_RUNNER_CACHE_DIR", str(cache_dir))
-    monkeypatch.setenv("SD_RUNNER_SERVER_PORT", "0")
+    monkeypatch.setenv("TEIKR_CONFIGS_DIR", str(configs_dir))
+    monkeypatch.setenv("TEIKR_CACHE_DIR", str(cache_dir))
+    monkeypatch.setenv("TEIKR_SERVER_PORT", "0")
 
     import teikr.config as cfg_mod
     import teikr.persistence.app_info_cache as aic_mod
@@ -511,7 +519,7 @@ def reset_class_state(isolated_singletons):
 
     Depends on isolated_singletons rather than relying on autouse declaration
     order: Blacklist.reset_filter_cache() resolves its path from
-    SD_RUNNER_CACHE_DIR at call time, so the per-test env var has to be set
+    TEIKR_CACHE_DIR at call time, so the per-test env var has to be set
     first or the filter cache lands in the session-wide bootstrap directory.
     """
     _reset_class_state()

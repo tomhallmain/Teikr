@@ -9,7 +9,9 @@ blacklist and exclusion filtering, sparse mixing, random stops and returns --
 treat it as an ordinary word and cannot split it.
 
 Weights (``woman:2``) are accepted and dropped. A similarity set nested inside
-another choice set is not supported.
+another choice set is not supported. The syntax is a choice set with a leading
+``~`` because ``{a, b}`` would collide with ``{VarName}`` expansions as soon as
+a set held a single word.
 """
 
 from __future__ import annotations

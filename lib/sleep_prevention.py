@@ -31,10 +31,10 @@ clears stale OS state at startup when nothing anywhere is holding a request.
 **Shared JSON** (see :func:`state_path`, :func:`state_dir`), version 3:
 
 * The state directory is **not** namespaced per application -- every
-  participating app (sd_runner, weidr, muse) reads and writes one machine-local
+  participating app (teikr, weidr, muse) reads and writes one machine-local
   file, which is what makes the totals meaningful across applications. The
   per-app dimension lives *inside* the JSON, not in the path.
-* Top-level keys are **application IDs** (e.g. ``sd_runner``), not
+* Top-level keys are **application IDs** (e.g. ``teikr``), not
   ``app:pid`` strings.
 * Under each app, **process id strings** hold per-PID state so dead processes
   can be pruned and this PID's row reset on bootstrap:
@@ -101,7 +101,7 @@ class WakeLevel(IntFlag):
 # Identifier used when the host application's own constant can't be resolved.
 # Each copy of this module sets this to its own app; a wrong value silently
 # files this process's rows under another application's name.
-_FALLBACK_APP_ID = "sd_runner"
+_FALLBACK_APP_ID = "teikr"
 
 # Shown by ``systemd-inhibit --list`` alongside the app id in ``--who``. Kept
 # app-neutral: this module is shared, and naming one app's workload here

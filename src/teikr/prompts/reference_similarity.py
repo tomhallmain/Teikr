@@ -11,7 +11,9 @@ space and a cosine between them is meaningful. Backends:
      file, which is read without downloading.
 
 There is no fallback that works without a model; ``get()`` returns ``None``
-and the caller picks at random.
+and the caller picks at random. There is no ONNX backend: it would need an
+exported image encoder with its own tokenizer and preprocessing, while
+``torch`` and ``transformers`` are present wherever images are generated.
 """
 
 from __future__ import annotations

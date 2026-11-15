@@ -3,6 +3,7 @@ import os
 
 from teikr.config import config
 from extensions.image_data_extractor import ImageDataExtractor
+from lib.logging_setup import LEGACY_SINGLE_INSTANCE_LOCKS, SINGLE_INSTANCE_LOCK
 from lib.translations import _
 
 
@@ -255,12 +256,22 @@ class HfHubSortDirection(Enum):
 
 class Globals:
     SERVICE_NAME = "MyPersonalApplicationsService"
-    APP_IDENTIFIER = "sd_runner"
-    #: Identifiers this app has used before. Key material is filed per
-    #: identifier, so a rename orphans the old keys and everything encrypted
-    #: under them -- an old name listed here keeps scripts/key_material.py
-    #: reporting and backing it up. Empty: this app has never been renamed.
-    LEGACY_APP_IDENTIFIERS = ()
+    #: Key material is filed under this. Encrypt and decrypt through
+    #: ``teikr.persistence.key_identity.key_identifier()``, which moves an
+    #: existing installation's keys here from a legacy identifier.
+    APP_IDENTIFIER = "teikr"
+    #: Identifiers this app has used before, newest first. Do not remove one
+    #: because it looks stale: the material under it can be a user's only copy
+    #: of the key to everything encrypted before a rename. key_identity copies
+    #: it to APP_IDENTIFIER and leaves it in place, and scripts/key_material.py
+    #: reports and backs it up.
+    LEGACY_APP_IDENTIFIERS = ("sd_runner",)
+    #: The single-instance lock and the lock names of earlier versions, all
+    #: held so that an earlier version and this one cannot run at the same time
+    #: in either order. Defined in lib.logging_setup, whose move of the app data
+    #: folder checks them before the entry point takes them.
+    SINGLE_INSTANCE_LOCK = SINGLE_INSTANCE_LOCK
+    LEGACY_SINGLE_INSTANCE_LOCKS = LEGACY_SINGLE_INSTANCE_LOCKS
     #: Seed of the keys the files shipped in src/teikr/data are encrypted with
     #: (the default blacklist, the Urban Dictionary corpus). Kept apart from
     #: APP_IDENTIFIER so that renaming the app cannot change it: a new value

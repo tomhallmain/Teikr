@@ -14,6 +14,7 @@ from teikr.globals import Globals, PromptMode, BlacklistPromptMode
 from lib.encryptor import encrypt_data_to_file, decrypt_data_from_file, stored_keys_need_unavailable_oqs
 from lib.logging_setup import get_logger
 from teikr.app_paths import adopt_legacy_repo_file, user_data_path
+from teikr.persistence.key_identity import key_identifier
 from teikr.runs.runner_app_config import RunnerAppConfig
 
 logger = get_logger("persistence.app_info_cache")
@@ -28,9 +29,9 @@ NO_OQS_JSON_FILENAME = "app_info_cache.no_oqs.json"
 
 
 def _cache_dir() -> str:
-    """SD_RUNNER_CACHE_DIR if set, else the app data dir, after moving in a
+    """TEIKR_CACHE_DIR if set, else the app data dir, after moving in a
     cache left in the repo root by earlier versions."""
-    override = os.environ.get("SD_RUNNER_CACHE_DIR")
+    override = os.environ.get("TEIKR_CACHE_DIR")
     if override:
         return override
     target = user_data_path()
@@ -123,7 +124,7 @@ class AppInfoCache:
             encrypt_data_to_file(
                 cache_data,
                 Globals.SERVICE_NAME,
-                Globals.APP_IDENTIFIER,
+                key_identifier(),
                 temp_path
             )
             os.replace(temp_path, destination)
@@ -193,7 +194,7 @@ class AppInfoCache:
         encrypted_data = decrypt_data_from_file(
             path,
             Globals.SERVICE_NAME,
-            Globals.APP_IDENTIFIER
+            key_identifier()
         )
         return json.loads(encrypted_data.decode('utf-8'))
 
@@ -251,7 +252,7 @@ class AppInfoCache:
         the lookup would fall through to the OS keychain for nothing."""
         if not any(os.path.exists(p) for p in [self._cache_loc] + self._get_backup_paths()):
             return False
-        return stored_keys_need_unavailable_oqs(Globals.SERVICE_NAME, Globals.APP_IDENTIFIER)
+        return stored_keys_need_unavailable_oqs(Globals.SERVICE_NAME, key_identifier())
 
     def _start_without_encrypted_cache(self):
         """Continue from the last no-OQS session's saves, or from an empty cache,

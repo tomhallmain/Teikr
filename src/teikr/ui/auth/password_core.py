@@ -6,6 +6,7 @@ It has no dependencies on other password modules to avoid circular imports.
 
 from teikr.globals import Globals, ProtectedActions
 from teikr.persistence.app_info_cache import app_info_cache
+from teikr.persistence.key_identity import key_identifier
 from lib.encryptor import (
     delete_stored_password,
     retrieve_encrypted_password,
@@ -171,7 +172,7 @@ class PasswordManager:
     def is_password_unreadable():
         """True when a stored password, if any, cannot be decrypted: the keys
         are quantum (OQS) keys and this process has no OQS."""
-        return stored_keys_need_unavailable_oqs(Globals.SERVICE_NAME, Globals.APP_IDENTIFIER)
+        return stored_keys_need_unavailable_oqs(Globals.SERVICE_NAME, key_identifier())
 
     @staticmethod
     def is_security_configured():
@@ -185,7 +186,7 @@ class PasswordManager:
             # Check if password exists in encrypted storage
             stored_password = retrieve_encrypted_password(
                 Globals.SERVICE_NAME,
-                Globals.APP_IDENTIFIER,
+                key_identifier(),
                 PasswordManager.PASSWORD_ID
             )
             PasswordManager._security_configured_cache = stored_password is not None and len(stored_password) > 0
@@ -201,7 +202,7 @@ class PasswordManager:
             # Store the password using encrypted storage
             success = store_encrypted_password(
                 Globals.SERVICE_NAME,
-                Globals.APP_IDENTIFIER,
+                key_identifier(),
                 PasswordManager.PASSWORD_ID,
                 password
             )
@@ -219,7 +220,7 @@ class PasswordManager:
             # Retrieve the stored password from encrypted storage
             stored_password = retrieve_encrypted_password(
                 Globals.SERVICE_NAME,
-                Globals.APP_IDENTIFIER,
+                key_identifier(),
                 PasswordManager.PASSWORD_ID
             )
             
@@ -239,7 +240,7 @@ class PasswordManager:
             # Remove the password from encrypted storage
             delete_stored_password(
                 Globals.SERVICE_NAME,
-                Globals.APP_IDENTIFIER,
+                key_identifier(),
                 PasswordManager.PASSWORD_ID
             )
             PasswordManager._security_configured_cache = False

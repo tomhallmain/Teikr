@@ -73,7 +73,7 @@ def _cache_loc() -> str:
     legacy = os.path.join(REPO_ROOT, "app_info_cache.enc")
     if os.path.isfile(legacy):
         return legacy
-    override = os.environ.get("SD_RUNNER_CACHE_DIR")
+    override = os.environ.get("TEIKR_CACHE_DIR")
     return os.path.join(override or str(app_data_dir()), "app_info_cache.enc")
 
 
@@ -84,11 +84,10 @@ CACHE_LOC = _cache_loc()
 def _identifiers(include_legacy: bool) -> list:
     """Current app identifier, plus the legacy ones when asked.
 
-    A renamed app leaves key material filed under its old identifier, and that
-    material stays load-bearing until everything encrypted under it has been
-    migrated. This project has never renamed, so the list is empty and
-    ``--include-legacy`` reports nothing extra -- it is kept so a future rename
-    only has to add the old name to Globals.
+    A renamed app leaves key material filed under its old identifier. The app
+    copies it to the current one at its first start (``key_identity``) and
+    leaves the original in place, which stays the only copy until that start
+    has happened.
     """
     identifiers = [Globals.APP_IDENTIFIER]
     if include_legacy:
@@ -198,7 +197,7 @@ def cmd_status(args: argparse.Namespace) -> int:
     print(f"Service        : {Globals.SERVICE_NAME}")
     print(f"Auto-backup    : {'on' if AUTO_BACKUP_KEY_STORE else 'off'}")
     print(f"{KEY_BACKUP_DIR_ENV_VAR:<15}: {os.environ.get(KEY_BACKUP_DIR_ENV_VAR) or '(unset)'}")
-    print(f"SD_RUNNER_CACHE_DIR: {os.environ.get('SD_RUNNER_CACHE_DIR') or '(unset)'}")
+    print(f"TEIKR_CACHE_DIR: {os.environ.get('TEIKR_CACHE_DIR') or '(unset)'}")
     drives = available_external_drives()
     print(f"External drives: {', '.join(drives) if drives else '(none detected)'}")
 
@@ -289,10 +288,10 @@ def _opens_cache(store: dict) -> bool:
 
 def cmd_restore(args: argparse.Namespace) -> int:
     service, app = Globals.SERVICE_NAME, Globals.APP_IDENTIFIER
-    if os.environ.get("SD_RUNNER_CACHE_DIR"):
+    if os.environ.get("TEIKR_CACHE_DIR"):
         # The key store would be written under the override while the check
         # below reads the real cache, so the two would not match.
-        print("SD_RUNNER_CACHE_DIR is set; unset it and run again.")
+        print("TEIKR_CACHE_DIR is set; unset it and run again.")
         return 1
 
     path = args.path or default_key_backup_path(service, app)

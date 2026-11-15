@@ -16,7 +16,7 @@ import shutil
 import sys
 from typing import Optional
 
-from lib.logging_setup import get_logger
+from lib.logging_setup import LEGACY_APP_DATA_FOLDERS, get_logger
 from teikr.app_paths import IS_BUILD, RESOURCE_ROOT
 
 logger = get_logger("runtime.unpack_cleanup")
@@ -91,6 +91,27 @@ def remove_stale_unpack_dirs(resource_root: str = RESOURCE_ROOT, is_build: bool 
             logger.info("Not cleaning up old build folders: running processes cannot be listed")
             return []
         executables = set()  # the rename alone guards running builds
+    removed = _remove_stale_in(parent, resource_root, current_id, executables)
+    # Builds made before the app data folder was renamed unpacked under the old
+    # one. Their folders go the same way, and the old app data folder with them
+    # once nothing is left in it; a folder still holding anything stays.
+    app_data_base = os.path.dirname(os.path.dirname(parent))
+    for legacy_name in LEGACY_APP_DATA_FOLDERS:
+        legacy_folder = os.path.join(app_data_base, legacy_name)
+        legacy_unpacked = os.path.join(legacy_folder, "unpacked")
+        if not os.path.isdir(legacy_unpacked):
+            continue
+        removed += _remove_stale_in(legacy_unpacked, resource_root, current_id, executables)
+        for folder in (legacy_unpacked, legacy_folder):
+            try:
+                os.rmdir(folder)
+            except OSError:
+                break
+    return removed
+
+
+def _remove_stale_in(parent: str, resource_root: str, current_id: str, executables: set) -> list:
+    """Delete the unpack folders in *parent* of builds other than *current_id*."""
     try:
         names = sorted(os.listdir(parent))
     except OSError as e:

@@ -15,8 +15,23 @@ import shutil
 import threading
 
 from lib.logging_setup import adopt_legacy_file, app_data_dir, get_logger
+from lib.translations import _
 
 logger = get_logger("app_paths")
+
+#: Variables that earlier versions read as SD_RUNNER_<name>, now TEIKR_<name>.
+_RENAMED_VARIABLES = ("APP_DATA_DIR", "CACHE_DIR", "CONFIGS_DIR", "KEY_BACKUP_DIR", "SERVER_PORT")
+
+
+def _warn_about_former_variable_names() -> None:
+    for name in _RENAMED_VARIABLES:
+        if os.environ.get("SD_RUNNER_" + name):
+            logger.warning(_(
+                "The environment variable {0} is no longer read; rename it to {1}."
+            ).format("SD_RUNNER_" + name, "TEIKR_" + name))
+
+
+_warn_about_former_variable_names()
 
 #: Nuitka defines __compiled__ in every module it compiles.
 IS_BUILD = "__compiled__" in globals()
@@ -46,13 +61,13 @@ def user_data_path(*parts: str) -> str:
 
 
 def cache_dir() -> str:
-    """SD_RUNNER_CACHE_DIR if set, else ``<app data>/cache``; created."""
-    path = os.environ.get("SD_RUNNER_CACHE_DIR") or user_data_path("cache")
+    """TEIKR_CACHE_DIR if set, else ``<app data>/cache``; created."""
+    path = os.environ.get("TEIKR_CACHE_DIR") or user_data_path("cache")
     os.makedirs(path, exist_ok=True)
     return path
 
 
-def legacy_migration_allowed(override_var: str = "SD_RUNNER_CACHE_DIR") -> bool:
+def legacy_migration_allowed(override_var: str = "TEIKR_CACHE_DIR") -> bool:
     """Whether a file at a legacy repo location may be moved into the app data
     dir: only from a checkout, and not while *override_var*, the variable that
     relocates that file, points elsewhere (tests and the build's smoke test)."""
@@ -60,7 +75,7 @@ def legacy_migration_allowed(override_var: str = "SD_RUNNER_CACHE_DIR") -> bool:
 
 
 def adopt_legacy_repo_file(legacy_relpath: str, target_path: str,
-                           override_var: str = "SD_RUNNER_CACHE_DIR") -> None:
+                           override_var: str = "TEIKR_CACHE_DIR") -> None:
     """Move ``<repo>/<legacy_relpath>`` to *target_path* when migration is allowed."""
     if legacy_migration_allowed(override_var):
         adopt_legacy_file(os.path.join(REPO_ROOT, legacy_relpath), target_path)

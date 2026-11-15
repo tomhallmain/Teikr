@@ -31,6 +31,7 @@ from teikr.ui.app_style import AppStyle
 from teikr.ui.app_icon import apply_app_icon
 from teikr.app_paths import resource_path
 from teikr.config import config
+from teikr.globals import Globals
 from teikr.runtime.crash_log import enable_fault_log
 from teikr.runtime.unpack_cleanup import remove_stale_unpack_dirs
 from teikr.runtime.version import APP_NAME, describe as describe_version, source_drift
@@ -123,7 +124,8 @@ def main():
         sys.exit(exit_code)
 
     # Single instance check -- prevent multiple instances from running
-    lock_file, cleanup_lock = Utils.check_single_instance("SDRunner")
+    lock_file, cleanup_lock = Utils.check_single_instance(
+        Globals.SINGLE_INSTANCE_LOCK, legacy_app_names=Globals.LEGACY_SINGLE_INSTANCE_LOCKS)
     logger.info(f"{APP_NAME} starting")
     logger.info(describe_version())
     if _byte_safe_fds:

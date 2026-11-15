@@ -1,7 +1,7 @@
 """Where bundled and user files resolve, in a checkout and in a compiled build.
 
 Build-only branches are reached by patching ``teikr.app_paths.IS_BUILD``
-and ``RESOURCE_ROOT``. Every test that unsets ``SD_RUNNER_CACHE_DIR`` also
+and ``RESOURCE_ROOT``. Every test that unsets ``TEIKR_CACHE_DIR`` also
 patches ``REPO_ROOT`` to a fake repo and points the app data dir into
 ``tmp_path``, so a migration it triggers cannot move the developer's files.
 Modules that migrate at import are imported here, at collection time, while
@@ -23,7 +23,7 @@ from teikr.workflow_prompts.base import WorkflowPrompt
 @pytest.fixture
 def app_data(tmp_path, monkeypatch):
     root = tmp_path / "app_data"
-    monkeypatch.setenv("SD_RUNNER_APP_DATA_DIR", str(root))
+    monkeypatch.setenv("TEIKR_APP_DATA_DIR", str(root))
     return root
 
 
@@ -65,23 +65,23 @@ class TestResolution:
         assert app_paths.resolve_user_path(str(tmp_path)) == str(tmp_path)
 
     def test_cache_dir_honours_the_override(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("SD_RUNNER_CACHE_DIR", str(tmp_path / "cache_override"))
+        monkeypatch.setenv("TEIKR_CACHE_DIR", str(tmp_path / "cache_override"))
         assert app_paths.cache_dir() == str(tmp_path / "cache_override")
         assert os.path.isdir(tmp_path / "cache_override")
 
 
 class TestLegacyMigrationAllowed:
     def test_not_while_the_override_is_set(self, monkeypatch):
-        monkeypatch.setenv("SD_RUNNER_CACHE_DIR", "/somewhere")
+        monkeypatch.setenv("TEIKR_CACHE_DIR", "/somewhere")
         assert not app_paths.legacy_migration_allowed()
 
     def test_not_in_a_build(self, monkeypatch):
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         monkeypatch.setattr(app_paths, "IS_BUILD", True)
         assert not app_paths.legacy_migration_allowed()
 
     def test_from_a_checkout_without_the_override(self, monkeypatch):
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         assert app_paths.legacy_migration_allowed()
 
 
@@ -131,13 +131,13 @@ class TestAppInfoCacheLocation:
     def test_the_override_wins(self, tmp_path, monkeypatch):
         module = app_info_cache_module
 
-        monkeypatch.setenv("SD_RUNNER_CACHE_DIR", str(tmp_path / "override"))
+        monkeypatch.setenv("TEIKR_CACHE_DIR", str(tmp_path / "override"))
         assert module._cache_dir() == str(tmp_path / "override")
 
     def test_legacy_files_move_into_the_app_data_dir(self, monkeypatch, app_data, fake_repo):
         module = app_info_cache_module
 
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         for name in ("app_info_cache.enc", "app_info_cache.enc.bak", "app_info_cache.enc.bak2"):
             (fake_repo / name).write_bytes(name.encode("utf-8"))
         target = module._cache_dir()
@@ -149,7 +149,7 @@ class TestAppInfoCacheLocation:
     def test_nothing_moves_in_a_build(self, monkeypatch, app_data, fake_repo):
         module = app_info_cache_module
 
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         monkeypatch.setattr(app_paths, "IS_BUILD", True)
         (fake_repo / "app_info_cache.enc").write_bytes(b"x")
         module._cache_dir()
@@ -158,15 +158,15 @@ class TestAppInfoCacheLocation:
 
 class TestOtherUserFiles:
     def test_pending_translations_go_to_the_override(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("SD_RUNNER_CACHE_DIR", str(tmp_path))
+        monkeypatch.setenv("TEIKR_CACHE_DIR", str(tmp_path))
         assert resolve_pending_translation_file() == str(tmp_path / "pending_translation.json")
 
     def test_pending_translations_default_to_the_app_data_dir(self, monkeypatch, app_data, fake_repo):
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         assert resolve_pending_translation_file() == os.path.join(str(app_data), "pending_translation.json")
 
     def test_the_last_prompt_moves_out_of_the_workflows_folder(self, monkeypatch, app_data, fake_repo):
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         legacy = fake_repo / WorkflowPrompt.LEGACY_LAST_PROMPT_FILE
         legacy.parent.mkdir(parents=True)
         legacy.write_text("{}", encoding="utf-8")
@@ -219,7 +219,7 @@ class TestConfigPaths:
     def test_the_default_save_path_is_the_app_data_dir(self, app_config):
         app_config.dict["forge_save_path"] = "."
         app_config.set_directories("forge_save_path")
-        assert app_config.forge_save_path == os.path.normpath(os.environ["SD_RUNNER_APP_DATA_DIR"])
+        assert app_config.forge_save_path == os.path.normpath(os.environ["TEIKR_APP_DATA_DIR"])
 
     def test_an_absolute_directory_is_unchanged(self, app_config, tmp_path):
         app_config.dict["img_dir"] = str(tmp_path)

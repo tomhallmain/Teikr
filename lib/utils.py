@@ -697,26 +697,49 @@ class Utils:
         return True
 
     @staticmethod
-    def check_single_instance(app_name="SDRunner", mutex_name=None, lock_filename=None):
+    def check_single_instance(app_name, mutex_name=None, lock_filename=None, legacy_app_names=()):
         """
         Check if another instance of the application is already running.
-        
+
         Args:
-            app_name: Display name for error messages
+            app_name: Display name for error messages, and the lock's name
             mutex_name: Name for Windows mutex (defaults to app_name + "_SingleInstance")
             lock_filename: Name for lock file (defaults to app_name.lower() + ".lock")
-            
+            legacy_app_names: Names earlier versions of the app locked under.
+                Each is checked and held as well: an earlier version already
+                running stops this one, and one started later sees this one,
+                since it checks only its own name.
+
         Returns:
             tuple: (lock_file_path, cleanup_function) where lock_file_path is the path to the lock file
-                   (None if using Windows mutex) and cleanup_function is a function to call for cleanup
-                   
+                   (None if using Windows mutex) and cleanup_function releases every lock taken
+
         Raises:
             SystemExit: If another instance is already running
         """
+        lock_path, cleanup = Utils._acquire_single_instance(app_name, app_name, mutex_name, lock_filename)
+        cleanups = [cleanup]
+        for legacy_name in legacy_app_names:
+            _unused, legacy_cleanup = Utils._acquire_single_instance(legacy_name, app_name)
+            cleanups.append(legacy_cleanup)
+
+        def cleanup_all():
+            for release in reversed(cleanups):
+                release()
+
+        return lock_path, cleanup_all
+
+    @staticmethod
+    def _acquire_single_instance(lock_name, app_name, mutex_name=None, lock_filename=None):
+        """Take the single-instance lock named *lock_name*, or exit if it is held.
+
+        *app_name* is the name the messages give. Returns the lock file's path
+        (None for a Windows mutex) and a function that releases the lock.
+        """
         if mutex_name is None:
-            mutex_name = f"{app_name}_SingleInstance"
+            mutex_name = f"{lock_name}_SingleInstance"
         if lock_filename is None:
-            lock_filename = f"{app_name.lower()}.lock"
+            lock_filename = f"{lock_name.lower()}.lock"
         
         # Try Windows mutex first (most reliable on Windows)
         if sys.platform == 'win32':
@@ -733,8 +756,15 @@ class Utils:
                     input("Press Enter to exit...")
                     os._exit(1)
                 
-                # Successfully created mutex, return None for lock file and dummy cleanup
-                return None, lambda: None
+                # The handle is the mutex: closing the last one destroys it, so
+                # the cleanup function holds it for as long as the caller does.
+                def release_mutex():
+                    try:
+                        win32api.CloseHandle(mutex)
+                    except Exception:
+                        pass
+
+                return None, release_mutex
                 
             except ImportError:
                 pass  # Fall through to file-based method

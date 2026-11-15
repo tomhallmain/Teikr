@@ -29,21 +29,21 @@ _CACHE_FILENAME = "blacklist_filter_cache.pkl"
 
 
 def _resolve_blacklist_cache_file() -> str:
-    """SD_RUNNER_CACHE_DIR if set (tests redirect it there), else the cache
+    """TEIKR_CACHE_DIR if set (tests redirect it there), else the cache
     folder in the app data dir.
 
     Only computes the path. The test suite calls this with the override
     briefly unset, so it must not create directories or move files.
     """
-    override = os.environ.get("SD_RUNNER_CACHE_DIR")
+    override = os.environ.get("TEIKR_CACHE_DIR")
     base = override if override else str(app_data_dir("cache", create=False))
     return os.path.join(base, _CACHE_FILENAME)
 
 
 def _prepare_default_cache_dir(cache_file: str) -> None:
     """Create the app data cache folder and move in a cache file left in the
-    repo's configs/ folder. Does nothing when SD_RUNNER_CACHE_DIR is set."""
-    if os.environ.get("SD_RUNNER_CACHE_DIR"):
+    repo's configs/ folder. Does nothing when TEIKR_CACHE_DIR is set."""
+    if os.environ.get("TEIKR_CACHE_DIR"):
         return
     os.makedirs(os.path.dirname(cache_file), exist_ok=True)
     if not legacy_migration_allowed():
@@ -1283,6 +1283,8 @@ class Blacklist:
         whitelist, filtered = Blacklist._filter_concepts_cached(
             concepts_tuple, do_cache, user_prompt, languages, origin, user_tags, anchors
         )
+        # Replaced outside the cache, which keeps the blocked tags as they are:
+        # each check draws new words, and no drawn word is cached.
         if filtered and user_prompt and Blacklist.get_blacklist_mode() == BlacklistMode.REPLACE_WORD_OR_PHRASE:
             whitelist = Blacklist._replace_filtered(whitelist, filtered)
         # If a filtered_dict is provided, update it
@@ -1706,7 +1708,7 @@ class Blacklist:
     @staticmethod
     def reset_filter_cache() -> None:
         """Replace _filter_cache with a fresh empty instance at the current
-        SD_RUNNER_CACHE_DIR location (or the app data cache dir if unset).
+        TEIKR_CACHE_DIR location (or the app data cache dir if unset).
 
         Called by the test suite between tests to guarantee isolation — cached
         filter results and version_cache never bleed across test boundaries, and

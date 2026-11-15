@@ -19,7 +19,7 @@ Builds a single-file executable in dist/ (``.exe`` on Windows), Teikr from
 app_gui.py. ``--with-headless`` also builds TeikrHeadless from
 app_headless.py, which serves the request front ends with no window and
 contains no Qt; it takes about as long again. At its first start each unpacks its runtime to ``unpacked/<prefix>-<build id>`` in the app
-data directory (``<app data>/sd_runner``); later starts of the same build reuse that folder,
+data directory (``<app data>/teikr``); later starts of the same build reuse that folder,
 and the app removes older builds' folders (src/teikr/runtime/unpack_cleanup.py).
 Each is smoke-tested with ``--smoke-test``. Other args are forwarded to Nuitka,
 e.g. ``--show-scons`` or ``--jobs=4``.
@@ -71,8 +71,9 @@ VENV_DIR = os.path.join(REPO_ROOT, ".venv-build")
 BUILD_DIR = os.path.join(REPO_ROOT, "build", "nuitka")
 DIST_DIR = os.path.join(REPO_ROOT, "dist")
 # lib.logging_setup.app_data_dir() spelled for Nuitka, which has no variable
-# for %APPDATA%.
-APP_DATA_SPEC = "{HOME}/AppData/Roaming/sd_runner" if sys.platform == "win32" else "{HOME}/.local/share/sd_runner"
+# for %APPDATA%. The folder name is lib.logging_setup.APP_DATA_FOLDER, not
+# imported because this script loads nothing of the app.
+APP_DATA_SPEC = "{HOME}/AppData/Roaming/teikr" if sys.platform == "win32" else "{HOME}/.local/share/teikr"
 LOCK_PATH = os.path.join(BUILD_DIR, "build-requirements.lock.txt")
 VERSION_FILE = "VERSION"
 VERSION_MODULE = os.path.join("src", "teikr", "runtime", "version.py")
@@ -508,11 +509,11 @@ def _smoke_test(exe_path: str, with_oqs: bool) -> None:
     with tempfile.TemporaryDirectory(prefix=f"{APP_NAME.lower()}-smoke-") as scratch:
         env = dict(os.environ)
         env["QT_QPA_PLATFORM"] = "offscreen"
-        env["SD_RUNNER_APP_DATA_DIR"] = scratch
-        env["SD_RUNNER_CONFIGS_DIR"] = os.path.join(scratch, "configs")
-        env["SD_RUNNER_CACHE_DIR"] = os.path.join(scratch, "cache")
-        env["SD_RUNNER_SERVER_PORT"] = "0"
-        for name in ("SD_RUNNER_CONFIGS_DIR", "SD_RUNNER_CACHE_DIR"):
+        env["TEIKR_APP_DATA_DIR"] = scratch
+        env["TEIKR_CONFIGS_DIR"] = os.path.join(scratch, "configs")
+        env["TEIKR_CACHE_DIR"] = os.path.join(scratch, "cache")
+        env["TEIKR_SERVER_PORT"] = "0"
+        for name in ("TEIKR_CONFIGS_DIR", "TEIKR_CACHE_DIR"):
             os.makedirs(env[name], exist_ok=True)
         result = subprocess.run(command, cwd=os.path.expanduser("~"), env=env)
     if result.returncode != 0:

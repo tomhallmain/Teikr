@@ -62,7 +62,7 @@ class FakeKeyring:
 def fake_keyring(monkeypatch, tmp_path):
     fk = FakeKeyring()
     monkeypatch.setattr(enc, "keyring", fk)
-    monkeypatch.setenv("SD_RUNNER_CACHE_DIR", str(tmp_path))
+    monkeypatch.setenv("TEIKR_CACHE_DIR", str(tmp_path))
     # Pin the auto-backup destination inside tmp_path. Without this it would
     # detect the real machine's external drive and write key backups to it
     # during the test run. Tests that care set their own value over this one.
@@ -392,7 +392,7 @@ class TestExportImportRecovery:
     ):
         """The data directory, not the cache one: XDG defines the cache as
         regenerable data, which a private key is not."""
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         path = enc.key_store_path(SERVICE, APP)
         assert os.path.dirname(path) == os.path.join(Utils.user_data_dir(), SERVICE)
 
@@ -404,7 +404,7 @@ class TestExportImportRecovery:
     def test_apps_sharing_a_service_share_one_folder(self, monkeypatch):
         """The point of keying the folder on the service: sd_runner, muse and
         weidr keep their key material together, one file each."""
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         dirs = {
             os.path.dirname(enc.key_store_path(SERVICE, app))
             for app in ("weidr", "sd_runner", "muse")
@@ -417,7 +417,7 @@ class TestExportImportRecovery:
         assert len(files) == 3
 
     def test_a_different_service_gets_a_different_folder(self, monkeypatch):
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         assert os.path.dirname(enc.key_store_path(SERVICE, APP)) != os.path.dirname(
             enc.key_store_path("OtherService", APP)
         )
@@ -776,7 +776,7 @@ class TestPortabilityFallbacks:
 
     def test_key_store_path_still_resolves_without_utils(self, monkeypatch):
         monkeypatch.setitem(sys.modules, "lib.utils", None)
-        monkeypatch.delenv("SD_RUNNER_CACHE_DIR", raising=False)
+        monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         path = enc.key_store_path(SERVICE, APP)
         assert os.path.dirname(path) == os.path.join(
             enc._fallback_user_data_dir(), SERVICE

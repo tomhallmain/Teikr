@@ -79,8 +79,10 @@ class TestTargets:
         assert "--nofollow-import-to=PySide6" in build_exe["_headless_args"]()
 
     def test_the_unpack_folder_is_in_the_app_data_dir(self, build_exe):
+        from lib.logging_setup import APP_DATA_FOLDER
+
         spec = build_exe["APP_DATA_SPEC"]
-        assert spec.startswith("{HOME}/") and spec.endswith("/sd_runner")
+        assert spec.startswith("{HOME}/") and spec.endswith(f"/{APP_DATA_FOLDER}")
 
     def test_the_package_configuration_is_passed_and_exists(self, build_exe):
         path = build_exe["PACKAGE_CONFIG"]

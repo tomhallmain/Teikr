@@ -26,7 +26,7 @@ The application uses PySide6 with custom theming, optional frameless windows, an
 
 ### Where your data lives
 
-Everything the application writes is kept in its data folder, `%APPDATA%\sd_runner` on Windows and `~/.local/share/sd_runner` elsewhere: `configs/config.json`, the encrypted `app_info_cache.enc` with its backups, the logs, and caches. Files that earlier versions kept in the repo (`app_info_cache.enc*`, `configs/config.json`, `sd_runner/data/pending_translation.json`) are moved there the first time the app is started from the repo. A file in the data folder is replaced by the one from the repo unless the repo's is newer; then both are kept and the log says so. Relative paths in `config.json` (the default `"."` save paths included) are taken relative to the data folder.
+Everything the application writes is kept in its data folder, `%APPDATA%\teikr` on Windows and `~/.local/share/teikr` elsewhere; a folder left by an earlier version under `sd_runner` is moved there at the first start: `configs/config.json`, the encrypted `app_info_cache.enc` with its backups, the logs, and caches. Files that earlier versions kept in the repo (`app_info_cache.enc*`, `configs/config.json`, `sd_runner/data/pending_translation.json`) are moved there the first time the app is started from the repo. A file in the data folder is replaced by the one from the repo unless the repo's is newer; then both are kept and the log says so. Relative paths in `config.json` (the default `"."` save paths included) are taken relative to the data folder.
 
 ## Building an executable
 
@@ -297,7 +297,7 @@ Protected actions include:
 - Edit Concepts
 
 The keys encrypting the cache are backed up automatically to an external drive
-(set `SD_RUNNER_KEY_BACKUP_DIR` to choose where). Run `python scripts/key_material.py`
+(set `TEIKR_KEY_BACKUP_DIR` to choose where). Run `python scripts/key_material.py`
 to check that backup's state, `backup` to take one by hand, or `restore` to put
 the keys back from a backup if the cache can no longer be opened.
 

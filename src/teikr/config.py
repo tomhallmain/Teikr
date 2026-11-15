@@ -2,7 +2,11 @@ import json
 import os
 import shutil
 
-from lib.logging_setup import adopt_legacy_file, app_data_dir, get_logger, set_log_file_encryption, set_logger_level
+from lib.logging_setup import (
+    adopt_legacy_file, app_data_dir, get_logger, relocate_legacy_app_data_path,
+    set_log_file_encryption, set_logger_level,
+)
+from lib.translations import _
 from teikr.app_paths import IS_BUILD, REPO_ROOT, concepts_dir, resolve_user_path, resource_path
 
 logger = get_logger("config")
@@ -97,15 +101,46 @@ class Config:
         "vlm_load_in_4bit":                 bool,
     }
 
+    #: Keys of config.json whose value is a directory, and those whose value is
+    #: a file, validated on load by set_directories and set_filepaths.
+    DIRECTORY_KEYS = (
+        "models_dir",
+        "img_dir",
+        "img_temps_dir",
+        "ipadapter_dir",
+        "comfyui_loc",
+        "comfyui_output_dir",
+        "sd_webui_loc",
+        "forge_loc",
+        "sdnext_loc",
+        "fooocus_loc",
+        "invokeai_loc",
+        "swarmui_loc",
+        "sd_webui_save_path",
+        "forge_save_path",
+        "sdnext_save_path",
+        "swarmui_save_path",
+        "invokeai_save_path",
+        "fooocus_save_path",
+        "sd_prompt_reader_loc",
+        "image_searcher_dir2",
+        "interrogator_interrogation_dir",
+    )
+    FILEPATH_KEYS = (
+        "interrogator_initial_questions_file",
+        "interrogator_questions_file",
+        "interrogator_folder_category_mappings_file",
+    )
+
     @staticmethod
     def user_configs_dir() -> str:
-        """Directory holding the user's config.json: SD_RUNNER_CONFIGS_DIR if
+        """Directory holding the user's config.json: TEIKR_CONFIGS_DIR if
         set, else the configs folder in the app data dir beside the logs.
 
         A config.json found in the repo's configs/ folder is moved here on first
         use.
         """
-        override = os.environ.get("SD_RUNNER_CONFIGS_DIR")
+        override = os.environ.get("TEIKR_CONFIGS_DIR")
         if override:
             return override
         configs_dir = str(app_data_dir("configs"))
@@ -202,7 +237,10 @@ class Config:
         # space (CLIP, SigLIP, MetaCLIP, ...), as a Hugging Face id or local
         # directory (read from the local cache only) or a .pt file for the clip
         # package. The template wraps each option before it is compared with
-        # the reference image. Device: "cpu", "cuda" or "auto".
+        # the reference image. Device: "cpu", "cuda" or "auto"; CPU by default
+        # because the image backend may be holding the GPU. Separate from
+        # clip_model_path, which may name a text-only encoder and drives the
+        # blacklist's similarity check.
         self.reference_similarity_model = "openai/clip-vit-base-patch32"
         self.reference_similarity_prompt_template = "a photo of {0}"
         self.reference_similarity_device = "cpu"
@@ -250,9 +288,9 @@ class Config:
         self.log_backend_output = False
 
         # Overridable so test runs can bind an OS-assigned ephemeral port
-        # (SD_RUNNER_SERVER_PORT=0) instead of colliding with a real running
+        # (TEIKR_SERVER_PORT=0) instead of colliding with a real running
         # app instance's server on the default port.
-        _server_port_override = os.environ.get("SD_RUNNER_SERVER_PORT")
+        _server_port_override = os.environ.get("TEIKR_SERVER_PORT")
         self.server_port = int(_server_port_override) if _server_port_override else 6000
         self.server_password = "<PASSWORD>"
         self.server_host = "localhost"
@@ -278,6 +316,7 @@ class Config:
         except Exception as e:
             logger.error(e)
             logger.warning("Unable to load config. Ensure config.json file settings are correct.")
+        self._relocate_legacy_app_data_paths()
 
         self.set_values(int,
                         "max_executor_threads",
@@ -334,34 +373,8 @@ class Config:
                         "wildcards",
                         "backend_launch_commands",
         )
-        self.set_directories(
-            "models_dir",
-            "img_dir",
-            "img_temps_dir",
-            "ipadapter_dir",
-            "comfyui_loc",
-            "comfyui_output_dir",
-            "sd_webui_loc",
-            "forge_loc",
-            "sdnext_loc",
-            "fooocus_loc",
-            "invokeai_loc",
-            "swarmui_loc",
-            "sd_webui_save_path",
-            "forge_save_path",
-            "sdnext_save_path",
-            "swarmui_save_path",
-            "invokeai_save_path",
-            "fooocus_save_path",
-            "sd_prompt_reader_loc",
-            "image_searcher_dir2",
-            "interrogator_interrogation_dir",
-        )
-        self.set_filepaths(
-            "interrogator_initial_questions_file",
-            "interrogator_questions_file",
-            "interrogator_folder_category_mappings_file"
-        )
+        self.set_directories(*Config.DIRECTORY_KEYS)
+        self.set_filepaths(*Config.FILEPATH_KEYS)
 
         if self.override_dictionary_path is not None:
             self.set_filepaths("override_dictionary_path")
@@ -375,6 +388,49 @@ class Config:
         self.set_concepts_dirs()
 
         self._apply_logging_settings()
+
+    def _relocate_legacy_app_data_paths(self) -> None:
+        """Point configured paths into a former app data folder at the folder in use.
+
+        The Config dialog saves every path field as shown, resolved, so the
+        defaults of ``"."`` can be stored as absolute paths into the former
+        folder. After the folder has moved they name a folder that is gone, or,
+        in a build, the leftover the unpack folders keep alive, which would go
+        on receiving output.
+        """
+        changed = []
+
+        def relocate(key, value):
+            if not isinstance(value, str) or not value.strip():
+                return value
+            expanded = self._expand_config_path(value)
+            if not os.path.isabs(expanded):
+                return value
+            relocated = relocate_legacy_app_data_path(expanded)
+            if relocated == expanded:
+                return value
+            changed.append((key, value, relocated))
+            return relocated
+
+        for key in Config.DIRECTORY_KEYS + Config.FILEPATH_KEYS + ("override_dictionary_path", "default_concepts_dir"):
+            if key in self.dict:
+                self.dict[key] = relocate(key, self.dict[key])
+        if isinstance(self.dict.get("concepts_dirs"), list):
+            self.dict["concepts_dirs"] = [relocate("concepts_dirs", d) for d in self.dict["concepts_dirs"]]
+        cloud = self.dict.get("cloud_backends")
+        if isinstance(cloud, dict) and "save_path" in cloud:
+            cloud["save_path"] = relocate("cloud_backends.save_path", cloud["save_path"])
+
+        if not changed:
+            return
+        for key, old, new in changed:
+            logger.info(_("Setting {0} pointed into the former app data folder; changed {1} to {2}").format(key, old, new))
+        if self.config_path == Config.EXAMPLE_CONFIG_LOC:
+            return
+        try:
+            self.persist()
+        except Exception as e:
+            logger.warning(_("Could not save the relocated paths to {0}; they are relocated again at the next start: {1}").format(self.config_path, e))
 
     def _apply_logging_settings(self) -> None:
         # Loggers exist before config.json is read, so these reach them afterwards.

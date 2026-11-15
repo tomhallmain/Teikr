@@ -30,6 +30,7 @@ from teikr.runtime.oqs_path import point_oqs_at_bundled_library
 point_oqs_at_bundled_library()
 
 from teikr.config import config
+from teikr.globals import Globals
 from teikr.runtime.crash_log import enable_fault_log
 from teikr.runtime.unpack_cleanup import remove_stale_unpack_dirs
 from teikr.runtime.version import APP_NAME, describe as describe_version, source_drift
@@ -92,7 +93,8 @@ def main():
             logger.error(f"smoke test: unexpected error:\n{traceback.format_exc()}")
             return 1
 
-    lock_file, cleanup_lock = Utils.check_single_instance("SDRunner")
+    lock_file, cleanup_lock = Utils.check_single_instance(
+        Globals.SINGLE_INSTANCE_LOCK, legacy_app_names=Globals.LEGACY_SINGLE_INSTANCE_LOCKS)
     logger.info(describe_version())
     try:
         enable_fault_log()

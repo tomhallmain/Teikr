@@ -306,6 +306,10 @@ class BaseImageGenerator(ABC):
                                 if ip_adapter:
                                     positive_copy += ip_adapter.modifiers
                                     positive_copy = ip_adapter.b_w_coloration_modifier(positive_copy)
+                                # After the adapter's modifiers, which may hold sets of their
+                                # own, and before the final blacklist check, so the chosen
+                                # option is checked too. Derived passes receive the resolved
+                                # prompt and do not resolve it again.
                                 positive_copy, negative_copy = self.resolve_similarity_choices(
                                     positive_copy, negative, control_net, ip_adapter)
 

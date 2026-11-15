@@ -2,13 +2,15 @@ import logging
 import os
 import shutil
 import sys
+import tempfile
 import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
 
 from lib.custom_formatter import CustomFormatter
-from lib.encryptor import encrypt_log_record, get_log_cipher_key
+import lib.encryptor as encryptor
+from lib.encryptor import encrypt_log_record, get_log_cipher_key, namespaced_key, peek_passphrase
 
 #: The keyring identity the log key is derived under; a reader of the log
 #: files must use the same two strings. The app's service name with a suffix:
@@ -16,8 +18,32 @@ from lib.encryptor import encrypt_log_record, get_log_cipher_key
 #: the test suite can pin this passphrase (MYPERSONALAPPLICATIONSSERVICELOGS_PASSPHRASE)
 #: without also answering every passphrase lookup for the app's encrypted cache.
 LOG_ENCRYPTION_SERVICE = "MyPersonalApplicationsServiceLogs"
-LOG_ENCRYPTION_APP_ID = "sd_runner"
+LOG_ENCRYPTION_APP_ID = "teikr"
+#: Identities the log key was filed under before, newest first. Never remove
+#: an entry: the passphrase under one can be the only way to read the logs
+#: written with it.
+LEGACY_LOG_ENCRYPTION_APP_IDS = ("sd_runner",)
 LOG_FILE_SUFFIX = ".log.enc"
+#: The app data folder, under %APPDATA% on Windows and ~/.local/share elsewhere.
+APP_DATA_FOLDER = "teikr"
+#: Names the app data folder had before, newest first. The first time the
+#: folder is resolved in a process, one found under such a name is moved to
+#: APP_DATA_FOLDER.
+LEGACY_APP_DATA_FOLDERS = ("sd_runner",)
+#: Name of the lock that keeps a second instance from starting (a Windows
+#: mutex ``<name>_SingleInstance``, else the lock file ``<name lower>.lock`` in
+#: the temp folder). Fixed rather than derived from the display name, since
+#: running versions must agree on it. Defined here because moving the app data
+#: folder checks it, and that runs at import, before the entry point takes it.
+SINGLE_INSTANCE_LOCK = "Teikr"
+#: Lock names of earlier versions, held as well, so that an earlier version
+#: and this one cannot run at the same time in either order. One can go once
+#: no installation still starts a version that uses it.
+LEGACY_SINGLE_INSTANCE_LOCKS = ("SDRunner",)
+#: What a compiled build puts in the app data folder before any Python runs:
+#: the onefile bootstrap unpacks there. A folder holding only this holds no
+#: user data.
+_BOOTSTRAP_ENTRIES = frozenset({"unpacked"})
 #: The log file's suffix when the user has turned encryption off.
 PLAINTEXT_LOG_FILE_SUFFIX = ".log"
 
@@ -85,6 +111,15 @@ _encrypt_log_file: bool = True
 #: The level set_logger_level last applied, given to loggers created after it:
 #: modules imported lazily fetch their logger long after startup.
 _log_level: int = logging.INFO
+#: The app data folder this process uses, once resolved.
+_app_data_root: Optional[Path] = None
+_app_data_lock = threading.Lock()
+#: (level, message) pairs from moving the app data folder and the log key.
+#: Both run before any logger has a file, so they are logged by the first
+#: logger that gets one.
+_app_data_notices: list = []
+#: The identity log_key_identifier resolved for this process.
+_log_key_id: Optional[str] = None
 
 
 def _log_file_path(encrypted: bool) -> Path:
@@ -104,7 +139,7 @@ def _get_file_handler(log_file: Path) -> Optional[logging.Handler]:
     if _shared_file_handler is None:
         if _encrypt_log_file:
             try:
-                handler = EncryptedFileHandler(log_file, LOG_ENCRYPTION_SERVICE, LOG_ENCRYPTION_APP_ID)
+                handler = EncryptedFileHandler(log_file, LOG_ENCRYPTION_SERVICE, log_key_identifier())
             except Exception as e:
                 print(f"Log file disabled: could not derive the log encryption key: {e}", file=sys.stderr)
                 _shared_file_handler = False
@@ -115,6 +150,54 @@ def _get_file_handler(log_file: Path) -> Optional[logging.Handler]:
         handler.setFormatter(CustomFormatter())
         _shared_file_handler = handler
     return _shared_file_handler or None
+
+
+def log_key_identifier() -> str:
+    """The identity the log key is derived under in this process.
+
+    The key comes from the passphrase alone; the identity only names its
+    keyring item. So when LOG_ENCRYPTION_APP_ID has no passphrase and a legacy
+    identity has one, it is copied over, and the one key then reads the logs
+    of either identity. The legacy item stays. If the copy fails, the legacy
+    identity is used for this process.
+    """
+    global _log_key_id
+    if _log_key_id is None:
+        _log_key_id = _resolve_log_key_identifier()
+    return _log_key_id
+
+
+def _resolve_log_key_identifier() -> str:
+    service, current = LOG_ENCRYPTION_SERVICE, LOG_ENCRYPTION_APP_ID
+    # A passphrase from the environment answers for every identity.
+    if f"{service.upper()}_PASSPHRASE" in os.environ or peek_passphrase(service, current):
+        return current
+    for legacy in LEGACY_LOG_ENCRYPTION_APP_IDS:
+        passphrase = peek_passphrase(service, legacy)
+        if not passphrase:
+            continue
+        item = namespaced_key(current, "passphrase")
+        written = False
+        try:
+            encryptor.keyring.set_password(service, item, passphrase)
+            written = True
+            if encryptor.keyring.get_password(service, item) != passphrase:
+                raise RuntimeError("the copy did not read back as written")
+        except Exception as e:
+            if written:
+                try:
+                    encryptor.keyring.delete_password(service, item)
+                except Exception:
+                    pass
+            _app_data_notices.append((logging.WARNING,
+                f"Could not copy the log key passphrase from '{legacy}' to '{current}'; "
+                f"logs are written under '{legacy}' until a later start succeeds: {e}"))
+            return legacy
+        _app_data_notices.append((logging.INFO,
+            f"Copied the log key passphrase from '{legacy}' to '{current}'. The one under "
+            f"'{legacy}' was left in place; remove it only once every reader uses '{current}'."))
+        return current
+    return current
 
 
 def set_log_file_encryption(enabled: bool) -> None:
@@ -190,24 +273,217 @@ def _cleanup_old_logs(log_dir: Path, logger: logging.Logger) -> None:
 
 
 def app_data_dir(*parts: str, create: bool = True) -> Path:
-    """Return ``<app data>/sd_runner/<parts...>``, creating it unless ``create``
-    is False.
+    """Return ``<app data>/<APP_DATA_FOLDER>/<parts...>``, creating it unless
+    ``create`` is False.
 
     The app data base is %APPDATA% on Windows and ~/.local/share elsewhere.
     Logs, the user config and the blacklist filter cache all live under it.
-    SD_RUNNER_APP_DATA_DIR, if set, replaces ``<app data>/sd_runner`` as a
-    whole; the test suite sets it before this module is first imported.
+    TEIKR_APP_DATA_DIR, if set, replaces that folder as a whole and
+    suppresses the move from a legacy folder; the test suite sets it before
+    this module is first imported.
     """
-    override: str | None = os.getenv('SD_RUNNER_APP_DATA_DIR')
+    override: str | None = os.getenv('TEIKR_APP_DATA_DIR')
     if override:
         root: Path = Path(override)
     else:
-        appdata_dir: str = os.getenv('APPDATA') if sys.platform == 'win32' else os.path.expanduser('~/.local/share')
-        root = Path(appdata_dir, 'sd_runner')
+        root = _resolved_app_data_root()
     path: Path = root.joinpath(*parts)
     if create:
         path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def _app_data_base() -> Path:
+    return Path(os.getenv('APPDATA') if sys.platform == 'win32' else os.path.expanduser('~/.local/share'))
+
+
+def _resolved_app_data_root() -> Path:
+    global _app_data_root
+    with _app_data_lock:
+        if _app_data_root is None:
+            _app_data_root = migrate_app_data_folder(_app_data_base())
+        return _app_data_root
+
+
+def _entries(folder: Path) -> set:
+    try:
+        return set(os.listdir(folder))
+    except OSError:
+        return set()
+
+
+def _running_instance() -> Optional[str]:
+    """The name of a single-instance lock some process holds, else None.
+
+    Only looks: nothing is taken. A process starting between this check and
+    the move is not seen.
+    """
+    for name in (SINGLE_INSTANCE_LOCK,) + LEGACY_SINGLE_INSTANCE_LOCKS:
+        if _single_instance_lock_held(name):
+            return name
+    return None
+
+
+def _single_instance_lock_held(name: str) -> bool:
+    """Whether the lock *name*, as Utils.check_single_instance takes it, is held."""
+    if sys.platform == 'win32' and _mutex_exists(f"{name}_SingleInstance"):
+        return True
+    return _lock_file_held(os.path.join(tempfile.gettempdir(), f"{name.lower()}.lock"))
+
+
+def _mutex_exists(mutex_name: str) -> bool:
+    try:
+        import ctypes
+        kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel32.OpenMutexW.restype = ctypes.c_void_p
+        synchronize = 0x00100000
+        handle = kernel32.OpenMutexW(synchronize, False, mutex_name)
+    except Exception:
+        return False
+    if not handle:
+        return False
+    kernel32.CloseHandle(ctypes.c_void_p(handle))
+    return True
+
+
+def _lock_file_held(path: str) -> bool:
+    """Whether another process holds the lock on *path*'s first byte."""
+    try:
+        fd = os.open(path, os.O_RDWR)
+    except OSError:
+        # No lock file: nobody holds it.
+        return False
+    try:
+        if sys.platform == 'win32':
+            import msvcrt
+            try:
+                msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+            except OSError:
+                return True
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                return True
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        return False
+    except Exception:
+        return False
+    finally:
+        os.close(fd)
+
+
+def migrate_app_data_folder(base: Path) -> Path:
+    """Move a legacy app data folder under *base* to APP_DATA_FOLDER; return
+    the folder to use.
+
+    The whole folder is renamed when the new one does not exist. A build has
+    already unpacked into the new one, so when it holds nothing else, the
+    legacy folder's entries are moved into it one by one, all or none. When
+    both hold data, the new one is used and nothing is merged. Whenever a move
+    fails, the legacy folder stays in use for this process and the next start
+    tries again.
+    """
+    new = base / APP_DATA_FOLDER
+    for name in LEGACY_APP_DATA_FOLDERS:
+        old = base / name
+        if not old.is_dir():
+            continue
+        old_entries = _entries(old) - _BOOTSTRAP_ENTRIES
+        if not old_entries:
+            # Only an earlier build's unpack folders: the build's cleanup
+            # removes them, and the folder with them once it is empty.
+            continue
+        # The move runs at import, before this process checks the
+        # single-instance lock, so it must not pull the folder away from an
+        # instance that is running from it.
+        running = _running_instance()
+        if running:
+            _app_data_notices.append((logging.INFO,
+                f"An instance ({running}) is running; {old} stays in use, and is moved to {new} "
+                f"at a start while none is running"))
+            return old
+        if not new.exists():
+            try:
+                os.rename(old, new)
+            except OSError as e:
+                _app_data_notices.append((logging.WARNING,
+                    f"Could not move the app data folder {old} to {new}; using {old} until a later start: {e}"))
+                return old
+            _app_data_notices.append((logging.INFO, f"Moved the app data folder {old} to {new}"))
+            return new
+        if _entries(new) - _BOOTSTRAP_ENTRIES:
+            _app_data_notices.append((logging.WARNING,
+                f"Both {old} and {new} hold app data; using {new}. {old} was left as it is."))
+            return new
+        moved: list = []
+        try:
+            for entry in sorted(old_entries):
+                os.rename(old / entry, new / entry)
+                moved.append(entry)
+        except OSError as e:
+            stuck = []
+            for entry in reversed(moved):
+                try:
+                    os.rename(new / entry, old / entry)
+                except OSError:
+                    stuck.append(entry)
+            if stuck:
+                _app_data_notices.append((logging.ERROR,
+                    f"Moving the app data from {old} to {new} failed ({e}), and these could not be "
+                    f"moved back: {', '.join(sorted(stuck))}. They are in {new}; move them to {old} by hand."))
+            else:
+                _app_data_notices.append((logging.WARNING,
+                    f"Could not move the app data from {old} to {new}; using {old} until a later start: {e}"))
+            return old
+        _app_data_notices.append((logging.INFO, f"Moved the app data from {old} to {new}"))
+        return new
+    return new
+
+
+def relocate_legacy_app_data_path(path: str, root: Optional[Path] = None) -> str:
+    """*path* moved into the app data folder in use, if it points into a legacy
+    app data folder beside it and the same place exists in the new one;
+    otherwise *path* unchanged.
+
+    *root* is the folder in use, ``app_data_dir()`` by default. When that is a
+    legacy folder (a move failed) or TEIKR_APP_DATA_DIR replaces it, nothing is
+    relocated. A place that exists only in the legacy folder (both held data,
+    so nothing was moved) keeps its path.
+    """
+    if root is None:
+        if os.getenv('TEIKR_APP_DATA_DIR'):
+            return path
+        root = _resolved_app_data_root()
+    if root.name != APP_DATA_FOLDER:
+        return path
+    original = os.path.normpath(path)
+    # Compared case-folded on Windows; the rest keeps the path's own case.
+    target = os.path.normcase(original)
+    for name in LEGACY_APP_DATA_FOLDERS:
+        legacy = os.path.normcase(os.path.normpath(root.parent / name))
+        if target == legacy:
+            relocated = root
+        elif target.startswith(legacy + os.sep):
+            relocated = root / original[len(legacy) + 1:]
+        else:
+            continue
+        if relocated.exists():
+            return os.path.normpath(str(relocated))
+    return path
+
+
+def _log_app_data_notices() -> None:
+    if not _app_data_notices:
+        return
+    notices = list(_app_data_notices)
+    _app_data_notices.clear()
+    notice_logger = get_logger("app_data")
+    for level, message in notices:
+        notice_logger.log(level, message)
 
 
 def adopt_legacy_file(legacy_path: str, target_path: str) -> None:
@@ -276,6 +552,7 @@ def get_logger(module_name: str) -> logging.Logger:
     if fh is not None:
         logger.addHandler(fh)
 
+    _log_app_data_notices()
     return logger
 
 def set_logger_level(debug: bool) -> None:
