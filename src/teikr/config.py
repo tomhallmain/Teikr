@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 
 from lib.logging_setup import (
@@ -10,6 +11,9 @@ from lib.translations import _
 from teikr.app_paths import IS_BUILD, REPO_ROOT, concepts_dir, resolve_user_path, resource_path
 
 logger = get_logger("config")
+
+#: A placeholder in a configured path: ``{HOME}`` or a name from path_variables.
+_PATH_PLACEHOLDER = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
 
 class Config:
@@ -57,6 +61,8 @@ class Config:
         "swarmui_loc":                      None,
         "sd_prompt_reader_loc":             None,
         "image_searcher_dir2":              None,
+        # Name -> value of the placeholders usable in the paths above
+        "path_variables":                   dict,
         # Backend autolaunch. Blank or null means that software is not started.
         "backend_launch_commands":          dict,
         "backend_startup_timeout":          int,
@@ -123,6 +129,7 @@ class Config:
         "invokeai_save_path",
         "fooocus_save_path",
         "sd_prompt_reader_loc",
+        "image_searcher_dir",
         "image_searcher_dir2",
         "interrogator_interrogation_dir",
     )
@@ -131,6 +138,14 @@ class Config:
         "interrogator_questions_file",
         "interrogator_folder_category_mappings_file",
     )
+    #: Values that may be a local path but are not resolved as one: the
+    #: placeholders are filled in and nothing else is changed.
+    PATH_OR_NAME_KEYS = (
+        "clip_model_path",
+        "reference_similarity_model",
+    )
+    #: Built in; path_variables cannot redefine it.
+    HOME_PLACEHOLDER = "HOME"
 
     @staticmethod
     def user_configs_dir() -> str:
@@ -309,6 +324,11 @@ class Config:
         # Cloud backends — all keys live in one subdict loaded from config.json
         self.cloud_backends: dict = {}
 
+        # Name -> value of the {NAME} placeholders in configured paths, so that
+        # paths on one drive can be pointed at another by changing one value.
+        self.path_variables: dict[str, str] = {}
+        self._unknown_placeholders_reported: set[str] = set()
+
         self.config_path = Config.resolve_config_path()
 
         try:
@@ -316,6 +336,7 @@ class Config:
         except Exception as e:
             logger.error(e)
             logger.warning("Unable to load config. Ensure config.json file settings are correct.")
+        self.path_variables = self._valid_path_variables(self.dict.get("path_variables"))
         self._relocate_legacy_app_data_paths()
 
         self.set_values(int,
@@ -379,6 +400,10 @@ class Config:
         if self.override_dictionary_path is not None:
             self.set_filepaths("override_dictionary_path")
             logger.info(f"Set override_dictionary_path to: {self.override_dictionary_path}")
+        for key in Config.PATH_OR_NAME_KEYS:
+            value = getattr(self, key, None)
+            if isinstance(value, str):
+                setattr(self, key, self.expand_path_variables(value))
 
         if isinstance(self.dict.get("cloud_backends"), dict):
             self.cloud_backends = self.dict["cloud_backends"]
@@ -497,11 +522,77 @@ class Config:
             return filepath
         return None
 
+    @staticmethod
+    def _check_path_variables(raw) -> tuple[dict[str, str], list[str]]:
+        """The usable entries of a path_variables value, and what is wrong with the rest."""
+        if raw is None:
+            return {}, []
+        if not isinstance(raw, dict):
+            return {}, [_("path_variables must map names to paths, not {0!r}").format(raw)]
+        valid, problems = {}, []
+        for name, value in raw.items():
+            if not isinstance(name, str) or not _PATH_PLACEHOLDER.fullmatch("{" + name + "}"):
+                problems.append(_("Path variable {0!r}: a name is letters, digits and "
+                                  "underscores, and does not start with a digit").format(name))
+            elif name == Config.HOME_PLACEHOLDER:
+                problems.append(_("Path variable {0}: the name is built in").format(name))
+            elif not isinstance(value, str) or not value.strip():
+                problems.append(_("Path variable {0}: its value is not a path").format(name))
+            else:
+                valid[name] = value.strip()
+        return valid, problems
+
+    @staticmethod
+    def _valid_path_variables(raw) -> dict[str, str]:
+        valid, problems = Config._check_path_variables(raw)
+        for problem in problems:
+            logger.warning(_("Ignoring an entry of path_variables: {0}").format(problem))
+        return valid
+
+    def expand_path_variables(self, value: str) -> str:
+        """*value* with ``{HOME}`` and each ``{NAME}`` from path_variables filled in.
+
+        A variable's value may itself start with ``{HOME}``. An undefined
+        placeholder stays as written and is reported once per name.
+        """
+        def fill(match):
+            name = match.group(1)
+            if name == Config.HOME_PLACEHOLDER:
+                return os.path.expanduser("~")
+            if name in self.path_variables:
+                return self.path_variables[name].replace("{HOME}", os.path.expanduser("~"))
+            if name not in self._unknown_placeholders_reported:
+                self._unknown_placeholders_reported.add(name)
+                logger.warning(_("{0} in the configured path {1} is not a defined path variable; "
+                                 "add it to path_variables").format(match.group(0), value))
+            return match.group(0)
+        return _PATH_PLACEHOLDER.sub(fill, value)
+
+    def configured_text(self, key: str) -> str:
+        """The value of *key* as written in config.json, placeholders kept.
+
+        What the Config dialog shows for a path, so that saving it keeps the
+        placeholders. Falls back to the loaded value for a key not written.
+        """
+        raw = self.dict.get(key) if isinstance(self.dict, dict) else None
+        if isinstance(raw, str):
+            return raw
+        value = getattr(self, key, None)
+        return "" if value is None else str(value)
+
+    def _resolved_value(self, key: str, value):
+        """The value a path key is used with, for a value as it is stored."""
+        if not isinstance(value, str) or not value.strip():
+            return value
+        if key in Config.DIRECTORY_KEYS or key in Config.FILEPATH_KEYS or key == "override_dictionary_path":
+            return self._normalize_config_path(value)
+        if key in Config.PATH_OR_NAME_KEYS:
+            return self.expand_path_variables(value)
+        return value
+
     def _expand_config_path(self, path_value: str) -> str:
         """Normalize configured paths across platforms and user input styles."""
-        normalized = path_value.strip()
-        if "{HOME}" in normalized:
-            normalized = normalized.replace("{HOME}", os.path.expanduser("~"))
+        normalized = self.expand_path_variables(path_value.strip())
         # Handle Windows separators in configs used on POSIX machines.
         normalized = normalized.replace("\\", os.sep)
         return os.path.normpath(normalized)
@@ -629,11 +720,18 @@ class Config:
                 except (ValueError, TypeError):
                     name = getattr(expected, "__name__", str(expected))
                     errors.append(f"{key}: expected {name}, got {str(value)!r}")
+        if "path_variables" in typed:
+            typed["path_variables"], problems = self._check_path_variables(typed["path_variables"])
+            errors.extend(problems)
         if errors:
             return errors
+        # First, so that the paths saved with them resolve against the new values.
+        if "path_variables" in typed:
+            self.path_variables = typed["path_variables"]
+            self._unknown_placeholders_reported.clear()
         for key, val in typed.items():
             self.dict[key] = val
-            setattr(self, key, val)
+            setattr(self, key, self._resolved_value(key, val))
         self.persist()
         self._apply_logging_settings()
         return []

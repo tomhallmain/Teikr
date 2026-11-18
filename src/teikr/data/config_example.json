@@ -106,6 +106,9 @@
     "reference_similarity_device": "cpu",
     "vlm_repo_id": "llava-hf/llava-1.5-7b-hf",
     "vlm_load_in_4bit": false,
+    "path_variables": {
+        "EXTERNAL_DRIVE": "E:\\"
+    },
     "models_dir": "{HOME}\\repos\\ComfyUI\\models",
     "img_dir": "{HOME}\\img",
     "img_temps_dir": "{HOME}\\img\\img_temps",

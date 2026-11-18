@@ -83,52 +83,65 @@ class ConfigWindow(SmartDialog):
             _("Fooocus URL"), str(config.fooocus_url or ""),
         )
 
+        # ── Path Variables ────────────────────────────────────────────
+        self._add_section(_("Path Variables"))
+        self._add_note(_(
+            "A path below can start with {NAME}, e.g. {EXTERNAL_DRIVE}\\models, "
+            "to use the value of the path variable NAME. To move every such "
+            "path to another drive, change the variable. Blank removes it."
+        ))
+        self._path_variable_entries: dict[str, QLineEdit] = {}
+        for name, value in sorted(config.path_variables.items()):
+            self._path_variable_entries[name] = self._add_entry("{" + name + "}", value)
+        self._le_new_path_variable_name = self._add_entry(_("New Variable Name"), "")
+        self._le_new_path_variable_value = self._add_entry(_("New Variable Value"), "")
+
         # ── Save Paths ────────────────────────────────────────────────
         self._add_section(_("Save Paths"))
         self._le_sd_webui_save_path = self._add_entry(
-            _("SD WebUI Save Path"), config.sd_webui_save_path,
+            _("SD WebUI Save Path"), config.configured_text("sd_webui_save_path"),
         )
         self._le_forge_save_path = self._add_entry(
-            _("Forge Save Path"), config.forge_save_path,
+            _("Forge Save Path"), config.configured_text("forge_save_path"),
         )
         self._le_sdnext_save_path = self._add_entry(
-            _("SDNext Save Path"), config.sdnext_save_path,
+            _("SDNext Save Path"), config.configured_text("sdnext_save_path"),
         )
         self._le_swarmui_save_path = self._add_entry(
-            _("SwarmUI Save Path"), config.swarmui_save_path,
+            _("SwarmUI Save Path"), config.configured_text("swarmui_save_path"),
         )
         self._le_invokeai_save_path = self._add_entry(
-            _("InvokeAI Save Path"), config.invokeai_save_path,
+            _("InvokeAI Save Path"), config.configured_text("invokeai_save_path"),
         )
         self._le_fooocus_save_path = self._add_entry(
-            _("Fooocus Save Path"), config.fooocus_save_path,
+            _("Fooocus Save Path"), config.configured_text("fooocus_save_path"),
         )
 
         # ── Directories ───────────────────────────────────────────────
         self._add_section(_("Directories"))
         self._le_models_dir = self._add_entry(
-            _("Models Directory"), str(config.models_dir or ""),
+            _("Models Directory"), config.configured_text("models_dir"),
         )
         self._le_img_dir = self._add_entry(
-            _("Image Output Directory"), str(config.img_dir or ""),
+            _("Image Output Directory"), config.configured_text("img_dir"),
         )
         self._le_img_temps_dir = self._add_entry(
-            _("Image Temps Directory"), str(config.img_temps_dir or ""),
+            _("Image Temps Directory"), config.configured_text("img_temps_dir"),
         )
         self._le_ipadapter_dir = self._add_entry(
-            _("IPAdapter Directory"), str(config.ipadapter_dir or ""),
+            _("IPAdapter Directory"), config.configured_text("ipadapter_dir"),
         )
         self._le_comfyui_loc = self._add_entry(
-            _("ComfyUI Location"), str(config.comfyui_loc or ""),
+            _("ComfyUI Location"), config.configured_text("comfyui_loc"),
         )
         self._le_sd_webui_loc = self._add_entry(
-            _("SD WebUI Location"), str(config.sd_webui_loc or ""),
+            _("SD WebUI Location"), config.configured_text("sd_webui_loc"),
         )
         self._le_sd_prompt_reader_loc = self._add_entry(
-            _("SD Prompt Reader Location"), str(config.sd_prompt_reader_loc or ""),
+            _("SD Prompt Reader Location"), config.configured_text("sd_prompt_reader_loc"),
         )
         self._le_image_searcher_dir2 = self._add_entry(
-            _("Image Searcher Directory 2"), str(config.image_searcher_dir2 or ""),
+            _("Image Searcher Directory 2"), config.configured_text("image_searcher_dir2"),
         )
 
         # ── Start commands ────────────────────────────────────────────
@@ -219,7 +232,7 @@ class ConfigWindow(SmartDialog):
         # ── Dictionary Override ───────────────────────────────────────
         self._add_section(_("Dictionary Override"))
         self._le_override_dict_path = self._add_entry(
-            _("Override Dictionary Path"), str(config.override_dictionary_path or ""),
+            _("Override Dictionary Path"), config.configured_text("override_dictionary_path"),
         )
         self._cb_override_dict_append = self._add_checkbox(
             _("Append to Default Dictionary"), config.override_dictionary_append,
@@ -232,14 +245,14 @@ class ConfigWindow(SmartDialog):
         self._add_section(_("Similarity Check"))
         self._le_clip_model_path = self._add_entry(
             _("CLIP Model Path"),
-            str(config.clip_model_path or ""),
+            config.configured_text("clip_model_path"),
         )
 
         # ── Reference Similarity ([[~a,b]] choice sets) ───────────────
         self._add_section(_("Reference Image Similarity"))
         self._le_reference_similarity_model = self._add_entry(
             _("Image-Text Model (Hugging Face ID, Folder or .pt File)"),
-            str(config.reference_similarity_model or ""),
+            config.configured_text("reference_similarity_model"),
         )
         self._le_reference_similarity_template = self._add_entry(
             _("Option Template ({0} is the Option)"),
@@ -356,6 +369,23 @@ class ConfigWindow(SmartDialog):
                 if name not in commands:
                     commands[name] = command
         raw["backend_launch_commands"] = commands
+
+        path_variables = {}
+        for name, entry in self._path_variable_entries.items():
+            if entry.text().strip():
+                path_variables[name] = entry.text().strip()
+        new_name = self._le_new_path_variable_name.text().strip().strip("{}")
+        new_value = self._le_new_path_variable_value.text().strip()
+        if new_name or new_value:
+            if not (new_name and new_value):
+                QMessageBox.warning(
+                    self,
+                    _("Config Validation Error"),
+                    _("A new path variable needs both a name and a value."),
+                )
+                return
+            path_variables[new_name] = new_value
+        raw["path_variables"] = path_variables
 
         reference_similarity_keys = (
             "reference_similarity_model",

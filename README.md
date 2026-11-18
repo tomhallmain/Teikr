@@ -28,6 +28,16 @@ The application uses PySide6 with custom theming, optional frameless windows, an
 
 Everything the application writes is kept in its data folder, `%APPDATA%\teikr` on Windows and `~/.local/share/teikr` elsewhere; a folder left by an earlier version under `sd_runner` is moved there at the first start: `configs/config.json`, the encrypted `app_info_cache.enc` with its backups, the logs, and caches. Files that earlier versions kept in the repo (`app_info_cache.enc*`, `configs/config.json`, `sd_runner/data/pending_translation.json`) are moved there the first time the app is started from the repo. A file in the data folder is replaced by the one from the repo unless the repo's is newer; then both are kept and the log says so. Relative paths in `config.json` (the default `"."` save paths included) are taken relative to the data folder.
 
+A path in `config.json` can start with a placeholder: `{HOME}` for the home folder, or a name defined in `path_variables`. With
+
+```json
+"path_variables": { "EXTERNAL_DRIVE": "E:\\" },
+"models_dir": "{EXTERNAL_DRIVE}\\ComfyUI\\models",
+"img_dir": "{EXTERNAL_DRIVE}\\img"
+```
+
+changing `EXTERNAL_DRIVE` to `F:\\` moves every path that uses it to the other drive, for example to a backup copy while the usual drive is at another machine. Names are letters, digits and underscores; a value may itself start with `{HOME}`. The variables are edited in the Path Variables section of the Config window, which also shows and saves the paths with their placeholders. The placeholders apply to every directory and file path in `config.json`, `clip_model_path` and `reference_similarity_model` included, but not to the backend start commands. A placeholder with no defined variable is logged and left as written, so the path it is in is not found. Paths the Config window does not show take a changed variable at the next start.
+
 ## Building an executable
 
 `python build_exe.py --with-oqs` builds a single-file executable with [Nuitka](https://nuitka.net), `dist/Teikr.exe` (no `.exe` suffix on macOS/Linux). `--with-headless` also builds `dist/TeikrHeadless.exe`, which serves the request front ends without a window; it about doubles the build time. Run it on the OS you are building for; Nuitka does not cross-compile.
