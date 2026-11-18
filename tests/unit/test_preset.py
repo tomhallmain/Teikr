@@ -24,6 +24,9 @@ class TestPresetConstruction:
         p = make_preset(prompt_mode="SFW")
         assert p.prompt_mode == "SFW"
 
+    def test_active_by_default(self):
+        assert make_preset().active is True
+
     def test_edit_suffix_defaults_to_empty(self):
         p = Preset(name="x", prompt_mode=PromptMode.SFW, positive_tags="", negative_tags="")
         assert p.edit_suffix == ""
@@ -33,7 +36,8 @@ class TestPresetSerialization:
     def test_to_dict_contains_all_fields(self):
         p = make_preset()
         d = p.to_dict()
-        assert set(d.keys()) == {"name", "prompt_mode", "positive_tags", "negative_tags", "edit_suffix"}
+        assert set(d.keys()) == {
+            "name", "prompt_mode", "positive_tags", "negative_tags", "edit_suffix", "active"}
 
     def test_to_dict_prompt_mode_is_string(self):
         p = make_preset(prompt_mode=PromptMode.NSFW)
@@ -47,6 +51,16 @@ class TestPresetSerialization:
         assert restored.positive_tags == p.positive_tags
         assert restored.negative_tags == p.negative_tags
         assert restored.edit_suffix == p.edit_suffix
+        assert restored.active == p.active
+
+    def test_inactive_survives_the_round_trip(self):
+        restored = Preset.from_dict(make_preset(active=False).to_dict())
+        assert restored.active is False
+
+    def test_a_preset_stored_without_the_flag_is_active(self):
+        d = make_preset().to_dict()
+        del d["active"]
+        assert Preset.from_dict(d).active is True
 
 
 class TestPresetEquality:
@@ -69,6 +83,12 @@ class TestPresetEquality:
         a = make_preset(edit_suffix="")
         b = make_preset(edit_suffix="_v2")
         assert a != b
+
+    def test_active_does_not_affect_equality(self):
+        a = make_preset(active=True)
+        b = make_preset(active=False)
+        assert a == b
+        assert hash(a) == hash(b)
 
     def test_name_does_not_affect_equality(self):
         a = make_preset(name="Alpha")

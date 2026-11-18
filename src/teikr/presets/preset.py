@@ -2,12 +2,16 @@
 from teikr.globals import PromptMode
 
 class Preset:
-    def __init__(self, name, prompt_mode, positive_tags, negative_tags, edit_suffix="") -> None:
+    def __init__(self, name, prompt_mode, positive_tags, negative_tags, edit_suffix="",
+                 active=True) -> None:
         self.name = name
         self.prompt_mode = prompt_mode.name if isinstance(prompt_mode, PromptMode) else prompt_mode
         self.positive_tags = positive_tags
         self.negative_tags = negative_tags
         self.edit_suffix = edit_suffix
+        #: Whether a server request's edit suffix can select this preset. Not
+        #: part of equality: switching it does not make a different preset.
+        self.active = bool(active)
 
     def is_valid(self):
         return True
@@ -35,6 +39,7 @@ class Preset:
             'positive_tags': self.positive_tags,
             'negative_tags': self.negative_tags,
             'edit_suffix': self.edit_suffix,
+            'active': self.active,
             }
 
     @classmethod

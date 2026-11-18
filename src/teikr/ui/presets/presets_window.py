@@ -128,6 +128,12 @@ class PresetsWindow(SmartDialog):
         top_bar.addWidget(clear_btn)
         top_bar.addStretch()
 
+        # Shown only while active presets share an edit suffix.
+        self._suffix_conflict_label = QLabel()
+        self._suffix_conflict_label.setWordWrap(True)
+        self._suffix_conflict_label.setStyleSheet("color: #FF6B6B;")
+        self._suffix_conflict_label.hide()
+
         # --- Scroll area for preset rows -----------------------------------
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
@@ -137,6 +143,7 @@ class PresetsWindow(SmartDialog):
         self._scroll.setWidget(self._scroll_content)
 
         layout.addLayout(top_bar)
+        layout.addWidget(self._suffix_conflict_label)
         layout.addWidget(self._scroll)
 
     def _build_stash_tab(self, page: QWidget) -> None:
@@ -285,10 +292,26 @@ class PresetsWindow(SmartDialog):
             row = QWidget()
             h = QHBoxLayout(row)
             h.setContentsMargins(2, 2, 2, 2)
-            label = QLabel(str(preset))
+            text = str(preset)
+            if preset.edit_suffix:
+                text += "  " + _("(edit suffix: {0})").format(preset.edit_suffix)
+            label = QLabel(text)
             label.setWordWrap(True)
             label.setMinimumWidth(400)
+            label.setEnabled(preset.active)
             h.addWidget(label, stretch=1)
+
+            active_check = QCheckBox(_("Active"))
+            active_check.setChecked(preset.active)
+            create_tooltip(
+                active_check,
+                _("Only an active preset is selected by the edit suffix of a "
+                  "server request. Set and preset schedules use any preset."),
+            )
+            active_check.toggled.connect(
+                lambda checked, p=preset, c=active_check: self._on_active_toggled(p, c, checked)
+            )
+            h.addWidget(active_check)
 
             set_btn = QPushButton(_("Set"))
             set_btn.setFixedWidth(60)
@@ -301,6 +324,31 @@ class PresetsWindow(SmartDialog):
             h.addWidget(del_btn)
 
             self._rows_layout.addWidget(row)
+
+        self._update_suffix_conflict_label()
+
+    def _update_suffix_conflict_label(self) -> None:
+        conflicts = PresetsState.active_suffix_conflicts()
+        if not conflicts:
+            self._suffix_conflict_label.hide()
+            return
+        lines = [
+            _("Active presets share the edit suffix \"{0}\": {1}. A request "
+              "with it picks one of them at random.").format(
+                suffix, ", ".join(f'"{p.name}"' for p in presets))
+            for suffix, presets in conflicts.items()
+        ]
+        self._suffix_conflict_label.setText("\n".join(lines))
+        self._suffix_conflict_label.show()
+
+    def _warn_if_suffix_shared(self, preset: Preset) -> None:
+        sharing = PresetsState.active_suffix_conflicts().get(preset.edit_suffix) if preset.active else None
+        if sharing:
+            self._app_actions.warn(
+                _("{0} active presets now have the edit suffix \"{1}\"; a request "
+                  "with it picks one of them at random.").format(len(sharing), preset.edit_suffix),
+                duration_ms=5000,
+            )
 
     def _rebuild_stash_rows(self) -> None:
         """Clear and re-populate the stashed-config list from the backend."""
@@ -557,7 +605,25 @@ class PresetsWindow(SmartDialog):
         PresetsState.recent_presets.insert(0, preset)
         PresetsState.store_recent_presets()
         self._set_preset(preset)
+        self._warn_if_suffix_shared(preset)
         return preset
+
+    def _on_active_toggled(self, preset: Preset, check: QCheckBox, checked: bool) -> None:
+        # The box goes back at once; the rows are rebuilt with the new state
+        # only once the password gate lets the change through.
+        check.blockSignals(True)
+        check.setChecked(preset.active)
+        check.blockSignals(False)
+        self._set_preset_active(preset, checked)
+
+    @require_password(ProtectedActions.EDIT_PRESETS)
+    def _set_preset_active(self, preset: Preset, active: bool) -> None:
+        if preset.active == active:
+            return
+        preset.active = active
+        PresetsState.store_recent_presets()
+        self._rebuild_rows()
+        self._warn_if_suffix_shared(preset)
 
     def _set_preset(self, preset: Preset | None = None) -> None:
         if preset is None:

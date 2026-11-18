@@ -219,6 +219,8 @@ Note the default behavior of Control Net and IP Adapter workflows is to inherit 
 
 The presets window allows you to manage presets for specific prompt and prompt mode combinations. Use this window to add presets, delete presets and to apply them to the UI.
 
+A `generate` request with an `edit_suffix` applies the first preset whose edit suffix matches it. Only presets marked **Active** in the window are considered; Set and preset schedules use any preset. When several active presets have the same edit suffix, the window shows a warning above the list, and a request with that suffix picks one of them at random and logs which.
+
 If a presets schedule is defined in the config, the checkbox Run Preset Schedule will be enabled and presets will be run at the specified schedule if this boolean is set to True.
 
 ### Stashed Configs

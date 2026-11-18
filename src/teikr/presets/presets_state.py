@@ -9,10 +9,15 @@ The ``app_info_cache`` import stays inside each function: it builds its
 singleton at import time, and importing this module should not force that.
 """
 
+import random
+
 from teikr.presets.intermediate_prompt import IntermediatePrompt
 from teikr.presets.preset import Preset
 from teikr.presets.stashed_config import StashedConfig
+from lib.logging_setup import get_logger
 from lib.translations import _
+
+logger = get_logger("presets.presets_state")
 
 
 class PresetsState:
@@ -163,15 +168,36 @@ class PresetsState:
 
     @staticmethod
     def get_preset_by_suffix(suffix: str) -> 'Preset | None':
-        """Return the first preset whose edit_suffix matches *suffix*, or None.
+        """Return an active preset whose edit_suffix matches *suffix*, or None.
 
         A preset matches if its edit_suffix equals the incoming suffix or is a
-        prefix of it (e.g. preset "_cher" matches incoming "_cherry").
+        prefix of it (e.g. preset "_cher" matches incoming "_cherry"). The
+        first match in the list decides the edit_suffix; when several active
+        presets carry it, one of them is picked at random.
         """
         for preset in PresetsState.recent_presets:
-            if preset.edit_suffix and suffix.startswith(preset.edit_suffix):
-                return preset
+            if preset.active and preset.edit_suffix and suffix.startswith(preset.edit_suffix):
+                sharing = PresetsState.active_suffix_conflicts().get(preset.edit_suffix)
+                if not sharing:
+                    return preset
+                chosen = random.choice(sharing)
+                logger.info(
+                    _("{0} active presets share the edit suffix \"{1}\": {2}. "
+                      "Picked \"{3}\" at random.").format(
+                        len(sharing), preset.edit_suffix,
+                        ", ".join(f'"{p.name}"' for p in sharing), chosen.name)
+                )
+                return chosen
         return None
+
+    @staticmethod
+    def active_suffix_conflicts() -> 'dict[str, list[Preset]]':
+        """Edit suffix -> the active presets carrying it, for suffixes on more than one."""
+        by_suffix = {}
+        for preset in PresetsState.recent_presets:
+            if preset.active and preset.edit_suffix:
+                by_suffix.setdefault(preset.edit_suffix, []).append(preset)
+        return {suffix: presets for suffix, presets in by_suffix.items() if len(presets) > 1}
 
     @staticmethod
     def get_preset_names():
