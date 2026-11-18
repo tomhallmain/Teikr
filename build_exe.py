@@ -90,7 +90,7 @@ RECORDED_DISTRIBUTIONS = (
 # Additions to Nuitka's own configuration for packages this build follows.
 PACKAGE_CONFIG = os.path.join(REPO_ROOT, "nuitka-package.config.yml")
 ICON_PNG = os.path.join("assets", "icon.png")
-ICON_ICO = os.path.join(BUILD_DIR, "sd_runner_icon.ico")
+ICON_ICO = os.path.join(BUILD_DIR, "teikr_icon.ico")
 
 # Shipped files, at the same relative paths the modules reading them resolve
 # from their own location.
