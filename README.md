@@ -365,9 +365,9 @@ Alongside the tools it exposes three read-only **resources**, so a client can fi
 
 | Resource | URI | Holds |
 |---|---|---|
-| `current_workflow` | `sdrunner://workflow/current` | the workflow, model tags, resolutions and counts a run would use right now |
-| `preset_names` | `sdrunner://presets/names` | the saved preset names, which a `generate` request can then ask for by `edit_suffix` |
-| `run_history` | `sdrunner://runs/history` | the most recent runs, newest first — capped, since the entries are near-duplicates |
+| `current_workflow` | `teikr://workflow/current` | the workflow, model tags, resolutions and counts a run would use right now |
+| `preset_names` | `teikr://presets/names` | the saved preset names, which a `generate` request can then ask for by `edit_suffix` |
+| `run_history` | `teikr://runs/history` | the most recent runs, newest first — capped, since the entries are near-duplicates |
 
 These read stored settings rather than the window, so they answer the same way with no UI running.
 

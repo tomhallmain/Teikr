@@ -34,7 +34,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 # ---------------------------------------------------------------------------
 # Module-level bootstrap: point env vars at a throwaway dir before first import
 # ---------------------------------------------------------------------------
-_bootstrap_tmp = tempfile.mkdtemp(prefix="sd_runner_tests_")
+_bootstrap_tmp = tempfile.mkdtemp(prefix="teikr_tests_")
 _bootstrap_configs_dir = os.path.join(_bootstrap_tmp, "configs")
 _bootstrap_cache_dir = os.path.join(_bootstrap_tmp, "cache")
 os.makedirs(_bootstrap_configs_dir, exist_ok=True)
@@ -64,7 +64,7 @@ os.environ["TEIKR_APP_DATA_DIR"] = os.path.join(_bootstrap_tmp, "app_data")
 # below is installed. PassphraseManager checks this variable first, so the key
 # comes from it and the real keyring is never reached. The log encryption has
 # a service name of its own, so this answers nothing for the app's cache.
-os.environ["MYPERSONALAPPLICATIONSSERVICELOGS_PASSPHRASE"] = "sd-runner-test-log-passphrase"
+os.environ["MYPERSONALAPPLICATIONSSERVICELOGS_PASSPHRASE"] = "teikr-test-log-passphrase"
 
 # Imported for the side effect: both modules construct their singleton at import
 # time, and this forces that to happen now, with the env vars above in place.
@@ -122,8 +122,9 @@ def _remove_bootstrap_tmp() -> None:
     # The project's log file handlers are still open at exit, and Windows will
     # not delete an open file, so close them before removing the directory.
     import logging
+    from lib.logging_setup import LOGGER_NAMESPACE
     for name, logger in list(logging.Logger.manager.loggerDict.items()):
-        if name.startswith("sd_runner") and isinstance(logger, logging.Logger):
+        if name.startswith(LOGGER_NAMESPACE + ".") and isinstance(logger, logging.Logger):
             for handler in list(logger.handlers):
                 if isinstance(handler, logging.FileHandler):
                     handler.close()

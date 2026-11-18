@@ -336,7 +336,7 @@ class TestResources:
         from extensions.mcp_server import resource_descriptors
 
         for d in resource_descriptors():
-            assert d["uri"].startswith("sdrunner://")
+            assert d["uri"].startswith("teikr://")
             assert d["description"]
 
     def test_the_uris_are_distinct(self, app_config):

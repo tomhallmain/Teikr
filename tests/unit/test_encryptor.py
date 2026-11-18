@@ -402,16 +402,16 @@ class TestExportImportRecovery:
 
 
     def test_apps_sharing_a_service_share_one_folder(self, monkeypatch):
-        """The point of keying the folder on the service: sd_runner, muse and
+        """The point of keying the folder on the service: teikr, muse and
         weidr keep their key material together, one file each."""
         monkeypatch.delenv("TEIKR_CACHE_DIR", raising=False)
         dirs = {
             os.path.dirname(enc.key_store_path(SERVICE, app))
-            for app in ("weidr", "sd_runner", "muse")
+            for app in ("weidr", "teikr", "muse")
         }
         files = {
             os.path.basename(enc.key_store_path(SERVICE, app))
-            for app in ("weidr", "sd_runner", "muse")
+            for app in ("weidr", "teikr", "muse")
         }
         assert len(dirs) == 1
         assert len(files) == 3
@@ -627,7 +627,7 @@ class TestExportImportRecovery:
         monkeypatch.setenv(enc.KEY_BACKUP_DIR_ENV_VAR, str(external))
         paths = [
             enc.default_key_backup_path(SERVICE, app)
-            for app in ("weidr", "sd_runner")
+            for app in ("weidr", "teikr")
         ]
         assert {os.path.dirname(p) for p in paths} == {str(external / SERVICE)}
         assert len({os.path.basename(p) for p in paths}) == 2

@@ -2,7 +2,7 @@
 """Convert a ComfyUI UI template into an API prompt.
 
 Run with the ComfyUI environment's Python, and with the ComfyUI checkout on
-PYTHONPATH. The sd_runner environment does not import ComfyUI's nodes.
+PYTHONPATH. The Teikr environment does not import ComfyUI's nodes.
 
     set PYTHONPATH=C:\\Users\\tehal\\repos\\_external\\ComfyUI
     C:\\Users\\tehal\\miniconda\\envs\\comfy\\python.exe scripts\\convert_comfy_template.py

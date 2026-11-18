@@ -6,7 +6,7 @@ from teikr.persistence.app_info_cache import app_info_cache
 from lib.logging_setup import get_logger
 from lib.translations import _
 
-logger = get_logger(__name__)
+logger = get_logger("presets.timed_schedules_manager")
 
 class ScheduledShutdownException(Exception):
     """Exception raised when a scheduled shutdown is requested."""

@@ -995,7 +995,7 @@ def build_parser() -> argparse.ArgumentParser:
                         "concept. Unset, vectors only suggest targets.")
     g.add_argument("--top-k", type=int, default=5, help="Neighbours voting on a target (default: 5).")
     g.add_argument("--vector-cache", type=Path,
-                   default=Path.home() / ".cache" / "sd_runner" / "concept_vectors",
+                   default=Path.home() / ".cache" / "teikr" / "concept_vectors",
                    help="Where --clip embeddings of the concept files are cached.")
     g.add_argument("--no-vector-cache", action="store_true")
     g = p.add_argument_group("output")

@@ -37,8 +37,14 @@ class ImageDataExtractor:
     POSITIVE = "positive"
     NEGATIVE = "negative"
     RELATED_IMAGE_KEY = "related_image"
-    ORIGINAL_POSITIVE_TAGS_KEY = "SDR_OriginalPositiveTags"
-    ORIGINAL_NEGATIVE_TAGS_KEY = "SDR_OriginalNegativeTags"
+    ORIGINAL_POSITIVE_TAGS_KEY = "Teikr_OriginalPositiveTags"
+    ORIGINAL_NEGATIVE_TAGS_KEY = "Teikr_OriginalNegativeTags"
+    #: Key -> the names earlier versions (SD Runner) wrote it under. Read as a
+    #: fallback, never written; replaced in an image when the key is written.
+    LEGACY_METADATA_KEYS = {
+        ORIGINAL_POSITIVE_TAGS_KEY: ("SDR_OriginalPositiveTags",),
+        ORIGINAL_NEGATIVE_TAGS_KEY: ("SDR_OriginalNegativeTags",),
+    }
 
     def __init__(self):
         pass
@@ -513,22 +519,50 @@ class ImageDataExtractor:
         if config.debug:
             logger.debug("Added related image path: " + related_image_path)
 
+    @staticmethod
+    def read_metadata_text(info: dict, key: str):
+        """The value under *key* in an image's info, else under a name an earlier
+        version wrote it as; None if neither is there."""
+        for name in (key, *ImageDataExtractor.LEGACY_METADATA_KEYS.get(key, ())):
+            if name in info:
+                return info[name]
+        return None
+
+    def get_prompt_decomposition(self, image_path: str) -> tuple:
+        """The (positive, negative) original prompt tags stored in the image, each
+        None when absent."""
+        with Image.open(image_path) as image:
+            info = image.info
+            return (
+                self.read_metadata_text(info, ImageDataExtractor.ORIGINAL_POSITIVE_TAGS_KEY),
+                self.read_metadata_text(info, ImageDataExtractor.ORIGINAL_NEGATIVE_TAGS_KEY),
+            )
+
     def add_prompt_decomposition_to_exif(self, image_path: str, original_positive_tags: str = None, original_negative_tags: str = None):
         """Add original prompt decomposition to EXIF data of the generated image."""
         try:
             image = Image.open(image_path)
             png_info = PngInfo()
-            
-            # Copy existing EXIF data
-            for k, v in image.info.items():
-                png_info.add_text(str(k), str(v))
-            
-            # Add original prompt decomposition
+
+            written = {}
             if original_positive_tags is not None:
-                png_info.add_text(ImageDataExtractor.ORIGINAL_POSITIVE_TAGS_KEY, str(original_positive_tags))
+                written[ImageDataExtractor.ORIGINAL_POSITIVE_TAGS_KEY] = str(original_positive_tags)
             if original_negative_tags is not None:
-                png_info.add_text(ImageDataExtractor.ORIGINAL_NEGATIVE_TAGS_KEY, str(original_negative_tags))
-            
+                written[ImageDataExtractor.ORIGINAL_NEGATIVE_TAGS_KEY] = str(original_negative_tags)
+            # A key being written replaces its earlier value and its legacy
+            # names, so the image does not carry two values for it.
+            superseded = {
+                name
+                for key in written
+                for name in (key, *ImageDataExtractor.LEGACY_METADATA_KEYS.get(key, ()))
+            }
+
+            for k, v in image.info.items():
+                if str(k) not in superseded:
+                    png_info.add_text(str(k), str(v))
+            for k, v in written.items():
+                png_info.add_text(k, v)
+
             # Save with updated EXIF data
             image.save(image_path, pnginfo=png_info)
             image.close()

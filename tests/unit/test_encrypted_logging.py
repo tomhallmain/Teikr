@@ -223,7 +223,7 @@ def log_dir(monkeypatch, tmp_path):
     original = logging_setup._shared_file_handler
 
     def log_file_path(encrypted):
-        return directory / f"sd_runner_test{LOG_FILE_SUFFIX if encrypted else PLAINTEXT_LOG_FILE_SUFFIX}"
+        return directory / f"teikr_test{LOG_FILE_SUFFIX if encrypted else PLAINTEXT_LOG_FILE_SUFFIX}"
 
     monkeypatch.setattr(logging_setup, "_log_file_path", log_file_path)
     yield directory
@@ -251,7 +251,7 @@ class TestPlaintextOptOut:
         (handler,) = _file_handlers(logger)
         assert not isinstance(handler, EncryptedFileHandler)
         handler.flush()
-        text = (log_dir / f"sd_runner_test{PLAINTEXT_LOG_FILE_SUFFIX}").read_text(encoding="utf-8")
+        text = (log_dir / f"teikr_test{PLAINTEXT_LOG_FILE_SUFFIX}").read_text(encoding="utf-8")
         assert marker in text
 
     def test_loggers_created_earlier_are_moved(self, log_dir):
@@ -291,25 +291,33 @@ class TestPlaintextOptOut:
 # ---------------------------------------------------------------------------
 
 class TestCleanup:
-    def _make(self, directory, days_ago, suffix):
+    def _make(self, directory, days_ago, suffix, stem=logging_setup.LOG_FILE_STEM):
         date = (datetime.now() - timedelta(days=days_ago)).strftime("%Y-%m-%d")
-        path = directory / f"sd_runner_{date}{suffix}"
+        path = directory / f"{stem}_{date}{suffix}"
         path.write_bytes(b"")
         return path
 
     def test_the_date_is_read_from_an_encrypted_log_name(self, tmp_path):
-        path = tmp_path / "sd_runner_2026-08-14.log.enc"
+        path = tmp_path / "teikr_2026-08-14.log.enc"
         path.write_bytes(b"")
         assert logging_setup._log_file_date(path) == datetime(2026, 8, 14)
 
     def test_the_date_is_read_from_a_plaintext_log_name(self, tmp_path):
-        path = tmp_path / "sd_runner_2026-08-14.log"
+        path = tmp_path / "teikr_2026-08-14.log"
         path.write_bytes(b"")
         assert logging_setup._log_file_date(path) == datetime(2026, 8, 14)
 
     def test_old_encrypted_and_plaintext_logs_are_removed(self, tmp_path):
         old = [self._make(tmp_path, 40 + i, LOG_FILE_SUFFIX) for i in range(6)]
         old += [self._make(tmp_path, 60 + i, ".log") for i in range(6)]
+        recent = self._make(tmp_path, 1, LOG_FILE_SUFFIX)
+        logging_setup._cleanup_old_logs(tmp_path, logging.getLogger("test_encrypted_logging.cleanup"))
+        assert not any(p.exists() for p in old)
+        assert recent.exists()
+
+    def test_logs_named_by_an_earlier_version_are_removed_too(self, tmp_path):
+        (legacy_stem,) = logging_setup.LEGACY_LOG_FILE_STEMS
+        old = [self._make(tmp_path, 40 + i, LOG_FILE_SUFFIX, legacy_stem) for i in range(11)]
         recent = self._make(tmp_path, 1, LOG_FILE_SUFFIX)
         logging_setup._cleanup_old_logs(tmp_path, logging.getLogger("test_encrypted_logging.cleanup"))
         assert not any(p.exists() for p in old)

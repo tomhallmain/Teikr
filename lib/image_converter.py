@@ -75,7 +75,7 @@ class ImageConverter:
     def _setup_temporary_directory(self):
         """Set up temporary directory for converted files."""
         try:
-            self._temporary_directory = tempfile.TemporaryDirectory(prefix="sd_runner_converted_")
+            self._temporary_directory = tempfile.TemporaryDirectory(prefix="teikr_converted_")
             logger.debug(f"Created temporary directory: {self._temporary_directory.name}")
         except Exception as e:
             logger.error(f"Failed to create temporary directory: {e}")

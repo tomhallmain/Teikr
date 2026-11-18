@@ -10,7 +10,7 @@ the process ended there.
 
 The file is plaintext: faulthandler writes straight to the file descriptor.
 It holds stack frames (files, functions, lines), not log messages. Its name
-stays outside the ``sd_runner_*.log`` pattern the log cleanup deletes by.
+stays outside the ``teikr_*.log`` pattern the log cleanup deletes by.
 """
 
 import faulthandler

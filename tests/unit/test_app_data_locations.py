@@ -16,7 +16,7 @@ import os
 import pytest
 
 import teikr.prompts.blacklist as blacklist_mod
-from lib.logging_setup import EncryptedFileHandler, adopt_legacy_file, app_data_dir
+from lib.logging_setup import LOGGER_NAMESPACE, EncryptedFileHandler, adopt_legacy_file, app_data_dir
 from teikr.config import Config
 
 CACHE_NAME = "blacklist_filter_cache.pkl"
@@ -58,7 +58,7 @@ def test_log_files_are_written_inside_the_test_run():
     handlers = [
         handler
         for name, logger in logging.Logger.manager.loggerDict.items()
-        if name.startswith("sd_runner") and isinstance(logger, logging.Logger)
+        if name.startswith(LOGGER_NAMESPACE + ".") and isinstance(logger, logging.Logger)
         for handler in logger.handlers
         if isinstance(handler, (logging.FileHandler, EncryptedFileHandler))
         # Pytest attaches its own capture handlers, including one on the null device.

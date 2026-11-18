@@ -119,7 +119,7 @@ def resource_descriptors() -> list:
     return [
         {
             "name": "current_workflow",
-            "uri": "sdrunner://workflow/current",
+            "uri": "teikr://workflow/current",
             "description": (
                 "What the app is currently set to generate: the workflow, "
                 "model tags, resolutions and counts a run would use if one "
@@ -128,7 +128,7 @@ def resource_descriptors() -> list:
         },
         {
             "name": "preset_names",
-            "uri": "sdrunner://presets/names",
+            "uri": "teikr://presets/names",
             "description": (
                 "The saved preset names. A preset is addressable by name in a "
                 "generate request's edit_suffix, so this is how a client "
@@ -137,7 +137,7 @@ def resource_descriptors() -> list:
         },
         {
             "name": "run_history",
-            "uri": "sdrunner://runs/history",
+            "uri": "teikr://runs/history",
             "description": (
                 "The most recent runs, newest first: what was generated, with "
                 "what model and prompt. Capped, because the entries are "

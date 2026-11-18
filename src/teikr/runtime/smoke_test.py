@@ -118,7 +118,7 @@ class SmokeTest:
             return f"{len(words)} colors from {Concepts.CONCEPTS_DIR}"
 
         def symmetric_round_trip():
-            path = os.path.join(tempfile.mkdtemp(prefix="sd_runner_smoke_"), "round_trip.enc")
+            path = os.path.join(tempfile.mkdtemp(prefix="teikr_smoke_"), "round_trip.enc")
             symmetric_encrypt_data_to_file(b"smoke test", path, b"smoke test passphrase")
             if symmetric_decrypt_data_from_file(path, b"smoke test passphrase") != b"smoke test":
                 raise ValueError("decrypted data differs")

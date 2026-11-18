@@ -9,8 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from lib.custom_formatter import CustomFormatter
-import lib.encryptor as encryptor
-from lib.encryptor import encrypt_log_record, get_log_cipher_key, namespaced_key, peek_passphrase
+from lib.encryptor import encrypt_log_record, get_log_cipher_key
 
 #: The keyring identity the log key is derived under; a reader of the log
 #: files must use the same two strings. The app's service name with a suffix:
@@ -19,11 +18,14 @@ from lib.encryptor import encrypt_log_record, get_log_cipher_key, namespaced_key
 #: without also answering every passphrase lookup for the app's encrypted cache.
 LOG_ENCRYPTION_SERVICE = "MyPersonalApplicationsServiceLogs"
 LOG_ENCRYPTION_APP_ID = "teikr"
-#: Identities the log key was filed under before, newest first. Never remove
-#: an entry: the passphrase under one can be the only way to read the logs
-#: written with it.
-LEGACY_LOG_ENCRYPTION_APP_IDS = ("sd_runner",)
 LOG_FILE_SUFFIX = ".log.enc"
+#: Log files are named ``<stem>_<YYYY-MM-DD><suffix>``.
+LOG_FILE_STEM = "teikr"
+#: Stems of earlier versions' log files. Only the old-log cleanup matches
+#: them, so those files are removed by the same rule as current ones.
+LEGACY_LOG_FILE_STEMS = ("sd_runner",)
+#: Parent of every logger get_logger creates.
+LOGGER_NAMESPACE = "teikr"
 #: The app data folder, under %APPDATA% on Windows and ~/.local/share elsewhere.
 APP_DATA_FOLDER = "teikr"
 #: Names the app data folder had before, newest first. The first time the
@@ -114,18 +116,20 @@ _log_level: int = logging.INFO
 #: The app data folder this process uses, once resolved.
 _app_data_root: Optional[Path] = None
 _app_data_lock = threading.Lock()
-#: (level, message) pairs from moving the app data folder and the log key.
-#: Both run before any logger has a file, so they are logged by the first
-#: logger that gets one.
+#: (level, message) pairs from moving the app data folder. The move runs
+#: before any logger has a file, so they are logged by the first logger that
+#: gets one.
 _app_data_notices: list = []
-#: The identity log_key_identifier resolved for this process.
-_log_key_id: Optional[str] = None
+
+
+def _is_app_logger(name: str) -> bool:
+    return name == LOGGER_NAMESPACE or name.startswith(LOGGER_NAMESPACE + '.')
 
 
 def _log_file_path(encrypted: bool) -> Path:
     date_str: str = datetime.now().strftime("%Y-%m-%d")
     suffix: str = LOG_FILE_SUFFIX if encrypted else PLAINTEXT_LOG_FILE_SUFFIX
-    return app_data_dir('logs') / f'sd_runner_{date_str}{suffix}'
+    return app_data_dir('logs') / f'{LOG_FILE_STEM}_{date_str}{suffix}'
 
 
 def _get_file_handler(log_file: Path) -> Optional[logging.Handler]:
@@ -139,7 +143,7 @@ def _get_file_handler(log_file: Path) -> Optional[logging.Handler]:
     if _shared_file_handler is None:
         if _encrypt_log_file:
             try:
-                handler = EncryptedFileHandler(log_file, LOG_ENCRYPTION_SERVICE, log_key_identifier())
+                handler = EncryptedFileHandler(log_file, LOG_ENCRYPTION_SERVICE, LOG_ENCRYPTION_APP_ID)
             except Exception as e:
                 print(f"Log file disabled: could not derive the log encryption key: {e}", file=sys.stderr)
                 _shared_file_handler = False
@@ -150,54 +154,6 @@ def _get_file_handler(log_file: Path) -> Optional[logging.Handler]:
         handler.setFormatter(CustomFormatter())
         _shared_file_handler = handler
     return _shared_file_handler or None
-
-
-def log_key_identifier() -> str:
-    """The identity the log key is derived under in this process.
-
-    The key comes from the passphrase alone; the identity only names its
-    keyring item. So when LOG_ENCRYPTION_APP_ID has no passphrase and a legacy
-    identity has one, it is copied over, and the one key then reads the logs
-    of either identity. The legacy item stays. If the copy fails, the legacy
-    identity is used for this process.
-    """
-    global _log_key_id
-    if _log_key_id is None:
-        _log_key_id = _resolve_log_key_identifier()
-    return _log_key_id
-
-
-def _resolve_log_key_identifier() -> str:
-    service, current = LOG_ENCRYPTION_SERVICE, LOG_ENCRYPTION_APP_ID
-    # A passphrase from the environment answers for every identity.
-    if f"{service.upper()}_PASSPHRASE" in os.environ or peek_passphrase(service, current):
-        return current
-    for legacy in LEGACY_LOG_ENCRYPTION_APP_IDS:
-        passphrase = peek_passphrase(service, legacy)
-        if not passphrase:
-            continue
-        item = namespaced_key(current, "passphrase")
-        written = False
-        try:
-            encryptor.keyring.set_password(service, item, passphrase)
-            written = True
-            if encryptor.keyring.get_password(service, item) != passphrase:
-                raise RuntimeError("the copy did not read back as written")
-        except Exception as e:
-            if written:
-                try:
-                    encryptor.keyring.delete_password(service, item)
-                except Exception:
-                    pass
-            _app_data_notices.append((logging.WARNING,
-                f"Could not copy the log key passphrase from '{legacy}' to '{current}'; "
-                f"logs are written under '{legacy}' until a later start succeeds: {e}"))
-            return legacy
-        _app_data_notices.append((logging.INFO,
-            f"Copied the log key passphrase from '{legacy}' to '{current}'. The one under "
-            f"'{legacy}' was left in place; remove it only once every reader uses '{current}'."))
-        return current
-    return current
 
 
 def set_log_file_encryption(enabled: bool) -> None:
@@ -217,7 +173,7 @@ def set_log_file_encryption(enabled: bool) -> None:
         new.setLevel(old.level)
 
     for name in list(logging.Logger.manager.loggerDict):
-        if not name.startswith('sd_runner.'):
+        if not _is_app_logger(name):
             continue
         logger = logging.getLogger(name)
         # Loggers get_logger never set up (placeholders, stray children) have
@@ -236,7 +192,7 @@ def set_log_file_encryption(enabled: bool) -> None:
 
 
 def _log_file_date(log_file: Path) -> datetime:
-    """The date in ``sd_runner_YYYY-MM-DD.log[.enc]``, or the file's mtime."""
+    """The date in ``<stem>_YYYY-MM-DD.log[.enc]``, or the file's mtime."""
     try:
         return datetime.strptime(log_file.name.split('.')[0].split('_')[-1], '%Y-%m-%d')
     except (ValueError, IndexError):
@@ -255,9 +211,12 @@ def _cleanup_old_logs(log_dir: Path, logger: logging.Logger) -> None:
         logger: Logger instance to use for logging cleanup operations
     """
     try:
-        log_files: List[Path] = (
-            list(log_dir.glob('sd_runner_*.log')) + list(log_dir.glob(f'sd_runner_*{LOG_FILE_SUFFIX}'))
-        )
+        log_files: List[Path] = [
+            log_file
+            for stem in (LOG_FILE_STEM, *LEGACY_LOG_FILE_STEMS)
+            for pattern in (f'{stem}_*{PLAINTEXT_LOG_FILE_SUFFIX}', f'{stem}_*{LOG_FILE_SUFFIX}')
+            for log_file in log_dir.glob(pattern)
+        ]
         if len(log_files) <= 10:
             return
 
@@ -529,7 +488,7 @@ def get_logger(module_name: str) -> logging.Logger:
         A configured logger instance for the module
     """
     # Create logger with module name
-    logger: logging.Logger = logging.getLogger(f"sd_runner.{module_name}")
+    logger: logging.Logger = logging.getLogger(f"{LOGGER_NAMESPACE}.{module_name}")
     logger.setLevel(_log_level)
     logger.propagate = False
 
@@ -558,15 +517,14 @@ def get_logger(module_name: str) -> logging.Logger:
 def set_logger_level(debug: bool) -> None:
     """
     Set the logger level to DEBUG if debug is True, otherwise set it to INFO.
-    This updates all existing loggers in the sd_runner hierarchy and their handlers.
+    This updates all existing loggers under LOGGER_NAMESPACE and their handlers.
     """
     global _log_level
     level = logging.DEBUG if debug else logging.INFO
     _log_level = level
 
-    # Update all existing loggers in the sd_runner hierarchy
     for logger_name in logging.Logger.manager.loggerDict:
-        if logger_name.startswith('sd_runner'):
+        if _is_app_logger(logger_name):
             logger = logging.getLogger(logger_name)
             logger.setLevel(level)
             # Also update all handlers for this logger

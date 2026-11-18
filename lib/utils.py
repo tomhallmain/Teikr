@@ -21,7 +21,7 @@ DARK_GREEN = "\033[92m"
 CYAN = "\033[34m"
 
 # create logger
-logger = get_logger("sd_runner")
+logger = get_logger("utils")
 
 #: creationflags for a console program started from a windowed process: on
 #: Windows each one would otherwise flash a console window. 0 elsewhere.

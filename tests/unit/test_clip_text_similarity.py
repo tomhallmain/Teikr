@@ -17,9 +17,9 @@ from teikr.prompts.blacklist import Blacklist, SimilarityPhrase
 # Integration-test skip helpers
 #
 # Set these env vars to opt-in to backend integration tests:
-#   SD_RUNNER_TEST_CLIP_ONNX_MODEL  — absolute path to a CLIP text encoder
+#   TEIKR_TEST_CLIP_ONNX_MODEL  — absolute path to a CLIP text encoder
 #                                     exported as .onnx
-#   SD_RUNNER_TEST_CLIP_TORCH_MODEL — CLIP model name or path accepted by
+#   TEIKR_TEST_CLIP_TORCH_MODEL — CLIP model name or path accepted by
 #                                     clip.load(), e.g. "ViT-B/32"
 # ---------------------------------------------------------------------------
 
@@ -31,8 +31,8 @@ def _importable(name: str) -> bool:
         return False
 
 
-_ONNX_MODEL_ENV = "SD_RUNNER_TEST_CLIP_ONNX_MODEL"
-_TORCH_MODEL_ENV = "SD_RUNNER_TEST_CLIP_TORCH_MODEL"
+_ONNX_MODEL_ENV = "TEIKR_TEST_CLIP_ONNX_MODEL"
+_TORCH_MODEL_ENV = "TEIKR_TEST_CLIP_TORCH_MODEL"
 
 
 def _onnx_model_path() -> str:
@@ -358,7 +358,7 @@ class TestBlacklistSimilarity:
 
 @_skip_onnx
 class TestOnnxClipBackendIntegration:
-    """Requires onnxruntime, a tokenizer, and SD_RUNNER_TEST_CLIP_ONNX_MODEL."""
+    """Requires onnxruntime, a tokenizer, and TEIKR_TEST_CLIP_ONNX_MODEL."""
 
     def _backend(self):
         from teikr.prompts.clip_text_similarity import OnnxClipBackend
@@ -419,7 +419,7 @@ class TestOnnxClipBackendIntegration:
 
 @_skip_torch
 class TestTorchClipBackendIntegration:
-    """Requires clip, torch, and SD_RUNNER_TEST_CLIP_TORCH_MODEL."""
+    """Requires clip, torch, and TEIKR_TEST_CLIP_TORCH_MODEL."""
 
     def _backend(self):
         from teikr.prompts.clip_text_similarity import TorchClipBackend

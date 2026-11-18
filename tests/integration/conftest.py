@@ -11,10 +11,10 @@ import tempfile
 import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-os.environ.setdefault("MYPERSONALAPPLICATIONSSERVICELOGS_PASSPHRASE", "sd-runner-test-log-passphrase")
+os.environ.setdefault("MYPERSONALAPPLICATIONSSERVICELOGS_PASSPHRASE", "teikr-test-log-passphrase")
 
 if not os.environ.get("TEIKR_CONFIGS_DIR") or not os.environ.get("TEIKR_CACHE_DIR"):
-    _fb_tmp = tempfile.mkdtemp(prefix="sd_runner_integ_fb_")
+    _fb_tmp = tempfile.mkdtemp(prefix="teikr_integ_fb_")
     if not os.environ.get("TEIKR_CONFIGS_DIR"):
         _fb_configs = os.path.join(_fb_tmp, "configs")
         from tests.valid_config import write_valid_config
@@ -27,7 +27,7 @@ if not os.environ.get("TEIKR_CONFIGS_DIR") or not os.environ.get("TEIKR_CACHE_DI
     atexit.register(shutil.rmtree, _fb_tmp, True)
 
 if not os.environ.get("TEIKR_APP_DATA_DIR"):
-    _fb_app_data = tempfile.mkdtemp(prefix="sd_runner_integ_fb_app_data_")
+    _fb_app_data = tempfile.mkdtemp(prefix="teikr_integ_fb_app_data_")
     os.environ["TEIKR_APP_DATA_DIR"] = _fb_app_data
     atexit.register(shutil.rmtree, _fb_app_data, True)
 

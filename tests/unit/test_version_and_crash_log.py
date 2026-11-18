@@ -5,6 +5,7 @@ import os
 
 import pytest
 
+from lib.logging_setup import LEGACY_LOG_FILE_STEMS, LOG_FILE_STEM
 import teikr.app_paths as app_paths
 from teikr.runtime import crash_log, version
 from teikr.runtime.smoke_test import SmokeTest
@@ -109,7 +110,8 @@ class TestFaultLog:
             crash_log._fault_log.close()
 
     def test_the_name_is_outside_the_log_cleanup_pattern(self):
-        assert not crash_log.FAULT_LOG_NAME.startswith("sd_runner_")
+        for stem in (LOG_FILE_STEM, *LEGACY_LOG_FILE_STEMS):
+            assert not crash_log.FAULT_LOG_NAME.startswith(stem + "_")
 
 
 class TestSmokeTestBookkeeping:
