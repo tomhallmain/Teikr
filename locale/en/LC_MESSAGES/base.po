@@ -1112,6 +1112,10 @@ msgstr "Print Settings on Start"
 msgid "Max Executor Threads"
 msgstr "Max Executor Threads"
 
+#: src/teikr/ui/config_window.py:206
+msgid "Pause Queue After Failures in a Row (0 = never)"
+msgstr "Pause Queue After Failures in a Row (0 = never)"
+
 #: src/teikr/ui/config_window.py:208
 msgid "Server"
 msgstr "Server"

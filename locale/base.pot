@@ -1119,6 +1119,10 @@ msgstr ""
 msgid "Max Executor Threads"
 msgstr ""
 
+#: src/teikr/ui/config_window.py:206
+msgid "Pause Queue After Failures in a Row (0 = never)"
+msgstr ""
+
 #: src/teikr/ui/config_window.py:208
 msgid "Server"
 msgstr ""

@@ -203,6 +203,10 @@ class ConfigWindow(SmartDialog):
         self._le_max_threads = self._add_entry(
             _("Max Executor Threads"), str(config.max_executor_threads),
         )
+        self._le_queue_pause_after_failures = self._add_entry(
+            _("Pause Queue After Failures in a Row (0 = never)"),
+            str(config.queue_pause_after_failures),
+        )
 
         # ── Server ────────────────────────────────────────────────────
         self._add_section(_("Server"))
@@ -331,6 +335,7 @@ class ConfigWindow(SmartDialog):
             ("_le_ui_scale_factor",       "ui_scale_factor"),
             ("_le_locale",                "locale"),
             ("_le_max_threads",           "max_executor_threads"),
+            ("_le_queue_pause_after_failures", "queue_pause_after_failures"),
             ("_le_server_host",           "server_host"),
             ("_le_server_port",           "server_port"),
             ("_le_server_password",       "server_password"),

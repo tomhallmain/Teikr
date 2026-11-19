@@ -25,7 +25,7 @@ import traceback
 import uuid
 
 from teikr.models.model import NoModelsFound
-from teikr.runs.failure_streak import PAUSE_AFTER_FAILURES, failure_streak
+from teikr.runs.failure_streak import failure_streak
 from lib.logging_setup import get_logger
 from lib.translations import _
 from lib.utils import Utils
@@ -379,16 +379,19 @@ class RunController:
             app.app_actions.clear_progress()
 
     def _pause_if_failing(self) -> None:
-        """Pause the queue after ``PAUSE_AFTER_FAILURES`` failed generations in a row.
+        """Pause the queue after ``config.queue_pause_after_failures`` failed
+        generations in a row; never when that is 0 or less.
 
         GUI thread only, called from ``_post_run`` before it takes the next job.
         Without it a backend that refuses every request consumes the whole
         queue and staging, one failed run after another. Nothing is dropped:
         the runs stay queued until the user resumes, which resets the count.
         """
+        from teikr.config import config
         app = self._app
+        limit = config.queue_pause_after_failures
         count, last_error = failure_streak.snapshot()
-        if count < PAUSE_AFTER_FAILURES or app.job_queue.paused:
+        if limit <= 0 or count < limit or app.job_queue.paused:
             return
         staging = getattr(app, "server_staging_queue", None)
         waiting = len(app.job_queue.pending_jobs) + (staging.pending_count() if staging is not None else 0)
