@@ -415,7 +415,7 @@ class RunController:
         self._on_main(self._app.notification_ctrl.alert, _("Queue Paused"), message, kind="error")
 
     def _run_async(self, run_args) -> None:
-        from teikr.runs.run import Run
+        from teikr.runs.run import MissingImageError, Run
         from teikr.presets.timed_schedules_manager import ScheduledShutdownException
         from teikr.runs.virtual_run_config import apply_prompt_globals
 
@@ -460,6 +460,12 @@ class RunController:
             # not put this run back in the queue.
             app.current_run.cancel("Scheduled shutdown")
             self._handle_scheduled_shutdown(e)
+        except MissingImageError as e:
+            # Only this run has nothing to work on; the next may well be fine.
+            # No alert and no failure in a row: either would hold up a queue
+            # that is otherwise working. The log is where it is reported.
+            logger.error(_("Skipped run {0}: {1}").format(app.current_run.id, e))
+            app.current_run.cancel("Missing image")
         except Exception as e:
             traceback.print_exc()
             # A run that fails before dispatching anything is a failure in a

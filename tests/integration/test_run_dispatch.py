@@ -37,7 +37,8 @@ import time as time_module
 import pytest
 from unittest.mock import MagicMock
 
-from teikr.runs.run import Run
+from teikr.runs.failure_streak import failure_streak
+from teikr.runs.run import MissingImageError, Run
 from teikr.models.model import Model
 from teikr.models.resolution import Resolution
 from teikr.runs.run_config import RunConfig
@@ -338,6 +339,22 @@ class TestWorkerThreadDialogs:
 
         app_window.run_ctrl.run()
 
+        assert app_window.job_queue.job_running is False
+
+    def test_a_missing_image_is_skipped_without_an_alert(
+        self, app_window, run_stubs, alerts, monkeypatch
+    ):
+        """One run's missing image must not hold up the rest of the queue."""
+        def missing(self):
+            raise MissingImageError("no such file")
+
+        monkeypatch.setattr(Run, "execute", missing)
+        app_window.sidebar_panel.run_preset_schedule_check.setChecked(False)
+
+        app_window.run_ctrl.run()
+
+        assert alerts == []
+        assert failure_streak.snapshot()[0] == 0
         assert app_window.job_queue.job_running is False
 
     def test_a_preset_lookup_failure_reports_through_the_bridge(

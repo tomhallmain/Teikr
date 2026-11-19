@@ -4610,3 +4610,19 @@ msgstr "No matching queue entries"
 #: src/teikr/ui/runs/runs_window.py:337
 msgid "Removed {0} pending job(s) and {1} staged request(s)"
 msgstr "Removed {0} pending job(s) and {1} staged request(s)"
+
+#: src/teikr/runs/run.py
+msgid "Image not found, not used: {0}"
+msgstr "Image not found, not used: {0}"
+
+#: src/teikr/runs/run.py
+msgid "{0} ({1} characters, over the Windows limit of {2})"
+msgstr "{0} ({1} characters, over the Windows limit of {2})"
+
+#: src/teikr/runs/run.py
+msgid "Workflow '{0}' needs an image, but none of these files exists: {1}"
+msgstr "Workflow '{0}' needs an image, but none of these files exists: {1}"
+
+#: src/teikr/runs/run_controller.py
+msgid "Skipped run {0}: {1}"
+msgstr "Skipped run {0}: {1}"

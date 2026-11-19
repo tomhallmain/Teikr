@@ -1,5 +1,6 @@
 import datetime
 from copy import deepcopy
+import sys
 import time
 from typing import Optional
 
@@ -20,12 +21,21 @@ from teikr.presets.timed_schedules_manager import timed_schedules_manager, Sched
 from teikr.workflow_prompts.base import WorkflowPrompt
 from teikr.config import config
 from lib.logging_setup import get_logger
+from lib.translations import _
 from lib.utils import Utils
 
 logger = get_logger("runs.run")
 
 prompt_list = [
 ]
+
+
+class MissingImageError(Exception):
+    """A run's workflow needs an image and none of the files it names exists.
+
+    A fault of that one run, not of the backend: the queue skips it and goes on
+    rather than counting it towards a pause.
+    """
 
 
 class Run:
@@ -366,6 +376,35 @@ class Run:
                 Prompter.set_negative_tags(prior_negative_tags)
                 Prompter.set_tags_apply_to_start(prior_tags_apply_to_start)
 
+    #: Windows' MAX_PATH, counting the terminating null. A longer path is not
+    #: found unless long path support is enabled for the process.
+    WINDOWS_MAX_PATH = 260
+
+    @staticmethod
+    def describe_image_path(path) -> str:
+        """*path* for a message, with its length when Windows may not open it."""
+        text = str(path)
+        if sys.platform == "win32" and len(text) >= Run.WINDOWS_MAX_PATH:
+            return _("{0} ({1} characters, over the Windows limit of {2})").format(
+                text, len(text), Run.WINDOWS_MAX_PATH - 1)
+        return text
+
+    @staticmethod
+    def require_existing_images(workflow_type, items: list, required_workflows, is_dir: bool) -> None:
+        """Refuse a run whose workflow needs an image when none of *items* exists.
+
+        Only for paths given by hand: a directory's files come from a glob. The
+        run would otherwise reach the backend with the image left blank.
+        """
+        if is_dir or workflow_type not in required_workflows:
+            return
+        given = [item for item in items if item is not None and getattr(item, "id", None)]
+        if not given or any(item.is_valid() for item in given):
+            return
+        paths = ", ".join(Run.describe_image_path(item.id) for item in given)
+        raise MissingImageError(_("Workflow '{0}' needs an image, but none of these files exists: {1}").format(
+            workflow_type.get_translation(), paths))
+
     @staticmethod
     def _group_for_iteration(items: list, should_iterate: bool, is_valid, skip_validation: bool = False) -> list[list]:
         """Group adapters into the units a single generation consumes.
@@ -381,7 +420,16 @@ class Run:
             if should_iterate:
                 return [[items[i]] for i in range(len(items))]
             return [items]
-        valid_items = [item for item in items if is_valid(item)]
+        valid_items = []
+        for item in items:
+            if is_valid(item):
+                valid_items.append(item)
+            else:
+                # Dropped here, the workflow later finds no image and sends
+                # its LoadImage node empty, which ComfyUI resolves to its whole
+                # input folder. Say which path it was while it is still known.
+                logger.warning(_("Image not found, not used: {0}").format(
+                    Run.describe_image_path(getattr(item, "id", item))))
         if should_iterate:
             return [[item] for item in valid_items]
         return [valid_items]
@@ -439,6 +487,11 @@ class Run:
 
         control_nets, is_dir_controlnet = get_control_nets(Utils.split(self.args.control_nets, ",") if self.args.control_nets and self.args.control_nets != "" else None, app_actions=self.ui_callbacks)
         ip_adapters, is_dir_ipadapter = get_ip_adapters(Utils.split(self.args.ip_adapters, ",") if self.args.ip_adapters and self.args.ip_adapters != "" else None, app_actions=self.ui_callbacks)
+        workflow_type = self.args._get_workflow_type()
+        Run.require_existing_images(workflow_type, ip_adapters,
+                                    RunConfig.IP_ADAPTER_REQUIRED_WORKFLOWS, is_dir_ipadapter)
+        Run.require_existing_images(workflow_type, control_nets,
+                                    RunConfig.CONTROL_NET_REQUIRED_WORKFLOWS, is_dir_controlnet)
         source_prompt_files = Utils.split(self.args.source_prompts, ",") if self.args.source_prompts and self.args.source_prompts != "" else None
         source_prompts, is_dir_source_prompt = get_source_prompts(source_prompt_files, app_actions=self.ui_callbacks)
 
