@@ -25,7 +25,7 @@ import traceback
 import uuid
 
 from teikr.models.model import NoModelsFound
-from teikr.runs.failure_streak import PAUSE_AFTER_FAILURES, failure_streak
+from teikr.runs.failure_streak import failure_streak
 from lib.logging_setup import get_logger
 from lib.translations import _
 from lib.utils import Utils
@@ -379,16 +379,19 @@ class RunController:
             app.app_actions.clear_progress()
 
     def _pause_if_failing(self) -> None:
-        """Pause the queue after ``PAUSE_AFTER_FAILURES`` failed generations in a row.
+        """Pause the queue after ``config.queue_pause_after_failures`` failed
+        generations in a row; never when that is 0 or less.
 
         GUI thread only, called from ``_post_run`` before it takes the next job.
         Without it a backend that refuses every request consumes the whole
         queue and staging, one failed run after another. Nothing is dropped:
         the runs stay queued until the user resumes, which resets the count.
         """
+        from teikr.config import config
         app = self._app
+        limit = config.queue_pause_after_failures
         count, last_error = failure_streak.snapshot()
-        if count < PAUSE_AFTER_FAILURES or app.job_queue.paused:
+        if limit <= 0 or count < limit or app.job_queue.paused:
             return
         staging = getattr(app, "server_staging_queue", None)
         waiting = len(app.job_queue.pending_jobs) + (staging.pending_count() if staging is not None else 0)
@@ -412,7 +415,7 @@ class RunController:
         self._on_main(self._app.notification_ctrl.alert, _("Queue Paused"), message, kind="error")
 
     def _run_async(self, run_args) -> None:
-        from teikr.runs.run import Run
+        from teikr.runs.run import MissingImageError, Run
         from teikr.presets.timed_schedules_manager import ScheduledShutdownException
         from teikr.runs.virtual_run_config import apply_prompt_globals
 
@@ -457,6 +460,12 @@ class RunController:
             # not put this run back in the queue.
             app.current_run.cancel("Scheduled shutdown")
             self._handle_scheduled_shutdown(e)
+        except MissingImageError as e:
+            # Only this run has nothing to work on; the next may well be fine.
+            # No alert and no failure in a row: either would hold up a queue
+            # that is otherwise working. The log is where it is reported.
+            logger.error(_("Skipped run {0}: {1}").format(app.current_run.id, e))
+            app.current_run.cancel("Missing image")
         except Exception as e:
             traceback.print_exc()
             # A run that fails before dispatching anything is a failure in a

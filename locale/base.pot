@@ -1119,6 +1119,10 @@ msgstr ""
 msgid "Max Executor Threads"
 msgstr ""
 
+#: src/teikr/ui/config_window.py:206
+msgid "Pause Queue After Failures in a Row (0 = never)"
+msgstr ""
+
 #: src/teikr/ui/config_window.py:208
 msgid "Server"
 msgstr ""
@@ -4230,3 +4234,18 @@ msgstr ""
 msgid "Not loaded"
 msgstr ""
 
+#: src/teikr/runs/run.py
+msgid "Image not found, not used: {0}"
+msgstr ""
+
+#: src/teikr/runs/run.py
+msgid "{0} ({1} characters, over the Windows limit of {2})"
+msgstr ""
+
+#: src/teikr/runs/run.py
+msgid "Workflow '{0}' needs an image, but none of these files exists: {1}"
+msgstr ""
+
+#: src/teikr/runs/run_controller.py
+msgid "Skipped run {0}: {1}"
+msgstr ""

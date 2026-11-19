@@ -237,6 +237,23 @@ class RunConfig:
         except Exception:
             return None
 
+    #: Workflows that cannot run without an IP adapter image. Checked here for
+    #: being named at all, and by ``Run.execute`` for naming a file that exists.
+    IP_ADAPTER_REQUIRED_WORKFLOWS = (
+        WorkflowType.INSTANT_LORA,
+        WorkflowType.IP_ADAPTER,
+        WorkflowType.IMG2IMG,
+        WorkflowType.IMAGE_EDIT,
+    )
+    #: The same for a control net image.
+    CONTROL_NET_REQUIRED_WORKFLOWS = (
+        WorkflowType.INSTANT_LORA,
+        WorkflowType.CONTROLNET,
+        WorkflowType.INPAINT_CLIPSEG,
+        WorkflowType.RENOISER,
+        WorkflowType.REDO_PROMPT,
+    )
+
     def _is_ip_adapter_missing(self) -> bool:
         """Check if IP adapters are missing or empty."""
         return not self.ip_adapters or self.ip_adapters.strip() == ""
@@ -251,29 +268,12 @@ class RunConfig:
         if not workflow_type:
             return
 
-        # Workflows that require IP adapters
-        ip_adapter_required_workflows = [
-            WorkflowType.INSTANT_LORA,
-            WorkflowType.IP_ADAPTER,
-            WorkflowType.IMG2IMG,
-            WorkflowType.IMAGE_EDIT,
-        ]
-
-        # Workflows that require control nets
-        control_net_required_workflows = [
-            WorkflowType.INSTANT_LORA,
-            WorkflowType.CONTROLNET,
-            WorkflowType.INPAINT_CLIPSEG,
-            WorkflowType.RENOISER,
-            WorkflowType.REDO_PROMPT
-        ]
-
         # Validate IP adapter requirements
-        if workflow_type in ip_adapter_required_workflows and self._is_ip_adapter_missing():
+        if workflow_type in self.IP_ADAPTER_REQUIRED_WORKFLOWS and self._is_ip_adapter_missing():
             raise Exception(_("Workflow '{0}' requires an IP adapter to be specified.").format(workflow_type.get_translation()))
 
         # Validate control net requirements
-        if workflow_type in control_net_required_workflows and self._is_control_net_missing():
+        if workflow_type in self.CONTROL_NET_REQUIRED_WORKFLOWS and self._is_control_net_missing():
             raise Exception(_("Workflow '{0}' requires a control net to be specified.").format(workflow_type.get_translation()))
         
         # Validate renoiser workflow with multiple resolutions

@@ -305,3 +305,39 @@ class TestLoggingSettings:
         with patch.object(_cfg_module, "set_logger_level") as set_level:
             Config()
         set_level.assert_called_once_with(True)
+
+
+# ---------------------------------------------------------------------------
+# Server settings read from config.json
+# ---------------------------------------------------------------------------
+
+class TestServerSettingsOnLoad:
+    """These were in DIALOG_FIELDS but never read on load, so a value in
+    config.json was ignored until the Config dialog saved it again."""
+
+    @pytest.fixture
+    def load(self, tmp_path):
+        config_path = tmp_path / "configs" / "config.json"
+
+        def load(**values):
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            data.update(values)
+            config_path.write_text(json.dumps(data), encoding="utf-8")
+            return Config()
+
+        return load
+
+    def test_host_and_run_ceiling_come_from_config_json(self, load):
+        c = load(server_host="0.0.0.0", server_run_max_seconds=120,
+                 queue_pause_after_failures=5)
+        assert c.server_host == "0.0.0.0"
+        assert c.server_run_max_seconds == 120
+        assert c.queue_pause_after_failures == 5
+
+    def test_port_comes_from_config_json_without_the_override(self, load, monkeypatch):
+        monkeypatch.delenv("TEIKR_SERVER_PORT")
+        assert load(server_port=6123).server_port == 6123
+
+    def test_the_port_override_wins_over_config_json(self, load):
+        # isolated_singletons sets TEIKR_SERVER_PORT=0.
+        assert load(server_port=6123).server_port == 0

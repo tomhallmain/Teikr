@@ -4,7 +4,8 @@ A generation runs on a pool worker, and its failure is logged there and goes no
 further: the run still counts as finished, and the next queued or staged
 request starts. With the backend down, every request fails within seconds and
 the whole queue is consumed that way. ``RunController._post_run`` reads this
-count and pauses the queue once it reaches ``PAUSE_AFTER_FAILURES``.
+count and pauses the queue once it reaches ``config.queue_pause_after_failures``
+(``DEFAULT_PAUSE_AFTER_FAILURES`` unless the user sets it; 0 never pauses).
 
 Process-wide rather than per run or generator, because what fails is usually
 the backend, which outlives both. Any success resets it, so does resuming the
@@ -14,8 +15,9 @@ queue.
 import threading
 from typing import Optional
 
-#: Consecutive failures at which the queue is paused.
-PAUSE_AFTER_FAILURES = 3
+#: Consecutive failures at which the queue is paused, when config.json does
+#: not set ``queue_pause_after_failures``.
+DEFAULT_PAUSE_AFTER_FAILURES = 3
 
 
 class FailureStreak:

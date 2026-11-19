@@ -151,6 +151,7 @@
 
     "ui_scale_factor": 1.0,
     "max_executor_threads": 4,
+    "queue_pause_after_failures": 3,
 
     "interrogator_initial_question_categories": {
         "category1": true,

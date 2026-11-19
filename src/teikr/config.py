@@ -9,6 +9,7 @@ from lib.logging_setup import (
 )
 from lib.translations import _
 from teikr.app_paths import IS_BUILD, REPO_ROOT, concepts_dir, resolve_user_path, resource_path
+from teikr.runs.failure_streak import DEFAULT_PAUSE_AFTER_FAILURES
 
 logger = get_logger("config")
 
@@ -84,6 +85,7 @@ class Config:
         "encrypt_log_file":                 bool,
         "print_settings":                   bool,
         "max_executor_threads":             int,
+        "queue_pause_after_failures":       int,
         # Server
         "server_host":                      str,
         "server_port":                      int,
@@ -275,6 +277,11 @@ class Config:
 
         self.ui_scale_factor = 1.0
         self.max_executor_threads = 4
+        # Failed generations in a row after which the queue is paused, so that
+        # a backend refusing every request does not consume the whole queue.
+        # A slow or busy machine can fail a few in a row and then recover, so
+        # this is the user's to raise. 0 or less never pauses.
+        self.queue_pause_after_failures = DEFAULT_PAUSE_AFTER_FAILURES
 
         # Backends Teikr should start for you, as {SoftwareType name: command}.
         # Each runs as its own OS process from the matching *_loc directory, so
@@ -341,11 +348,18 @@ class Config:
 
         self.set_values(int,
                         "max_executor_threads",
+                        "queue_pause_after_failures",
                         "cache_store_interval_seconds",
                         "backend_startup_timeout",
                         "blacklist_backup_retention_days",
+                        "server_port",
                         "mcp_server_port",
+                        "server_run_max_seconds",
         )
+        if _server_port_override:
+            # The environment wins over config.json, or a test run would bind
+            # the real app's port again.
+            self.server_port = int(_server_port_override)
         self.set_values(float,
                         "ui_scale_factor",
         )
@@ -374,6 +388,7 @@ class Config:
                         "swarmui_url",
                         "invokeai_url",
                         "fooocus_url",
+                        "server_host",
                         "server_password",
                         "mcp_server_host",
                         "mcp_server_token",
